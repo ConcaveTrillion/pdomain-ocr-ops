@@ -106,13 +106,17 @@ dev-local: ## [local-dev] Install pdomain-book-tools from ../pdomain-book-tools 
 	UV_LINK_MODE=copy uv pip install -e "$(PEER_BOOK_TOOLS)"
 	UV_LINK_MODE=copy uv pip install -e . --no-deps
 	UV_LINK_MODE=copy uv pip install --group dev
-	@touch .venv/.pdomain-dev-local
+	@touch .venv/.pdomain-local-mode
 	@echo "Local editable pdomain-book-tools is active in the venv."
 
 clean: ## Clean cache and temporary files (keeps venv and UV cache)
 	rm -rf dist .pytest_cache .ruff_cache .ci-ai.log htmlcov
 
 upgrade-deps: ## Upgrade dependencies and sync local environment
+	@if [ -f .venv/.pdomain-local-mode ] || [ -f .venv/.pdomain-dev-local ]; then \
+		echo "ERROR: leave local dependency mode before upgrade-deps"; \
+		exit 1; \
+	fi
 	@echo "Upgrading dependency lockfile..."
 	uv lock --upgrade
 	@echo "Syncing upgraded dependencies..."
