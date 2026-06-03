@@ -1,11 +1,17 @@
 name: ci
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 # Chore: review pinned action SHAs weekly. Update the version comment and the
 # full commit SHA together after checking the upstream release tag.
