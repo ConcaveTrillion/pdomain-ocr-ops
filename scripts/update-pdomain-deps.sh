@@ -22,6 +22,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 GIT_COMMON_DIR="$(git -C "$REPO_ROOT" rev-parse --path-format=absolute --git-common-dir)"
 CANONICAL_REPO_ROOT="$(dirname "$GIT_COMMON_DIR")"
 MARKER="$CANONICAL_REPO_ROOT/.venv/.pdomain-local-mode"
+PYTHON_BIN=(uv --directory "$CANONICAL_REPO_ROOT" run python)
 
 say() { echo "[update-pdomain-deps] $*"; }
 
@@ -65,7 +66,7 @@ for sibling in "${PY_SIBLINGS[@]}"; do
       | sed 's/href="//;s/"//' \
       | grep -oP "${pkg_norm}-[0-9][^/\"#]*" \
       | sed "s/${pkg_norm}-//" \
-      | python3 -c "
+      | "${PYTHON_BIN[@]}" -c "
 import sys, re
 vers = []
 for line in sys.stdin:
@@ -134,7 +135,7 @@ if [[ ${#NPM_SIBLINGS[@]} -gt 0 ]]; then
       }
 
       # dist-tags.latest from JSON.
-      latest=$(echo "$meta" | python3 -c "
+      latest=$(echo "$meta" | "${PYTHON_BIN[@]}" -c "
 import sys, json
 try:
   d = json.load(sys.stdin)
@@ -152,7 +153,7 @@ except Exception as e:
       say "   latest $pkg = $latest"
 
       # Read current version from frontend/package.json (strips leading ^ or ~).
-      current=$(python3 -c "
+      current=$("${PYTHON_BIN[@]}" -c "
 import sys, json
 with open('$FRONTEND_DIR/package.json') as f:
   d = json.load(f)
@@ -171,7 +172,7 @@ print(v.lstrip('^~'))
 
       say "   pinning $pkg: $current → ^$latest"
       # Update version in package.json (preserves ^ prefix convention).
-      python3 -c "
+      "${PYTHON_BIN[@]}" -c "
 import json, sys
 
 with open('$FRONTEND_DIR/package.json') as f:
