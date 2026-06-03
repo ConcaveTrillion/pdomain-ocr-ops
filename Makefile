@@ -17,6 +17,8 @@ else
 # ---------------------------------------------------------------------------
 PEER_BOOK_TOOLS_PATH := ../pdomain-book-tools
 PEER_BOOK_TOOLS := $(realpath $(PEER_BOOK_TOOLS_PATH))
+GIT_COMMON_DIR := $(shell git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+CANONICAL_REPO_ROOT := $(patsubst %/,%,$(dir $(GIT_COMMON_DIR)))
 
 define _require_peer_book_tools
 	@if [ -z "$(PEER_BOOK_TOOLS)" ]; then \
@@ -113,10 +115,16 @@ clean: ## Clean cache and temporary files (keeps venv and UV cache)
 	rm -rf dist .pytest_cache .ruff_cache .ci-ai.log htmlcov
 
 upgrade-deps: ## Upgrade dependencies and sync local environment
-	@if [ -f .venv/.pdomain-local-mode ] || [ -f .venv/.pdomain-dev-local ]; then \
-		echo "ERROR: leave local dependency mode before upgrade-deps"; \
-		exit 1; \
-	fi
+	@for marker in \
+		.venv/.pdomain-local-mode \
+		.venv/.pdomain-dev-local \
+		"$(CANONICAL_REPO_ROOT)/.venv/.pdomain-local-mode" \
+		"$(CANONICAL_REPO_ROOT)/.venv/.pdomain-dev-local"; do \
+		if [ -f "$$marker" ]; then \
+			echo "ERROR: leave local dependency mode before upgrade-deps ($$marker)"; \
+			exit 1; \
+		fi; \
+	done
 	@echo "Upgrading dependency lockfile..."
 	uv lock --upgrade
 	@echo "Syncing upgraded dependencies..."
