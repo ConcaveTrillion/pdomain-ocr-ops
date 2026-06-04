@@ -49,7 +49,7 @@ class LaunchTimeoutError(TimeoutError):
 class SiblingLaunchAdapter(Protocol):
     """Protocol for sibling app launcher implementations."""
 
-    async def launch(self, app: InstalledApp) -> LaunchResult:
+    async def launch(self, app: InstalledApp, *, windowed: bool = False) -> LaunchResult:
         """Spawn the sibling app if not running; return its URL."""
         ...
 
@@ -89,7 +89,7 @@ class LocalSpawnLauncher:
             if any(key == prefix or key.startswith(prefix) for prefix in _ENV_ALLOWLIST_PREFIXES)
         }
 
-    async def launch(self, app: InstalledApp) -> LaunchResult:
+    async def launch(self, app: InstalledApp, *, windowed: bool = False) -> LaunchResult:
         """Spawn sibling if not already running, poll until healthy."""
         url = f"http://localhost:{app.default_port}"
         healthz_url = f"{url}/healthz"
@@ -105,7 +105,7 @@ class LocalSpawnLauncher:
 
         # Spawn the process
         env = self._build_env()
-        cmd = build_launch_argv(app)
+        cmd = build_launch_argv(app, windowed=windowed)
         proc = subprocess.Popen(cmd, env=env, cwd=Path.home())
 
         # Poll until healthy or timeout
