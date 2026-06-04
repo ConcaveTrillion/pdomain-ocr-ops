@@ -58,6 +58,22 @@ class SiblingLaunchAdapter(Protocol):
 _ENV_ALLOWLIST_PREFIXES = ("PATH", "HOME", "USER", "PD_SUITE_", "PYTHONPATH")
 
 
+def build_launch_argv(app: InstalledApp, *, windowed: bool = False) -> list[str]:
+    """Build the argument list for launching a sibling app process.
+
+    Args:
+        app: The installed app to launch.
+        windowed: When True, appends ``--desktop`` to open the app in a native window.
+
+    Returns:
+        The complete argument vector for subprocess launch.
+    """
+    argv = [app.binary, "--port", str(app.default_port)]
+    if windowed:
+        argv.append("--desktop")
+    return argv
+
+
 class LocalSpawnLauncher:
     """Local-mode launcher: spawn sibling binary + poll /healthz."""
 
@@ -89,7 +105,7 @@ class LocalSpawnLauncher:
 
         # Spawn the process
         env = self._build_env()
-        cmd = [app.binary, "--port", str(app.default_port)]
+        cmd = build_launch_argv(app)
         proc = subprocess.Popen(cmd, env=env, cwd=Path.home())
 
         # Poll until healthy or timeout
