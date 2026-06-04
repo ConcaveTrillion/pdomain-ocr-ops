@@ -20,6 +20,7 @@ from pdomain_ops.suite.types import (
     SuiteApp,
     UIPrefs,
 )
+from pdomain_ops.suite.update_routes import UpdateInfo
 
 # The ordered tuple of public models to emit schemas for.
 # SuiteAdapters is NOT here — its fields are Protocol classes which
@@ -37,6 +38,7 @@ PUBLIC_MODELS = (
     JobEvent,
     JobSpec,
     DeviceInfo,
+    UpdateInfo,
 )
 
 

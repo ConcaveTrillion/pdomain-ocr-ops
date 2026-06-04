@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import time
 
 from fastapi import APIRouter, FastAPI, HTTPException, Request, Response
@@ -105,6 +106,16 @@ def mount_routes(
         prefs=adapters.prefs,
         app_id=(suite_app.app_id if suite_app else "unknown"),
     )
+
+    # Update-check endpoint
+    from pdomain_ops.suite.update_routes import mount_update_routes
+
+    _dist_name = suite_app.package if suite_app else "unknown"
+    _index_url = os.environ.get(
+        "PDOMAIN_INDEX_URL",
+        "https://concavetrillion.github.io/pdomain-index-pip/simple",
+    )
+    mount_update_routes(app, dist_name=_dist_name, index_url=_index_url)
 
     # Centralized health endpoint — mounted at /healthz (not under /api/suite/).
     # No auth required; LocalSpawnLauncher polls this to detect readiness.
