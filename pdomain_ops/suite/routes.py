@@ -97,6 +97,15 @@ def mount_routes(
 
     app.include_router(icons_router)
 
+    # Compute-target device endpoint (local-mode-gated)
+    from pdomain_ops.suite.device_routes import mount_device_routes
+
+    mount_device_routes(
+        app,
+        prefs=adapters.prefs,
+        app_id=(suite_app.app_id if suite_app else "unknown"),
+    )
+
     # Centralized health endpoint — mounted at /healthz (not under /api/suite/).
     # No auth required; LocalSpawnLauncher polls this to detect readiness.
     @app.get("/healthz", tags=["health"])
