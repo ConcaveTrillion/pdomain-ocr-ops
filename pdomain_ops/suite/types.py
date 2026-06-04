@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import UTC, datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -90,7 +90,7 @@ class CommonUIPrefs(BaseModel):
     font_size_base: int = 12
     font_scale: Annotated[float, Field(ge=0.8, le=1.4)] = 1.0
     compute_device_default: str | None = None
-    update_policy: str | None = None  # "notify" | "auto" | "manual"; used by Milestone B
+    update_policy: Literal["notify", "auto", "manual"] | None = None
     layer_colors: LayerColors = None  # pyright: ignore[reportAssignmentType]  # Pydantic deferred default via model_post_init
 
     def model_post_init(self, __context: Any) -> None:

@@ -36,6 +36,16 @@ def _probe_cuda() -> list[DeviceInfoEntry]:
     return out
 
 
+def _probe_mps() -> list[DeviceInfoEntry]:
+    try:
+        import torch
+    except ImportError:
+        return []
+    if not torch.backends.mps.is_available():
+        return []
+    return [DeviceInfoEntry(id="mps", label="Apple MPS")]
+
+
 def list_devices() -> list[DeviceInfoEntry]:
     """Return all available compute targets; CPU is always included last."""
-    return [*_probe_cuda(), DeviceInfoEntry(id="cpu", label="CPU")]
+    return [*_probe_cuda(), *_probe_mps(), DeviceInfoEntry(id="cpu", label="CPU")]

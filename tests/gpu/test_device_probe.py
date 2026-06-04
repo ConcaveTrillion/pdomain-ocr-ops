@@ -19,3 +19,23 @@ def test_cuda_entries_have_vram(monkeypatch):
     ids = [d.id for d in list_devices()]
     assert "cuda:0" in ids
     assert "cpu" in ids
+
+
+def test_mps_included_when_available(monkeypatch):
+    monkeypatch.setattr(
+        "pdomain_ops.gpu.device_probe._probe_mps",
+        lambda: [DeviceInfoEntry(id="mps", label="Apple MPS")],
+    )
+    ids = [d.id for d in list_devices()]
+    assert "mps" in ids
+    assert "cpu" in ids
+
+
+def test_mps_not_included_when_unavailable(monkeypatch):
+    monkeypatch.setattr(
+        "pdomain_ops.gpu.device_probe._probe_mps",
+        lambda: [],
+    )
+    ids = [d.id for d in list_devices()]
+    assert "mps" not in ids
+    assert "cpu" in ids
