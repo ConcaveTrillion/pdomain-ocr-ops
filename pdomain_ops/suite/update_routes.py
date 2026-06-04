@@ -6,19 +6,21 @@ Mounts GET/POST /api/suite/update onto a FastAPI application.
 from __future__ import annotations
 
 import os
+import subprocess
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
 
-from pdomain_ops.suite.update import apply_upgrade, check_latest
+from pdomain_ops.suite.update import EditableInstallError, apply_upgrade, check_latest
 
 if TYPE_CHECKING:
     from fastapi import FastAPI
 
 #: Default index URL from the environment; falls back to the pdomain-index-pip URL.
+#: The fallback matches [[tool.uv.index]] url in pyproject.toml exactly.
 _DEFAULT_INDEX_URL = os.environ.get(
     "PDOMAIN_INDEX_URL",
-    "https://concavetrillion.github.io/pdomain-index-pip/simple",
+    "https://pdomain.github.io/pdomain-index-pip/simple/",
 )
 
 
@@ -64,5 +66,15 @@ def mount_update_routes(
 
     @app.post("/api/suite/update")
     def post_update() -> dict[str, object]:
-        apply_upgrade(dist_name)
+        from fastapi import HTTPException
+
+        try:
+            apply_upgrade(dist_name)
+        except EditableInstallError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except subprocess.CalledProcessError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail=f"upgrade failed: {exc}",
+            ) from exc
         return {"restart_required": True}

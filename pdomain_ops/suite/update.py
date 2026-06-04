@@ -167,17 +167,15 @@ def is_editable_install(dist_name: str) -> bool:
     try:
         dist = importlib.metadata.distribution(dist_name)
         # direct_url.json is part of the dist-info when installed editable
-        try:
-            direct_url_text = dist.read_text("direct_url.json")
-        except (FileNotFoundError, OSError):
-            direct_url_text = None
+        # read_text returns None on missing file — never raises FileNotFoundError
+        direct_url_text = dist.read_text("direct_url.json")
         if direct_url_text:
             direct_url = json.loads(direct_url_text)
             # PEP 610: editable installs have dir_info.editable = True
             dir_info = direct_url.get("dir_info", {})
             if dir_info.get("editable", False):
                 return True
-    except Exception:  # noqa: BLE001, S110
+    except Exception:  # noqa: BLE001, S110  # best-effort: assume not editable on any metadata error
         pass
 
     return False
@@ -259,4 +257,4 @@ def apply_upgrade(
     )
 
     cmd = ["uv", "tool", "upgrade", dist_name]
-    run(cmd, check=False)  # PLW1510: returncode checked by caller / test assertions
+    run(cmd, check=True)
