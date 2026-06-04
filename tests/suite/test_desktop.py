@@ -61,7 +61,6 @@ def test_install_shortcut_linux_writes_desktop_file(monkeypatch, tmp_path):
     f = tmp_path / f"pdomain-{app.app_id}.desktop"
     assert f.exists()
     text = f.read_text()
-    assert f"Exec={app.binary} --desktop" in text
     assert f"Name={app.display_name}" in text
     assert "Type=Application" in text
     assert "Terminal=false" in text
@@ -84,3 +83,68 @@ def test_remove_shortcut_linux_missing_ok(monkeypatch, tmp_path):
     """On Linux, remove_shortcut does not raise if the file doesn't exist."""
     monkeypatch.setattr("pdomain_ops.suite.desktop._applications_dir", lambda: tmp_path)
     remove_shortcut("nonexistent-app")  # should not raise
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="linux shortcut only")
+def test_install_shortcut_exec_quoted(monkeypatch, tmp_path):
+    """Exec line in .desktop file uses shlex.quote so paths with spaces are safe."""
+    monkeypatch.setattr("pdomain_ops.suite.desktop._applications_dir", lambda: tmp_path)
+    app = InstalledApp(
+        app_id="pdomain-app-b",
+        package="pdomain_app_b",
+        version="1.0.0",
+        binary="/usr/local/bin/my app",  # space in path
+        default_port=8002,
+        icon="test",
+        display_name="My App",
+        registered_at=_NOW,
+    )
+    install_shortcut(app)
+    f = tmp_path / "pdomain-pdomain-app-b.desktop"
+    text = f.read_text()
+    # shlex.quote wraps paths with spaces in single quotes
+    assert "Exec='/usr/local/bin/my app' --desktop" in text
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="linux shortcut only")
+def test_install_shortcut_atomic_write(monkeypatch, tmp_path):
+    """install_shortcut writes via a temp file then replaces (no partial writes visible)."""
+    monkeypatch.setattr("pdomain_ops.suite.desktop._applications_dir", lambda: tmp_path)
+    app = _make_installed()
+    install_shortcut(app)
+    dest = tmp_path / f"pdomain-{app.app_id}.desktop"
+    # The temp file must be gone after a successful write.
+    tmp = dest.with_suffix(".desktop.tmp")
+    assert not tmp.exists(), "temp file must be cleaned up after atomic replace"
+    assert dest.exists()
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="linux shortcut only")
+def test_install_shortcut_display_name_direct(monkeypatch, tmp_path):
+    """Name= in .desktop uses app.display_name directly (no getattr fallback needed for typed field)."""
+    monkeypatch.setattr("pdomain_ops.suite.desktop._applications_dir", lambda: tmp_path)
+    app = _make_installed()
+    install_shortcut(app)
+    f = tmp_path / f"pdomain-{app.app_id}.desktop"
+    text = f.read_text()
+    assert f"Name={app.display_name}" in text
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="linux shortcut only")
+def test_install_shortcut_empty_display_name_falls_back_to_app_id(monkeypatch, tmp_path):
+    """When display_name is empty string, fallback to app_id in the Name= field."""
+    monkeypatch.setattr("pdomain_ops.suite.desktop._applications_dir", lambda: tmp_path)
+    app = InstalledApp(
+        app_id="pdomain-app-c",
+        package="pdomain_app_c",
+        version="1.0.0",
+        binary="/usr/bin/ocr",
+        default_port=8003,
+        icon="test",
+        display_name="",  # empty — should fall back to app_id
+        registered_at=_NOW,
+    )
+    install_shortcut(app)
+    f = tmp_path / "pdomain-pdomain-app-c.desktop"
+    text = f.read_text()
+    assert "Name=pdomain-app-c" in text

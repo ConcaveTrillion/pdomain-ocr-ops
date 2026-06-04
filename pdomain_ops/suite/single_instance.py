@@ -63,16 +63,25 @@ def _lock_path(app_id: str) -> Path:
 def _pid_alive(pid: int) -> bool:
     """Return True if process *pid* is alive.
 
+    ``os.kill(pid, 0)`` raises ``ProcessLookupError`` when the process does not
+    exist and ``PermissionError`` when the process *does* exist but we lack
+    permission to signal it (e.g. it is owned by a different user).  The latter
+    means the process is ALIVE and must not be treated as stale.
+
     Args:
         pid: The process ID to probe.
 
     Returns:
-        ``True`` if the process exists, ``False`` if it is dead or unreachable.
+        ``True`` if the process exists (including when we cannot signal it),
+        ``False`` only when the process no longer exists.
     """
     try:
         os.kill(pid, 0)
-    except (ProcessLookupError, PermissionError):
+    except ProcessLookupError:
         return False
+    except PermissionError:
+        # Process exists; we simply lack permission to send signals to it.
+        return True
     return True
 
 
@@ -103,6 +112,11 @@ def read_live(app_id: str) -> dict[str, int] | None:
     If the lockfile does not exist or the recorded pid is no longer alive,
     the stale lockfile is removed and ``None`` is returned.
 
+    The entire read→pid-check→unlink sequence is performed while holding the
+    same ``FileLock`` that ``acquire`` uses, preventing a race where a
+    concurrent ``acquire`` call could have its freshly written pidfile deleted
+    by a stale-reap in this function (TOCTOU).
+
     Args:
         app_id: The application identifier to look up.
 
@@ -111,17 +125,19 @@ def read_live(app_id: str) -> dict[str, int] | None:
         ``None`` if the lockfile is absent or stale.
     """
     path = _lock_path(app_id)
-    if not path.exists():
-        return None
-    try:
-        data: dict[str, int] = json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        path.unlink(missing_ok=True)
-        return None
+    lock_file = path.with_suffix(".lock")
+    with FileLock(str(lock_file)):
+        if not path.exists():
+            return None
+        try:
+            data: dict[str, int] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            path.unlink(missing_ok=True)
+            return None
 
-    pid = data.get("pid")
-    if pid is None or not _pid_alive(pid):
-        path.unlink(missing_ok=True)
-        return None
+        pid = data.get("pid")
+        if pid is None or not _pid_alive(pid):
+            path.unlink(missing_ok=True)
+            return None
 
     return data

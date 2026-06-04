@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shlex
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -67,14 +68,14 @@ def install_shortcut(app: InstalledApp) -> None:
             f"Desktop shortcut install not supported on unsupported platform: {plat}"
         )
 
-    display_name = getattr(app, "display_name", app.app_id)
+    display_name = app.display_name or app.app_id
     content = "\n".join(
         [
             "[Desktop Entry]",
             "Version=1.0",
             "Type=Application",
             f"Name={display_name}",
-            f"Exec={app.binary} --desktop",
+            f"Exec={shlex.quote(app.binary)} --desktop",
             f"Icon={app.app_id}",
             "Terminal=false",
             "Categories=Utility;",
@@ -82,7 +83,9 @@ def install_shortcut(app: InstalledApp) -> None:
         ]
     )
     dest = _applications_dir() / _desktop_filename(app.app_id)
-    dest.write_text(content, encoding="utf-8")
+    tmp = dest.with_suffix(".desktop.tmp")
+    tmp.write_text(content, encoding="utf-8")
+    _ = tmp.replace(dest)
 
 
 def remove_shortcut(app_id: str) -> None:

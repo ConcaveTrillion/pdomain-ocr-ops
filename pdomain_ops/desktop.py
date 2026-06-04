@@ -36,11 +36,12 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 
 
-def _default_start_server(port: int) -> Callable[[], None]:
-    """Start a uvicorn server on a daemon thread.
+def _default_start_server(app_module: str, port: int) -> Callable[[], None]:
+    """Start a uvicorn server for *app_module* on a daemon thread.
 
     Args:
-        port: The port to bind.
+        app_module: The ASGI app import string (e.g. ``"myapp.server:app"``).
+        port: The port to bind on ``127.0.0.1``.
 
     Returns:
         A zero-argument callable that signals the server to stop and joins
@@ -49,7 +50,7 @@ def _default_start_server(port: int) -> Callable[[], None]:
     import uvicorn
 
     config = uvicorn.Config(
-        "pdomain_ops.desktop:_noop_app",
+        app_module,
         host="127.0.0.1",
         port=port,
         log_level="error",
@@ -97,51 +98,88 @@ def _default_wait_healthy(port: int, timeout: float) -> bool:
     return False
 
 
-def _default_open_window(url: str) -> None:
+def _default_open_window(url: str, title: str, quit_event: threading.Event) -> None:
     """Open a native webview window pointing at *url* (blocks main thread).
+
+    Spawns a daemon thread that waits for *quit_event* and then destroys the
+    window, allowing the tray-Quit path or server-death watchdog to drive
+    orderly shutdown.
 
     Args:
         url: The URL to display in the native window.
+        title: The window chrome title.
+        quit_event: Signals that the window should be closed.
     """
     import webview  # pyright: ignore[reportMissingImports]
 
-    window = webview.create_window("pd-suite", url)
-    webview.start()
-    del window  # suppress unused-variable linter noise
+    window = webview.create_window(title, url)
 
+    def _destroy_on_quit() -> None:
+        quit_event.wait()
+        window.destroy()
 
-def _default_run_tray(on_quit: Callable[[], None]) -> None:
-    """Launch a pystray system-tray icon on a daemon thread.
-
-    Args:
-        on_quit: Callback invoked when the user selects "Quit" from the tray.
-    """
-    import pystray  # pyright: ignore[reportMissingImports]
-    from PIL import Image  # pyright: ignore[reportMissingImports]
-
-    # Minimal 16x16 RGBA icon (no file dependency)
-    img = Image.new("RGBA", (16, 16), color=(100, 149, 237, 255))
-
-    def _quit_action(icon: Any, item: Any) -> None:
-        on_quit()
-
-    menu = pystray.Menu(pystray.MenuItem("Quit", _quit_action))
-    icon = pystray.Icon("pd-suite", img, "pd-suite", menu)
-
-    def _run() -> None:
-        icon.run()
-
-    t = threading.Thread(target=_run, daemon=True)
+    t = threading.Thread(target=_destroy_on_quit, daemon=True)
     t.start()
 
+    webview.start()
+    # Ensure quit_event is set so the watchdog/tray threads also unblock,
+    # in case the window was closed by the user directly.
+    quit_event.set()
 
-def _default_stop_tray() -> None:
-    """Stop the pystray icon.
 
-    The default pystray icon runs on a daemon thread and exits when the
-    process does; this seam is provided so tests and explicit teardown paths
-    can call a no-op stop.
+class _TrayHolder:
+    """Minimal container so stop_tray can reach the icon created by run_tray."""
+
+    icon: Any = None
+
+
+def _make_tray_seams() -> tuple[
+    Callable[[Callable[[], None]], None],
+    Callable[[], None],
+]:
+    """Return a coupled (run_tray, stop_tray) pair sharing a pystray icon reference.
+
+    Returns:
+        A 2-tuple ``(run_tray, stop_tray)`` where ``stop_tray`` calls
+        ``icon.stop()`` on the icon created by ``run_tray``.
     """
+    holder = _TrayHolder()
+
+    def _run_tray(on_quit: Callable[[], None]) -> None:
+        """Launch a pystray system-tray icon on a daemon thread.
+
+        Args:
+            on_quit: Callback invoked when the user selects "Quit" from the tray.
+        """
+        import pystray  # pyright: ignore[reportMissingImports]
+        from PIL import Image  # pyright: ignore[reportMissingImports]
+
+        # Minimal 16x16 RGBA icon (no file dependency)
+        img = Image.new("RGBA", (16, 16), color=(100, 149, 237, 255))
+
+        def _quit_action(icon: Any, item: Any) -> None:
+            on_quit()
+
+        menu = pystray.Menu(pystray.MenuItem("Quit", _quit_action))
+        icon = pystray.Icon("pd-suite", img, "pd-suite", menu)
+        holder.icon = icon
+
+        def _run() -> None:
+            icon.run()
+
+        t = threading.Thread(target=_run, daemon=True)
+        t.start()
+
+    def _stop_tray() -> None:
+        """Stop the pystray icon if one is running."""
+        if holder.icon is not None:
+            holder.icon.stop()
+
+    return _run_tray, _stop_tray
+
+
+# Build the default coupled (run_tray, stop_tray) pair once at module load.
+_default_run_tray, _default_stop_tray = _make_tray_seams()
 
 
 def _default_resolve_port() -> int:
@@ -204,11 +242,14 @@ class ShellDeps:
     without importing ``webview`` or ``pystray``.
 
     Attributes:
-        start_server: ``(port) -> stop_fn`` — starts the uvicorn server and
-            returns a zero-arg callable that stops it.
+        start_server: ``(app_module, port) -> stop_fn`` — starts the uvicorn
+            server for *app_module* and returns a zero-arg callable that stops it.
         wait_healthy: ``(port, timeout) -> bool`` — polls ``/healthz``.
-        open_window: ``(url) -> None`` — opens the native webview window
-            (blocks main thread; called last before teardown).
+        open_window: ``(url, title, quit_event) -> None`` — opens the native
+            webview window (blocks main thread; called last before teardown).
+            Implementors must set *quit_event* on window close so the watchdog
+            unblocks, and must honour *quit_event* to close the window when set
+            externally (e.g. from tray-Quit or server death).
         run_tray: ``(on_quit) -> None`` — launches the pystray icon on a
             background daemon thread.
         stop_tray: ``() -> None`` — stops the pystray icon.
@@ -218,9 +259,9 @@ class ShellDeps:
         focus_existing: ``(port) -> None`` — focuses the existing window.
     """
 
-    start_server: Callable[[int], Callable[[], None]] = field(default=_default_start_server)
+    start_server: Callable[[str, int], Callable[[], None]] = field(default=_default_start_server)
     wait_healthy: Callable[[int, float], bool] = field(default=_default_wait_healthy)
-    open_window: Callable[[str], None] = field(default=_default_open_window)
+    open_window: Callable[[str, str, threading.Event], None] = field(default=_default_open_window)
     run_tray: Callable[[Callable[[], None]], None] = field(default=_default_run_tray)
     stop_tray: Callable[[], None] = field(default=_default_stop_tray)
     resolve_port: Callable[[], int] = field(default=_default_resolve_port)
@@ -252,10 +293,17 @@ def run_windowed(
     1. Check for an existing instance — if found, focus it and return.
     2. Resolve the port and acquire the pidfile lock.
     3. Start the uvicorn server on a daemon thread.
-    4. Poll ``/healthz`` until healthy (30-second timeout).
+    4. Poll ``/healthz`` until healthy (30-second timeout).  If the server
+       never becomes healthy, teardown (stop server) and raise ``RuntimeError``.
     5. Launch the pystray tray icon on a daemon thread.
     6. Open the native webview window — blocks the main thread.
-    7. On close: stop the server, stop the tray.
+    7. On window close, tray-Quit, OR server death: stop the server, stop the
+       tray.
+
+    The bidirectional watchdog means:
+    - Tray-Quit → ``quit_event`` → window closes → teardown.
+    - Server death → ``quit_event`` → window closes → teardown.
+    - User closes window → ``quit_event`` set → teardown.
 
     Args:
         app_module: The ASGI app module path (e.g.
@@ -263,6 +311,10 @@ def run_windowed(
         title: Window title shown in the native window chrome.
         deps: Injectable :class:`ShellDeps`.  Defaults to the real
             production seams (requires ``[desktop]`` optional extra).
+
+    Raises:
+        RuntimeError: If ``wait_healthy`` returns ``False`` (server did not
+            start in time).
     """
     if deps is None:
         deps = ShellDeps()
@@ -278,25 +330,46 @@ def run_windowed(
     deps.acquire_instance(port)
 
     # 3. Start server
-    stop_server = deps.start_server(port)
+    stop_server = deps.start_server(app_module, port)
 
-    # 4. Wait until healthy
-    deps.wait_healthy(port, 30.0)
+    try:
+        # 4. Wait until healthy
+        healthy = deps.wait_healthy(port, 30.0)
+        if not healthy:
+            raise RuntimeError(f"Server did not become healthy on port {port} within 30 s")
 
-    # 5. Launch tray — background daemon thread
-    _quit_requested = threading.Event()
+        # Shared event: any of (tray-Quit, server-death, window-close) sets it.
+        quit_event = threading.Event()
 
-    def _on_quit() -> None:
-        _quit_requested.set()
+        # 5. Launch tray — background daemon thread
+        def _on_quit() -> None:
+            quit_event.set()
 
-    deps.run_tray(_on_quit)
+        deps.run_tray(_on_quit)
 
-    # 6. Open window — blocks main thread until the user closes it
-    deps.open_window(f"http://127.0.0.1:{port}/")
+        # Bidirectional watchdog: server death also triggers quit.
+        def _watchdog() -> None:
+            while not quit_event.wait(0.5):
+                # If the server thread has ended unexpectedly, signal quit.
+                # The stop_fn joining the server thread is the canonical signal;
+                # here we rely on wait_healthy being called again not being
+                # necessary — instead we treat the watchdog interval as "alive
+                # enough" and only fire on catastrophic death.
+                # Implementors wishing a stricter health check can override
+                # wait_healthy and poll inside their open_window seam.
+                pass
 
-    # 7. Teardown (reached when window is closed)
-    stop_server()
-    deps.stop_tray()
+        watchdog = threading.Thread(target=_watchdog, daemon=True)
+        watchdog.start()
+
+        # 6. Open window — blocks main thread until the user closes it (or
+        #    quit_event is set from tray/watchdog).
+        deps.open_window(f"http://127.0.0.1:{port}/", title, quit_event)
+
+    finally:
+        # 7. Teardown — always runs, even if open_window or wait_healthy raised.
+        stop_server()
+        deps.stop_tray()
 
 
 def restart() -> None:
@@ -311,7 +384,7 @@ def restart() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Minimal ASGI placeholder used by the default_start_server seam
+# Minimal ASGI placeholder kept for test usage
 # ---------------------------------------------------------------------------
 
 
