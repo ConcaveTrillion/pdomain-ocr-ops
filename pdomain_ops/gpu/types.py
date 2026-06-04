@@ -16,7 +16,7 @@ class StageResult(BaseModel):
 
     stage_id: str
     page_id: str
-    device: Literal["local", "mps", "cpu", "modal", "shared_container"]
+    device: str  # "local" | "mps" | "cpu" | "cuda:N" | "modal" | "shared_container"
     duration_ms: int
     output_key: str | None = None
     metadata: dict[str, Any] = {}

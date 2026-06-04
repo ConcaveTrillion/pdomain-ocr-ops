@@ -16,6 +16,14 @@ if TYPE_CHECKING:
 _VALID_DEVICES = frozenset({"local", "mps", "cpu", "modal", "shared_container"})
 
 
+def _is_valid_device(device: str) -> bool:
+    """Return True if *device* is a recognised compute-target identifier."""
+    if device in _VALID_DEVICES:
+        return True
+    # Accept cuda:N (e.g. cuda:0, cuda:1)
+    return device.startswith("cuda:") and device[5:].isdigit()
+
+
 class UnknownStageError(KeyError):
     """Raised when a stage_id is not registered in the local registry."""
 
@@ -33,13 +41,18 @@ class LocalStageDispatcher:
     def __init__(
         self,
         registry: dict[tuple[str, str], Callable[..., Any]] | None = None,
+        *,
+        device_resolver: Callable[[], str] | None = None,
     ) -> None:
         self._registry: dict[tuple[str, str], Callable[..., Any]] = dict(registry or {})
+        self._device_resolver = device_resolver
 
     def register_stage(self, stage_id: str, device: str, impl: Callable[..., Any]) -> None:
         """Register a stage implementation. Warns if replacing an existing entry."""
-        if device not in _VALID_DEVICES:
-            raise ValueError(f"device {device!r} is not valid. Allowed: {sorted(_VALID_DEVICES)}")
+        if not _is_valid_device(device):
+            raise ValueError(
+                f"device {device!r} is not valid. Allowed: {sorted(_VALID_DEVICES)} or cuda:N"
+            )
         key = (stage_id, device)
         if key in self._registry:
             warnings.warn(
@@ -67,7 +80,8 @@ class LocalStageDispatcher:
         auto-detection. Otherwise pick_device() chooses.
         Fallthrough order: requested/detected device -> "cpu" (if not in registry).
         """
-        device = device or pick_device()
+        if device is None:
+            device = self._device_resolver() if self._device_resolver else pick_device()
 
         # Try preferred device first, fall through to cpu
         impl = self._registry.get((stage_id, device))

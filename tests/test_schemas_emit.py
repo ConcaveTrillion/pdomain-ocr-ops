@@ -75,10 +75,12 @@ def test_emit_includes_launch_result_discriminated_union():
     assert "oneOf" in schema or "anyOf" in schema
 
 
-def test_emit_stage_result_device_enum_values():
+def test_emit_stage_result_device_field_is_string():
     data = _emit()
     schema = data["StageResult"]
-    # The device enum values should be in the schema
-    schema_str = json.dumps(schema)
-    for expected in ["local", "mps", "cpu", "modal", "shared_container"]:
-        assert expected in schema_str, f"Missing device value: {expected}"
+    # device is now a plain str (supports "local" | "mps" | "cpu" | "cuda:N" | "modal" | "shared_container")
+    props = schema.get("properties", {})
+    device_schema = props.get("device", {})
+    assert device_schema.get("type") == "string", (
+        f"Expected device to be a string type, got: {device_schema}"
+    )
