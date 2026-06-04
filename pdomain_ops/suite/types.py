@@ -89,6 +89,8 @@ class CommonUIPrefs(BaseModel):
     accent: str = "#d6925a"
     font_size_base: int = 12
     font_scale: Annotated[float, Field(ge=0.8, le=1.4)] = 1.0
+    compute_device_default: str | None = None
+    update_policy: str | None = None  # "notify" | "auto" | "manual"; used by Milestone B
     layer_colors: LayerColors = None  # pyright: ignore[reportAssignmentType]  # Pydantic deferred default via model_post_init
 
     def model_post_init(self, __context: Any) -> None:

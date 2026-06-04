@@ -70,6 +70,8 @@ class LocalFilePrefs:
             "font_size_base",
             "font_scale",
             "layer_colors",
+            "compute_device_default",
+            "update_policy",
         }
         unknown_keys = set(common_raw.keys()) - known_common_keys
         for key in unknown_keys:
