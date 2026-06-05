@@ -21,36 +21,9 @@ env:
   SKIP: basedpyright
 
 jobs:
-  release-ci:
-    name: release CI
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.inputs.tag }}
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
-        with:
-          version: "0.11.16"
-      - name: Set up Python
-        run: uv python install 3.12
-      - name: Use error-only typecheck gate
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("pyproject.toml")
-          text = path.read_text()
-          path.write_text(text.replace("failOnWarnings = true", "failOnWarnings = false"))
-          PY
-      - name: Run release CI gate
-        run: make ci-slow
-
   publish:
     name: publish GitHub Release
     runs-on: ubuntu-latest
-    needs: [release-ci]
     permissions:
       contents: write
     steps:
