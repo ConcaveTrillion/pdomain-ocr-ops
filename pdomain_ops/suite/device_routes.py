@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from pdomain_ops.gpu.device_probe import DeviceInfoEntry, list_devices
-from pdomain_ops.suite.device_prefs import resolve_effective_device
+from pdomain_ops.suite.device_prefs import clear_device_preference, resolve_effective_device
 
 if TYPE_CHECKING:
     from pdomain_ops.suite.prefs import PrefsAdapter
@@ -28,6 +28,7 @@ class DeviceInfo(BaseModel):
     current: str | None = None
     effective_source: str | None = None  # "app" | "suite" | "auto"
     offload_target: str | None = None
+    cuda_docs_url: str = "/docs/runbooks/cuda-setup.md"
 
 
 class DevicePutBody(BaseModel):
@@ -69,7 +70,12 @@ def mount_device_routes(
     @app.put("/api/suite/device", response_model=DeviceInfo)
     def put_device(body: DevicePutBody) -> DeviceInfo:
         """Persist the compute-device preference and return the updated state."""
-        if body.scope == "suite":
+        if body.device == "":
+            try:
+                clear_device_preference(prefs, app_id, scope=body.scope)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+        elif body.scope == "suite":
             snap = prefs.read()
             common = snap.common
             common.compute_device_default = body.device

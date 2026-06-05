@@ -31,3 +31,19 @@ def resolve_effective_device(
     if snap.common.compute_device_default:
         return snap.common.compute_device_default
     return pick_device()
+
+
+def clear_device_preference(prefs: PrefsAdapter, app_id: str, *, scope: str) -> None:
+    """Clear a persisted compute-device preference for *scope*."""
+    if scope == "suite":
+        snap = prefs.read()
+        common = snap.common
+        common.compute_device_default = ""
+        prefs.write_common(common)
+    elif scope == "app":
+        snap = prefs.read()
+        section = dict(snap.apps.get(app_id) or {})
+        section.pop("compute_device", None)
+        prefs.write_app(app_id, section)
+    else:
+        raise ValueError("scope must be 'app' or 'suite'")
