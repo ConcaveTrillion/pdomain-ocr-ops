@@ -27,7 +27,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-desktop = ["pywebview>=5", "pystray>=0.19"]
+desktop = [
+    "pywebview>=5",
+    "pystray>=0.19",
+    "qtpy>=2;               sys_platform == 'linux'",
+    "PyQt6>=6.7;            sys_platform == 'linux'",
+    "PyQt6-WebEngine>=6.7;  sys_platform == 'linux'",
+]
 modal = ["modal>=0.66"]
 
 [project.scripts]

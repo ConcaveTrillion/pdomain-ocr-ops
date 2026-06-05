@@ -4,6 +4,7 @@
 
 ### Changed
 
+- `[desktop]` extra now bundles the QT backend on Linux (`qtpy>=2`, `PyQt6>=6.7`, `PyQt6-WebEngine>=6.7`). pywebview requires a GUI backend; QT is the only fully pip-installable, self-contained choice for isolated `uv tool` venvs.
 - Bump `pdomain-book-tools` floor to `>=0.18.0`. The batch OCR method
   `Document.from_images_ocr_via_doctr` now defaults to `auto_rotate=True`, so
   rotated pages are corrected automatically without any change in ops call-sites.
