@@ -191,6 +191,7 @@ async def test_oom_once_halves_batch_size_and_succeeds() -> None:
             classmethod(_from_images),
         ),
         patch("pdomain_ops.gpu.doctr_batch._empty_cuda_cache") as mock_cache,
+        patch("pdomain_ops.gpu.doctr_batch._pick_doctr_batch_sizes_fn", return_value=(4, 128)),
     ):
         result = run_doctr_batch(
             [img],
