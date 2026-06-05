@@ -225,6 +225,9 @@ addopts = [
     "-ra",
     "--strict-markers",
     "--strict-config",
+    # loadgroup: honour xdist_group markers so GPU tests land on one worker.
+    # Without this, -n auto defaults to load scheduling and ignores xdist_group.
+    "--dist=loadgroup",
     "--cov=pdomain_ops",
     "--cov-branch",
     "--cov-report=term-missing:skip-covered",
@@ -232,6 +235,12 @@ addopts = [
 ]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    # GPU tests are serialised onto one xdist worker via tests/gpu/conftest.py.
+    # The marker itself is added automatically by the conftest hook; individual
+    # test files do not need to apply it manually.
+    "xdist_group: route tests to the same xdist worker (pytest-xdist built-in)",
+]
 filterwarnings = [
     "error",
     # ResourceWarning from subprocess.Popen stdout/stderr PIPE left open
