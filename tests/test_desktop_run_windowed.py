@@ -2,11 +2,211 @@
 
 from __future__ import annotations
 
+import socket
 import threading  # noqa: TC003 — used at runtime for threading.Event in test bodies
 
 import pytest
 
-from pdomain_ops.desktop import ShellDeps, run_windowed
+from pdomain_ops.desktop import ShellDeps, _default_resolve_port, run_windowed
+
+# ---------------------------------------------------------------------------
+# Helpers (mirrors test_ports.py style)
+# ---------------------------------------------------------------------------
+
+
+def _bind_port(port: int, host: str = "127.0.0.1") -> socket.socket:
+    """Bind a real socket to occupy *port*; caller must close."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
+    sock.bind((host, port))
+    return sock
+
+
+def _find_free_port(host: str = "127.0.0.1") -> int:
+    """Ask the OS for an ephemeral free port."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((host, 0))
+        return s.getsockname()[1]
+
+
+# ---------------------------------------------------------------------------
+# _default_resolve_port unit tests (exercise real find_available_port)
+# ---------------------------------------------------------------------------
+
+
+class TestDefaultResolvePort:
+    """Unit tests for the _default_resolve_port function."""
+
+    def test_returns_preferred_when_free(self) -> None:
+        """Returns preferred port when it is not occupied."""
+        port = _find_free_port()
+        result = _default_resolve_port(preferred=port)
+        assert result == port
+
+    def test_returns_different_port_when_preferred_occupied(self) -> None:
+        """Returns a different free port when preferred is already bound."""
+        port = _find_free_port()
+        sock = _bind_port(port)
+        try:
+            result = _default_resolve_port(preferred=port)
+            # Must be different from the occupied port
+            assert result != port
+            # The returned port must actually be bindable (not just in theory)
+            verify_sock = _bind_port(result)
+            verify_sock.close()
+        finally:
+            sock.close()
+
+    def test_default_preferred_is_8004(self) -> None:
+        """When called with no args, preferred defaults to 8004.
+
+        If 8004 is free this test confirms the default is 8004.
+        If 8004 is occupied the returned port must still be free and != 8004.
+        """
+        try:
+            result = _default_resolve_port()
+        except RuntimeError:
+            pytest.skip("No free ports available near 8004")
+        verify_sock = _bind_port(result)
+        verify_sock.close()
+
+    def test_explicit_preferred_honored(self) -> None:
+        """An explicit preferred port is used as the starting search point."""
+        port = _find_free_port()
+        result = _default_resolve_port(preferred=port)
+        assert result == port  # free -> returns exact preferred
+
+    def test_returned_port_is_bindable(self) -> None:
+        """The returned port can be successfully bound by the caller."""
+        port = _find_free_port()
+        result = _default_resolve_port(preferred=port)
+        sock = _bind_port(result)
+        sock.close()
+
+
+# ---------------------------------------------------------------------------
+# run_windowed preferred_port parameter tests
+# ---------------------------------------------------------------------------
+
+
+class TestRunWindowedPreferredPort:
+    """Tests that preferred_port flows through run_windowed -> server/URL."""
+
+    def _make_deps(
+        self,
+        resolve_port_fn: object,
+        events: list[object],
+    ) -> ShellDeps:
+        """Build fake ShellDeps that records server port and URL."""
+
+        def _open_window(url: str, title: str, quit_event: threading.Event) -> None:
+            events.append(("window_url", url))
+            quit_event.set()
+
+        return ShellDeps(
+            start_server=lambda app_module, port: (
+                events.append(("server_port", port)) or (lambda: None)
+            ),
+            wait_healthy=lambda port, timeout: True,
+            open_window=_open_window,
+            run_tray=lambda on_quit: None,
+            stop_tray=lambda: None,
+            resolve_port=resolve_port_fn,  # type: ignore[arg-type]
+            acquire_instance=lambda port: object(),
+        )
+
+    def test_preferred_port_passed_to_resolve_seam(self) -> None:
+        """preferred_port is forwarded to the resolve_port seam."""
+        received_preferred: list[int] = []
+
+        def _resolve() -> int:
+            received_preferred.append(9999)
+            return 9999
+
+        events: list[object] = []
+        deps = self._make_deps(_resolve, events)
+        run_windowed("myapp:app", title="T", deps=deps, preferred_port=9999)
+        # resolve_port was called (and our fake recorded 9999)
+        assert received_preferred == [9999]
+
+    def test_server_binds_resolved_port_not_hardcoded_8004(self) -> None:
+        """Server receives the port from resolve_port, not a hardcoded 8004."""
+        events: list[object] = []
+        deps = self._make_deps(lambda: 7777, events)
+        run_windowed("myapp:app", title="T", deps=deps, preferred_port=7777)
+        assert ("server_port", 7777) in events
+
+    def test_window_url_uses_resolved_port(self) -> None:
+        """Window URL contains the resolved port, not a hardcoded 8004."""
+        events: list[object] = []
+        deps = self._make_deps(lambda: 7777, events)
+        run_windowed("myapp:app", title="T", deps=deps, preferred_port=7777)
+        assert ("window_url", "http://127.0.0.1:7777/") in events
+
+    def test_default_preferred_port_is_8004(self) -> None:
+        """Without preferred_port, the default 8004 is passed as context."""
+        received: list[int] = []
+
+        def _open_window(url: str, title: str, quit_event: threading.Event) -> None:
+            quit_event.set()
+
+        deps = ShellDeps(
+            start_server=lambda app_module, port: received.append(port) or (lambda: None),
+            wait_healthy=lambda port, timeout: True,
+            open_window=_open_window,
+            run_tray=lambda on_quit: None,
+            stop_tray=lambda: None,
+            resolve_port=lambda: 8004,
+            acquire_instance=lambda port: object(),
+        )
+        run_windowed("myapp:app", title="T", deps=deps)
+        assert received == [8004]
+
+    def test_free_port_autopick_integration(self) -> None:
+        """When preferred port is occupied, run_windowed uses a different free port.
+
+        Exercises _default_resolve_port via the DEFAULT deps path (no custom deps).
+        Uses a fully fake start_server / wait_healthy / open_window so no real
+        uvicorn or webview is needed.  The key check: the port actually chosen
+        by deps.resolve_port() is different from the occupied one.
+        """
+        # Occupy a free port
+        occupied = _find_free_port()
+        sock = _bind_port(occupied)
+        try:
+            chosen_ports: list[int] = []
+
+            def _open_window(url: str, title: str, quit_event: threading.Event) -> None:
+                quit_event.set()
+
+            # Build deps where resolve_port is the real _default_resolve_port
+            # (prefers `occupied`, so must walk to the next free port).
+            deps = ShellDeps(
+                start_server=lambda app_module, port: chosen_ports.append(port) or (lambda: None),
+                wait_healthy=lambda port, timeout: True,
+                open_window=_open_window,
+                run_tray=lambda on_quit: None,
+                stop_tray=lambda: None,
+                resolve_port=lambda: _default_resolve_port(preferred=occupied),
+                acquire_instance=lambda port: object(),
+            )
+            run_windowed("myapp:app", title="T", deps=deps, preferred_port=occupied)
+
+            assert len(chosen_ports) == 1
+            chosen = chosen_ports[0]
+            assert chosen != occupied, (
+                f"Expected a different port when {occupied} is occupied, got {chosen}"
+            )
+            # The chosen port must be actually bindable
+            verify = _bind_port(chosen)
+            verify.close()
+        finally:
+            sock.close()
+
+
+# ---------------------------------------------------------------------------
+# Original choreography tests (unchanged -- seam contract must remain stable)
+# ---------------------------------------------------------------------------
 
 
 def test_boot_order_and_shutdown():

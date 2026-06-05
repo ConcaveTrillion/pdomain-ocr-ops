@@ -182,13 +182,28 @@ def _make_tray_seams() -> tuple[
 _default_run_tray, _default_stop_tray = _make_tray_seams()
 
 
-def _default_resolve_port() -> int:
-    """Return the default suite port.
+def _default_resolve_port(preferred: int = 8004) -> int:
+    """Return a free port, starting from *preferred*.
+
+    Delegates to :func:`~pdomain_ops.suite.ports.find_available_port` so
+    desktop-mode startup behaves symmetrically with browser-mode startup
+    (``bootstrap_spa`` also uses ``find_available_port``).  If *preferred*
+    is already in use by another process, the next consecutive free port is
+    returned automatically — no ``[Errno 98] address already in use`` crash.
+
+    Args:
+        preferred: The first port to try.  Defaults to ``8004``.
 
     Returns:
-        The default port (8004).
+        The first free port in ``[preferred, preferred + 100)``.
+
+    Raises:
+        RuntimeError: If no free port is found within 100 attempts.
     """
-    return 8004
+    # Local import to avoid any circular-import risk between desktop and suite.
+    from pdomain_ops.suite.ports import find_available_port
+
+    return find_available_port(preferred=preferred, host="127.0.0.1")
 
 
 def _default_acquire_instance(port: int) -> Any:
@@ -253,7 +268,9 @@ class ShellDeps:
         run_tray: ``(on_quit) -> None`` — launches the pystray icon on a
             background daemon thread.
         stop_tray: ``() -> None`` — stops the pystray icon.
-        resolve_port: ``() -> int`` — returns the port to bind.
+        resolve_port: ``() -> int`` — returns the port to bind.  The default
+            implementation calls :func:`_default_resolve_port` which auto-picks
+            a free port starting from the preferred port.
         acquire_instance: ``(port) -> InstanceLock`` — writes the pidfile lock.
         existing_instance: ``() -> dict | None`` — checks for a live instance.
         focus_existing: ``(port) -> None`` — focuses the existing window.
@@ -282,6 +299,7 @@ def run_windowed(
     *,
     title: str,
     deps: ShellDeps | None = None,
+    preferred_port: int = 8004,
 ) -> None:
     """Run a pd-* app as a native desktop window.
 
@@ -291,7 +309,8 @@ def run_windowed(
     Steps:
 
     1. Check for an existing instance — if found, focus it and return.
-    2. Resolve the port and acquire the pidfile lock.
+    2. Resolve the port (auto-picks a free port starting from *preferred_port*)
+       and acquire the pidfile lock.
     3. Start the uvicorn server on a daemon thread.
     4. Poll ``/healthz`` until healthy (30-second timeout).  If the server
        never becomes healthy, teardown (stop server) and raise ``RuntimeError``.
@@ -305,19 +324,46 @@ def run_windowed(
     - Server death → ``quit_event`` → window closes → teardown.
     - User closes window → ``quit_event`` set → teardown.
 
+    Port selection: the default ``resolve_port`` seam calls
+    :func:`_default_resolve_port` which uses
+    :func:`~pdomain_ops.suite.ports.find_available_port` starting from
+    *preferred_port*.  If *preferred_port* is already in use the next
+    consecutive free port is chosen automatically — no ``EADDRINUSE`` crash.
+    When a custom *deps* is supplied, the caller's ``deps.resolve_port``
+    controls port selection entirely; *preferred_port* has no effect.
+
+    Single-instance interaction: the single-instance check reads the pidfile
+    written by a prior ``run_windowed`` invocation; that pidfile records
+    whatever port was resolved at that time.  Auto-port does NOT change this
+    contract — each launch re-runs the single-instance check before resolving
+    a port, so if an existing instance is alive its port is used to focus it.
+
     Args:
         app_module: The ASGI app module path (e.g.
             ``"pdomain_ocr_simple_gui.app:app"``).
         title: Window title shown in the native window chrome.
-        deps: Injectable :class:`ShellDeps`.  Defaults to the real
-            production seams (requires ``[desktop]`` optional extra).
+        deps: Injectable :class:`ShellDeps`.  Defaults to ``None``, in which
+            case a :class:`ShellDeps` is constructed with the default seams
+            (requires ``[desktop]`` optional extra).  When *deps* is ``None``,
+            the ``resolve_port`` seam is wired to call
+            :func:`_default_resolve_port` with *preferred_port* so the
+            preferred port is honored.
+        preferred_port: The preferred port to bind.  Defaults to ``8004``.
+            Only used when *deps* is ``None`` (the default seam construction
+            path).  Pass the user's ``--port`` value here so that
+            ``--desktop`` and ``--port`` compose correctly.
 
     Raises:
         RuntimeError: If ``wait_healthy`` returns ``False`` (server did not
             start in time).
     """
     if deps is None:
-        deps = ShellDeps()
+        # Wire the default resolve_port seam to honour preferred_port.
+        # This is the only place preferred_port influences behaviour when
+        # using the default production seams.
+        deps = ShellDeps(
+            resolve_port=lambda: _default_resolve_port(preferred=preferred_port),
+        )
 
     # 1. Single-instance check
     live = deps.existing_instance()
