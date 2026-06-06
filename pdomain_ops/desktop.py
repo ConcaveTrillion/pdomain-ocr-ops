@@ -23,6 +23,7 @@ in production and admits lightweight fakes for unit tests — no GUI needed.
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import sys
 import threading
@@ -72,6 +73,63 @@ def _preferred_qt_platform(env: Mapping[str, str]) -> str | None:
     if env.get("XDG_SESSION_TYPE") == "wayland" or env.get("WAYLAND_DISPLAY"):
         return "wayland"
     return None
+
+
+def _pyqt6_plugin_path() -> str | None:
+    """Return the absolute path to PyQt6's Qt6 plugins directory, or None.
+
+    Locates PyQt6 via ``importlib.util.find_spec`` and resolves the
+    ``Qt6/plugins`` subdirectory relative to the package's ``__init__.py``.
+    This path contains ``platforms/libqxcb.so``, ``platforms/libqwayland.so``,
+    etc. — the canonical location that PyQt6 wheels ship to.
+
+    Setting ``QT_QPA_PLATFORM_PLUGIN_PATH`` to this path before importing
+    webview prevents Qt from picking up OpenCV's bundled (and often stale or
+    version-mismatched) Qt platform plugins, which live at
+    ``site-packages/cv2/qt/plugins`` and shadow PyQt6's own plugins when
+    ``import cv2`` mutates ``QT_QPA_PLATFORM_PLUGIN_PATH``.
+
+    Returns:
+        The absolute path as a ``str`` when the directory exists, or ``None``
+        when PyQt6 is not installed, the spec has no origin, or the
+        ``Qt6/plugins`` subdirectory is absent.
+    """
+    try:
+        spec = importlib.util.find_spec("PyQt6")
+    except ModuleNotFoundError:
+        return None
+
+    if spec is None or spec.origin is None:
+        return None
+
+    # spec.origin is the path to PyQt6/__init__.py; parent is the package dir.
+    pyqt6_dir = os.path.dirname(spec.origin)
+    plugins_dir = os.path.join(pyqt6_dir, "Qt6", "plugins")
+    if os.path.isdir(plugins_dir):
+        return plugins_dir
+    return None
+
+
+def _should_override_qt_plugin_path(current: str | None) -> bool:
+    """Return True when ``QT_QPA_PLATFORM_PLUGIN_PATH`` should be overridden.
+
+    Overrides when the current value is unset (falsy) OR when it contains
+    ``"cv2"`` — indicating that OpenCV has poisoned the variable with its own
+    bundled plugin directory, which is incompatible with PyQt6.
+
+    A non-empty value that does not contain ``"cv2"`` is treated as a
+    deliberate user or system choice and is left unchanged.
+
+    Args:
+        current: The current value of ``QT_QPA_PLATFORM_PLUGIN_PATH``, or
+            ``None`` if the variable is unset.
+
+    Returns:
+        ``True`` when the path should be replaced, ``False`` otherwise.
+    """
+    if not current:
+        return True
+    return "cv2" in current
 
 
 # ---------------------------------------------------------------------------
@@ -148,17 +206,45 @@ def _default_open_window(url: str, title: str, quit_event: threading.Event) -> N
     window, allowing the tray-Quit path or server-death watchdog to drive
     orderly shutdown.
 
+    On Linux, forces the Qt backend (``gui="qt"`` in ``webview.start()``) to
+    prevent pywebview from probing the GTK backend first.  The GTK probe
+    triggers an alarming ``ModuleNotFoundError: No module named 'gi'`` traceback
+    in uv-tool venvs where the system ``gi`` binding is not importable.  PyQt6
+    is the chosen Linux backend and ships as wheels in the venv — no GTK probe
+    is needed.
+
+    Also pins ``QT_QPA_PLATFORM_PLUGIN_PATH`` to PyQt6's own ``Qt6/plugins``
+    directory when the current value is unset or contains ``"cv2"``.  OpenCV
+    pollutes this variable on import (``import cv2`` sets it to
+    ``cv2/qt/plugins``), which causes Qt to load stale or incompatible platform
+    plugins instead of PyQt6's own ``libqxcb.so`` / ``libqwayland.so``.
+
+    Environment variable application order (Linux only):
+
+    1. ``QT_QPA_PLATFORM``: set to ``"wayland"`` by :func:`_preferred_qt_platform`
+       when a Wayland session is detected and the variable is not already set.
+    2. ``QT_QPA_PLATFORM_PLUGIN_PATH``: set to PyQt6's ``Qt6/plugins`` dir when
+       :func:`_should_override_qt_plugin_path` returns ``True``.
+
     Args:
         url: The URL to display in the native window.
         title: The window chrome title.
         quit_event: Signals that the window should be closed.
     """
-    # Auto-prefer the Wayland Qt plugin on Wayland sessions so the window
-    # opens without requiring libxcb-cursor0 (the xcb plugin system dep).
+    # Step 1: Auto-prefer the Wayland Qt plugin on Wayland sessions so the
+    # window opens without requiring libxcb-cursor0 (the xcb plugin system dep).
     _qt_platform = _preferred_qt_platform(os.environ)
     if _qt_platform is not None and not os.environ.get("QT_QPA_PLATFORM"):
         os.environ["QT_QPA_PLATFORM"] = _qt_platform
 
+    # Step 2: Pin QT_QPA_PLATFORM_PLUGIN_PATH to PyQt6's own plugins dir to
+    # defeat OpenCV's QT_QPA_PLATFORM_PLUGIN_PATH pollution (cv2/qt/plugins).
+    if _should_override_qt_plugin_path(os.environ.get("QT_QPA_PLATFORM_PLUGIN_PATH")):
+        pyqt6_plugins = _pyqt6_plugin_path()
+        if pyqt6_plugins is not None:
+            os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = pyqt6_plugins
+
+    # Step 3: Import webview and open the window.
     import webview  # pyright: ignore[reportMissingImports]
 
     window = webview.create_window(title, url)
@@ -170,7 +256,13 @@ def _default_open_window(url: str, title: str, quit_event: threading.Event) -> N
     t = threading.Thread(target=_destroy_on_quit, daemon=True)
     t.start()
 
-    webview.start()
+    # On Linux, force the Qt backend so pywebview never probes GTK.
+    # On non-Linux (macOS/Windows), let pywebview auto-select Cocoa/EdgeChromium.
+    # Use a single call with optional kwargs to avoid an extra reportUnknownMemberType
+    # warning from basedpyright (webview has no type stubs).
+    _gui_kwargs = {"gui": "qt"} if sys.platform.startswith("linux") else {}
+    webview.start(**_gui_kwargs)
+
     # Ensure quit_event is set so the watchdog/tray threads also unblock,
     # in case the window was closed by the user directly.
     quit_event.set()
