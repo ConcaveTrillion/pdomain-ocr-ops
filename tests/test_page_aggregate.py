@@ -226,6 +226,28 @@ def test_rotation_updated_empty_source_raises() -> None:
         agg.rotation_updated(degrees=90, source="")
 
 
+def test_rotation_updated_unknown_source_raises() -> None:
+    """rotation_updated rejects a non-empty but unrecognised source string.
+
+    State must be clean after the raise — no partial event applied.
+    rotation_degrees and rotation_source stay at their PageRecord defaults
+    (0 and RotationSource.NONE respectively).
+    """
+    import pytest
+
+    from pdomain_ops.pages import RotationSource
+
+    pid = uuid4()
+    agg = PageAggregate(record=PageRecord(page_id=pid, page_index=0))
+    initial_version = agg.version
+    with pytest.raises(ValueError):
+        agg.rotation_updated(degrees=90, source="robot")
+    # Aggregate state must be clean — no partial application
+    assert agg.version == initial_version, "no event should have been recorded"
+    assert agg.record.rotation_degrees == 0, "rotation_degrees must stay at default"
+    assert agg.record.rotation_source is RotationSource.NONE, "rotation_source must stay at default"
+
+
 def test_rotation_updated_all_valid_degrees(tmp_path: Path) -> None:
     """Each valid degree value round-trips correctly through the event store."""
     valid_degrees = (-90, 0, 90, 180, 270)
