@@ -129,6 +129,35 @@ class PageAggregate(Aggregate):
         """Record that this page was exported."""
         self._apply_node(provenance_node)
 
+    _VALID_DEGREES: frozenset[int] = frozenset({-90, 0, 90, 180, 270})
+
+    @event("RotationUpdated")
+    def rotation_updated(self, *, degrees: int, source: str) -> None:
+        """Record that the page's rotation metadata was updated.
+
+        Args:
+            degrees: Rotation in degrees. Must be one of {-90, 0, 90, 180, 270}.
+            source: How the rotation was determined. Must be a non-empty string
+                    whose value matches a ``RotationSource`` enum member
+                    (``"manual"``, ``"auto"``, ``"none"``).
+
+        Raises:
+            ValueError: If ``degrees`` is not a valid rotation value, ``source`` is
+                        empty, or ``source`` is not a recognised ``RotationSource``
+                        value.
+        """
+        from pdomain_ops.pages.records import RotationSource
+
+        if degrees not in self._VALID_DEGREES:
+            msg = f"degrees must be one of {sorted(self._VALID_DEGREES)}, got {degrees!r}"
+            raise ValueError(msg)
+        if not source:
+            msg = "source must be a non-empty string"
+            raise ValueError(msg)
+        rotation_source = RotationSource(source)  # raises ValueError for unknown values
+        self._record.rotation_degrees = degrees
+        self._record.rotation_source = rotation_source
+
     def set_extension(self, namespace: str, value: BaseModel) -> None:
         """Set or replace an extension namespace on this page, recording an event.
 

@@ -177,3 +177,63 @@ def test_remove_page_absent_is_noop(tmp_path: Path) -> None:
 
     reloaded: ProjectAggregate = app.repository.get(proj_id)
     assert reloaded.record.page_ids == [p0]
+
+
+# ---------------------------------------------------------------------------
+# RotationUpdated tests (TDD — written before implementation)
+# ---------------------------------------------------------------------------
+
+
+def test_rotation_updated_persists_through_event_store(tmp_path: Path) -> None:
+    """rotation_updated round-trips through the event store: reload → fields match."""
+    app = PagesApplication(env=_sqlite_env(tmp_path))
+    pid = uuid4()
+    agg = PageAggregate(record=PageRecord(page_id=pid, page_index=0))
+    agg.rotation_updated(degrees=90, source="manual")
+    app.save(agg)
+
+    reloaded: PageAggregate = app.repository.get(pid)
+    assert reloaded.record.rotation_degrees == 90
+    assert reloaded.record.rotation_source == "manual"
+
+
+def test_rotation_updated_in_memory() -> None:
+    """rotation_updated sets fields on the in-memory aggregate immediately."""
+    pid = uuid4()
+    agg = PageAggregate(record=PageRecord(page_id=pid, page_index=0))
+    agg.rotation_updated(degrees=180, source="auto")
+    assert agg.record.rotation_degrees == 180
+    assert agg.record.rotation_source == "auto"
+
+
+def test_rotation_updated_invalid_degrees_raises() -> None:
+    """rotation_updated rejects degrees not in {-90, 0, 90, 180, 270}."""
+    pid = uuid4()
+    agg = PageAggregate(record=PageRecord(page_id=pid, page_index=0))
+    import pytest
+
+    with pytest.raises(ValueError, match="degrees"):
+        agg.rotation_updated(degrees=45, source="manual")
+
+
+def test_rotation_updated_empty_source_raises() -> None:
+    """rotation_updated rejects an empty source string."""
+    pid = uuid4()
+    agg = PageAggregate(record=PageRecord(page_id=pid, page_index=0))
+    import pytest
+
+    with pytest.raises(ValueError, match="source"):
+        agg.rotation_updated(degrees=90, source="")
+
+
+def test_rotation_updated_all_valid_degrees(tmp_path: Path) -> None:
+    """Each valid degree value round-trips correctly through the event store."""
+    valid_degrees = (-90, 0, 90, 180, 270)
+    app = PagesApplication(env=_sqlite_env(tmp_path))
+    for deg in valid_degrees:
+        pid = uuid4()
+        agg = PageAggregate(record=PageRecord(page_id=pid, page_index=0))
+        agg.rotation_updated(degrees=deg, source="manual")
+        app.save(agg)
+        reloaded: PageAggregate = app.repository.get(pid)
+        assert reloaded.record.rotation_degrees == deg, f"Failed for degrees={deg}"
