@@ -34,7 +34,7 @@ endef
         lint lint-check format format-check typecheck test ci ci-slow build clean pre-commit-check dev-local \
         upgrade-deps release-patch release-minor release-major _do-release \
         local-setup local-dev local-check local-upgrade-deps \
-        update-pdomain-deps
+        update-pdomain-deps ci-against-main
 
 help: ## Show this help message
 	@echo "Available commands:"
@@ -149,6 +149,9 @@ local-upgrade-deps: ## Upgrade deps then restore editable siblings (local-mode o
 
 update-pdomain-deps: ## Bump pdomain-* sibling deps to registry latest; leaves diff for review
 	@./scripts/update-pdomain-deps.sh
+
+ci-against-main: ## Validate against pd-* siblings' latest main, then revert (transient)
+	@./scripts/ci-against-main.sh
 
 # ---------------------------------------------------------------------------
 # Releases
