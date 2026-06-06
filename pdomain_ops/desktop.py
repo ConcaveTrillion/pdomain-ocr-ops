@@ -23,13 +23,56 @@ in production and admits lightweight fakes for unit tests — no GUI needed.
 
 from __future__ import annotations
 
+import os
 import sys
 import threading
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Mapping
+
+# ---------------------------------------------------------------------------
+# Qt platform detection
+# ---------------------------------------------------------------------------
+
+
+def _preferred_qt_platform(env: Mapping[str, str]) -> str | None:
+    """Return the preferred Qt platform plugin for the current desktop session.
+
+    Detects whether the process is running inside a Wayland session and, if so,
+    returns "wayland" so the caller can set QT_QPA_PLATFORM before
+    starting the webview.  The Wayland Qt plugin ships inside the PyQt6 wheels
+    and needs no extra system libraries, unlike the xcb plugin which requires
+    libxcb-cursor0 on X11.
+
+    Detection logic (evaluated in order):
+
+    1. If QT_QPA_PLATFORM is already set (non-empty), return None — the
+       user has made an explicit choice; do not override it.
+    2. If XDG_SESSION_TYPE == "wayland" **or** WAYLAND_DISPLAY is
+       non-empty, return "wayland".
+    3. Otherwise return None (X11 / TTY / non-Linux / unknown — let Qt
+       auto-detect).
+
+    This helper is pure and has no side-effects; callers are responsible for
+    applying the returned value to os.environ.
+
+    Args:
+        env: A mapping of environment variable names to values.  Pass
+            os.environ in production or a plain dict in tests.
+
+    Returns:
+        "wayland" when a Wayland session is detected and no explicit
+        platform is set; None otherwise.
+    """
+    if env.get("QT_QPA_PLATFORM"):
+        # User already made an explicit choice — never override.
+        return None
+    if env.get("XDG_SESSION_TYPE") == "wayland" or env.get("WAYLAND_DISPLAY"):
+        return "wayland"
+    return None
+
 
 # ---------------------------------------------------------------------------
 # Default seam implementations (lazy-importing optional GUI deps)
@@ -110,6 +153,12 @@ def _default_open_window(url: str, title: str, quit_event: threading.Event) -> N
         title: The window chrome title.
         quit_event: Signals that the window should be closed.
     """
+    # Auto-prefer the Wayland Qt plugin on Wayland sessions so the window
+    # opens without requiring libxcb-cursor0 (the xcb plugin system dep).
+    _qt_platform = _preferred_qt_platform(os.environ)
+    if _qt_platform is not None and not os.environ.get("QT_QPA_PLATFORM"):
+        os.environ["QT_QPA_PLATFORM"] = _qt_platform
+
     import webview  # pyright: ignore[reportMissingImports]
 
     window = webview.create_window(title, url)
