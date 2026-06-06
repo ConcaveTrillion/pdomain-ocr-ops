@@ -26,7 +26,7 @@ for marker in \
     fi
 done
 
-if ! git diff --quiet -- pyproject.toml uv.lock; then
+if ! git diff HEAD --quiet -- pyproject.toml uv.lock; then
     echo "ERROR: pyproject.toml/uv.lock have uncommitted changes." >&2
     echo "       Commit or stash them before running ci-against-main." >&2
     exit 1
@@ -40,8 +40,8 @@ restore() {
     rc=$?
     echo ""
     echo "Restoring pyproject.toml + uv.lock and re-syncing registry deps..."
-    cp "$BACKUP_DIR/pyproject.toml" pyproject.toml
-    cp "$BACKUP_DIR/uv.lock" uv.lock
+    cp "$BACKUP_DIR/pyproject.toml" pyproject.toml || echo "FATAL: failed to restore pyproject.toml" >&2
+    cp "$BACKUP_DIR/uv.lock" uv.lock || echo "FATAL: failed to restore uv.lock" >&2
     rm -rf "$BACKUP_DIR"
     uv sync --quiet || true
     exit $rc
@@ -49,7 +49,7 @@ restore() {
 trap restore EXIT
 
 echo "Flipping pd-* sources to git main: ${PY_SIBLINGS[*]}"
-python3 scripts/git_main_sources.py pyproject.toml "$OWNER" "${PY_SIBLINGS[@]}"
+uv run --no-sync python scripts/git_main_sources.py pyproject.toml "$OWNER" "${PY_SIBLINGS[@]}"
 
 echo "Locking against sibling main (captures current SHAs)..."
 uv lock
