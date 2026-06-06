@@ -102,8 +102,10 @@ def test_install_shortcut_exec_quoted(monkeypatch, tmp_path):
     install_shortcut(app)
     f = tmp_path / "pdomain-pdomain-app-b.desktop"
     text = f.read_text()
-    # shlex.quote wraps paths with spaces in single quotes
-    assert "Exec='/usr/local/bin/my app' --desktop" in text
+    # shlex.quote wraps paths with spaces in single quotes; no --desktop flag
+    # (apps launch browser mode by default — the native webview was retired).
+    assert "Exec='/usr/local/bin/my app'\n" in text
+    assert "--desktop" not in text
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="linux shortcut only")

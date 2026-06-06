@@ -75,7 +75,10 @@ def install_shortcut(app: InstalledApp) -> None:
             "Version=1.0",
             "Type=Application",
             f"Name={display_name}",
-            f"Exec={shlex.quote(app.binary)} --desktop",
+            # No --desktop flag: pd-* apps launch in browser mode by default
+            # (start the server + open the system browser).  The native webview
+            # window was retired (it conflicts with in-process OpenCV's Qt).
+            f"Exec={shlex.quote(app.binary)}",
             f"Icon={app.app_id}",
             "Terminal=false",
             "Categories=Utility;",
