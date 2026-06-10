@@ -35,3 +35,8 @@ def ui_prefs_json_path() -> Path:
 def jobs_db_path() -> Path:
     """Return the path to jobs.db."""
     return suite_data_dir() / "jobs.db"
+
+
+def shared_paths_json_path() -> Path:
+    """Return the path to shared-paths.json."""
+    return suite_data_dir() / "shared-paths.json"
