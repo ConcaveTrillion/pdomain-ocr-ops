@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `LocalFilePrefs` no longer blocks indefinitely on a contended prefs file
+  lock. The `filelock.FileLock` is now acquired with a finite timeout
+  (default 5s) instead of `timeout=-1` (block forever). An orphaned lock
+  holder (e.g. a killed `pytest -n auto` worker or a leftover e2e uvicorn
+  subprocess) used to wedge the caller forever; it now raises the new typed
+  `PrefsLockTimeout` (a subclass of `filelock.Timeout`). The timeout is
+  configurable via the `lock_timeout=` constructor arg or the
+  `PDOMAIN_PREFS_LOCK_TIMEOUT` env var. `PrefsLockTimeout`, `LocalFilePrefs`,
+  `PrefsAdapter`, and `DEFAULT_LOCK_TIMEOUT` are now re-exported from
+  `pdomain_ops.suite`. Backward compatible: the `PrefsAdapter` Protocol is
+  unchanged and existing callers catching `filelock.Timeout` still work.
+
 ### Changed
 
 - `[desktop]` extra now bundles the QT backend on Linux (`qtpy>=2`, `PyQt6>=6.7`, `PyQt6-WebEngine>=6.7`). pywebview requires a GUI backend; QT is the only fully pip-installable, self-contained choice for isolated `uv tool` venvs.

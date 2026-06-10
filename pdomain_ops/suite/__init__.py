@@ -2,6 +2,12 @@
 
 from pdomain_ops.suite.bootstrap import bootstrap_spa
 from pdomain_ops.suite.ports import find_available_port
+from pdomain_ops.suite.prefs import (
+    DEFAULT_LOCK_TIMEOUT,
+    LocalFilePrefs,
+    PrefsAdapter,
+    PrefsLockTimeout,
+)
 from pdomain_ops.suite.register_self import register_self
 from pdomain_ops.suite.types import (
     CommonUIPrefs,
@@ -13,9 +19,13 @@ from pdomain_ops.suite.types import (
 )
 
 __all__ = [
+    "DEFAULT_LOCK_TIMEOUT",
     "CommonUIPrefs",
     "InstalledApp",
     "LayerColors",
+    "LocalFilePrefs",
+    "PrefsAdapter",
+    "PrefsLockTimeout",
     "SuiteAdapters",
     "SuiteApp",
     "UIPrefs",
