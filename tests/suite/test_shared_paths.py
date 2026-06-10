@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import threading
+
 import filelock
 import pytest
 
@@ -70,3 +72,104 @@ def test_publish_relative_path_raises(tmp_path, monkeypatch):
     monkeypatch.setenv("PD_SUITE_DATA_DIR", str(tmp_path))
     with pytest.raises(ValueError, match="absolute"):
         publish_shared_path("key", Path("relative/path"), app="x")
+
+
+def _hold_lock(lock_path: str, held: threading.Event, release: threading.Event) -> None:
+    with filelock.FileLock(lock_path):
+        held.set()
+        release.wait(timeout=_WATCHDOG_S)
+
+
+def _run_bounded(fn, *, watchdog_s: float = _WATCHDOG_S):
+    box: dict[str, object] = {}
+
+    def target() -> None:
+        try:
+            box["result"] = fn()
+        except BaseException as exc:
+            box["exc"] = exc
+
+    worker = threading.Thread(target=target, daemon=True)
+    worker.start()
+    worker.join(timeout=watchdog_s)
+    if worker.is_alive():
+        pytest.fail(f"call did not return within {watchdog_s}s -- lock is blocking indefinitely")
+    return box.get("result"), box.get("exc")
+
+
+def test_publish_raises_lock_timeout_when_lock_held(tmp_path, monkeypatch):
+    monkeypatch.setenv("PD_SUITE_DATA_DIR", str(tmp_path))
+    json_path = tmp_path / "shared-paths.json"
+    lock_path = str(json_path.with_suffix(".json.lock"))
+
+    held = threading.Event()
+    release = threading.Event()
+    h = threading.Thread(target=_hold_lock, args=(lock_path, held, release), daemon=True)
+    h.start()
+    assert held.wait(timeout=_WATCHDOG_S)
+
+    try:
+        _result, exc = _run_bounded(
+            lambda: publish_shared_path(
+                "doctr-export-root", tmp_path / "exports", app="labeler", lock_timeout=0.3
+            )
+        )
+        assert isinstance(exc, SharedPathsLockTimeout), (
+            f"expected SharedPathsLockTimeout, got {exc!r}"
+        )
+        assert issubclass(type(exc), filelock.Timeout)
+    finally:
+        release.set()
+        h.join(timeout=_WATCHDOG_S)
+
+
+def test_resolve_raises_lock_timeout_when_lock_held(tmp_path, monkeypatch):
+    monkeypatch.setenv("PD_SUITE_DATA_DIR", str(tmp_path))
+    json_path = tmp_path / "shared-paths.json"
+    lock_path = str(json_path.with_suffix(".json.lock"))
+
+    held = threading.Event()
+    release = threading.Event()
+    h = threading.Thread(target=_hold_lock, args=(lock_path, held, release), daemon=True)
+    h.start()
+    assert held.wait(timeout=_WATCHDOG_S)
+
+    try:
+        _result, exc = _run_bounded(
+            lambda: resolve_shared_path("doctr-export-root", lock_timeout=0.3)
+        )
+        assert isinstance(exc, SharedPathsLockTimeout), (
+            f"expected SharedPathsLockTimeout, got {exc!r}"
+        )
+    finally:
+        release.set()
+        h.join(timeout=_WATCHDOG_S)
+
+
+def test_default_lock_timeout_is_finite():
+    from pdomain_ops.suite.shared_paths import DEFAULT_LOCK_TIMEOUT
+
+    assert DEFAULT_LOCK_TIMEOUT > 0
+    assert DEFAULT_LOCK_TIMEOUT != -1
+
+
+def test_lock_timeout_env_var_override(tmp_path, monkeypatch):
+    monkeypatch.setenv("PD_SUITE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("PDOMAIN_SHARED_PATHS_LOCK_TIMEOUT", "2.5")
+    from pdomain_ops.suite.shared_paths import _resolve_timeout
+
+    assert _resolve_timeout(None) == 2.5
+
+
+def test_explicit_lock_timeout_beats_env_var(monkeypatch):
+    monkeypatch.setenv("PDOMAIN_SHARED_PATHS_LOCK_TIMEOUT", "2.5")
+    from pdomain_ops.suite.shared_paths import _resolve_timeout
+
+    assert _resolve_timeout(3.0) == 3.0
+
+
+def test_invalid_env_var_falls_back_to_default(monkeypatch):
+    monkeypatch.setenv("PDOMAIN_SHARED_PATHS_LOCK_TIMEOUT", "not-a-number")
+    from pdomain_ops.suite.shared_paths import DEFAULT_LOCK_TIMEOUT, _resolve_timeout
+
+    assert _resolve_timeout(None) == DEFAULT_LOCK_TIMEOUT
