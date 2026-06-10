@@ -133,8 +133,8 @@ def test_write_manifest_creates_parent_dir(tmp_path):
     assert (export_root / "manifest.json").exists()
 
 
-def test_write_manifest_is_atomic(tmp_path):
-    """write_manifest must not leave a partial file visible to readers."""
+def test_write_manifest_overwrites_existing(tmp_path):
+    """write_manifest replaces an existing manifest in full via sequential overwrite (os.replace guarantee)."""
     m = _sample_manifest()
     write_manifest(tmp_path, m)
     # A second write should fully replace the first atomically

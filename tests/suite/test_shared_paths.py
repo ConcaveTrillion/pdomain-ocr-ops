@@ -173,3 +173,15 @@ def test_invalid_env_var_falls_back_to_default(monkeypatch):
     from pdomain_ops.suite.shared_paths import DEFAULT_LOCK_TIMEOUT, _resolve_timeout
 
     assert _resolve_timeout(None) == DEFAULT_LOCK_TIMEOUT
+
+
+def test_resolve_corrupt_json_returns_none(tmp_path, monkeypatch):
+    monkeypatch.setenv("PD_SUITE_DATA_DIR", str(tmp_path))
+    (tmp_path / "shared-paths.json").write_text("not valid json", encoding="utf-8")
+    assert resolve_shared_path("any-key") is None
+
+
+def test_resolve_non_dict_json_returns_none(tmp_path, monkeypatch):
+    monkeypatch.setenv("PD_SUITE_DATA_DIR", str(tmp_path))
+    (tmp_path / "shared-paths.json").write_text("[1, 2, 3]", encoding="utf-8")
+    assert resolve_shared_path("any-key") is None

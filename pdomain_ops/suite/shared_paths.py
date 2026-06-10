@@ -8,7 +8,7 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import Any, override
+from typing import Any, cast
 
 import filelock
 
@@ -29,13 +29,10 @@ class SharedPathsLockTimeout(filelock.Timeout):
     can catch this typed error and map it to an HTTP 503.
     """
 
-    timeout: float
-
     def __init__(self, lock_file: str, timeout: float) -> None:
         super().__init__(lock_file)
         self.timeout = timeout
 
-    @override
     def __str__(self) -> str:
         return (
             f"Could not acquire shared-paths lock on {self.lock_file!r} within "
@@ -50,7 +47,10 @@ def _shared_paths_json() -> Path:
 
 
 def _resolve_timeout(lock_timeout: float | None) -> float:
-    """Resolve effective lock timeout using the same precedence as prefs."""
+    """Resolve effective lock timeout using the same precedence as prefs.
+
+    # Precedence: explicit kwarg > PDOMAIN_SHARED_PATHS_LOCK_TIMEOUT env var > DEFAULT_LOCK_TIMEOUT
+    """
     if lock_timeout is not None:
         return lock_timeout
     env_val = os.environ.get(LOCK_TIMEOUT_ENV_VAR)
@@ -77,7 +77,7 @@ def _read_raw(json_path: Path) -> dict[str, Any]:
         return {"paths": {}}
     else:
         if isinstance(raw, dict):
-            return raw  # type: ignore[return-value]
+            return cast("dict[str, Any]", raw)
         return {"paths": {}}
 
 
