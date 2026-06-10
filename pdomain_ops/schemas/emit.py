@@ -7,6 +7,11 @@ import json
 from pydantic import TypeAdapter
 
 from pdomain_ops.gpu.types import JobEvent, JobSpec, JobStatus, StageResult
+from pdomain_ops.schemas.doctr_export import (
+    DoctrExportManifest,
+    DoctrExportProject,
+    DoctrExportTaskStats,
+)
 from pdomain_ops.suite.device_routes import DeviceInfo
 from pdomain_ops.suite.sibling_spawn import (
     LaunchResult,
@@ -39,6 +44,9 @@ PUBLIC_MODELS = (
     JobSpec,
     DeviceInfo,
     UpdateInfo,
+    DoctrExportTaskStats,
+    DoctrExportProject,
+    DoctrExportManifest,
 )
 
 

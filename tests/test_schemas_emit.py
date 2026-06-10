@@ -84,3 +84,15 @@ def test_emit_stage_result_device_field_is_string():
     assert device_schema.get("type") == "string", (
         f"Expected device to be a string type, got: {device_schema}"
     )
+
+
+def test_emit_includes_doctr_export_models():
+    data = _emit()
+    assert "DoctrExportManifest" in data
+    assert "DoctrExportProject" in data
+    assert "DoctrExportTaskStats" in data
+    schema = data["DoctrExportManifest"]
+    props = schema.get("properties", {})
+    assert "schema" in props  # alias, not schema_id
+    assert "version" in props
+    assert "projects" in props
