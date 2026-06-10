@@ -9,6 +9,11 @@ from pdomain_ops.suite.prefs import (
     PrefsLockTimeout,
 )
 from pdomain_ops.suite.register_self import register_self
+from pdomain_ops.suite.shared_paths import (
+    SharedPathsLockTimeout,
+    publish_shared_path,
+    resolve_shared_path,
+)
 from pdomain_ops.suite.types import (
     CommonUIPrefs,
     InstalledApp,
@@ -26,10 +31,13 @@ __all__ = [
     "LocalFilePrefs",
     "PrefsAdapter",
     "PrefsLockTimeout",
+    "SharedPathsLockTimeout",
     "SuiteAdapters",
     "SuiteApp",
     "UIPrefs",
     "bootstrap_spa",
     "find_available_port",
+    "publish_shared_path",
     "register_self",
+    "resolve_shared_path",
 ]

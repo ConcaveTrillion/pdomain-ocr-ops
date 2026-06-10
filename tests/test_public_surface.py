@@ -36,3 +36,15 @@ def test_lifecycle_modules_are_not_top_level_exports() -> None:
 
     assert "BlobStore" not in pdomain_ops.__all__
     assert "PageAggregate" not in pdomain_ops.__all__
+
+
+def test_shared_paths_surface_importable() -> None:
+    from pdomain_ops.suite.shared_paths import (
+        SharedPathsLockTimeout,
+        publish_shared_path,
+        resolve_shared_path,
+    )
+
+    assert callable(publish_shared_path)
+    assert callable(resolve_shared_path)
+    assert issubclass(SharedPathsLockTimeout, Exception)
