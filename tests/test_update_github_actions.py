@@ -107,3 +107,50 @@ def test_update_uv_version_refs_updates_quoted_setup_uv_with_inline_comment(tmp_
 
     assert update_github_actions.update_uv_version_refs(workflow, version="0.11.16")
     assert 'version: "0.11.16"' in workflow.read_text(encoding="utf-8")
+
+
+def test_update_pyproject_uv_version_removed() -> None:
+    """update_pyproject_uv_version must no longer exist on the module.
+
+    The dep-refresh job self-poisoned because this function wrote the latest uv
+    release as an exact == pin into [tool.uv] required-version, so the
+    job's older pinned uv immediately violated the requirement it just wrote.
+    The floor pin (>=0.11.16) is a deliberate contributor floor and must
+    not auto-track the latest release.
+    """
+    assert not hasattr(update_github_actions, "update_pyproject_uv_version"), (
+        "update_pyproject_uv_version must be removed from the module; "
+        "it silently pinned required-version to the latest uv release, "
+        "causing dep-refresh to self-poison with an exact == constraint"
+    )
+
+
+def test_update_github_actions_does_not_accept_pyproject_param() -> None:
+    """update_github_actions must not have a pyproject parameter.
+
+    The parameter was only used to pass a path to update_pyproject_uv_version,
+    which has been removed.
+    """
+    import inspect
+
+    sig = inspect.signature(update_github_actions.update_github_actions)
+    assert "pyproject" not in sig.parameters, (
+        "update_github_actions must not accept a 'pyproject' parameter; "
+        "pyproject.toml required-version is no longer managed by this script"
+    )
+
+
+def test_update_github_actions_does_not_modify_pyproject(tmp_path: Path) -> None:
+    """update_github_actions must not write to pyproject.toml.
+
+    Verifies that the module no longer contains the function that was
+    responsible for modifying pyproject.toml.
+    """
+    pyproject = tmp_path / "pyproject.toml"
+    original_content = '[tool.uv]\nrequired-version = ">=0.11.16"\n'
+    pyproject.write_text(original_content, encoding="utf-8")
+
+    assert not hasattr(update_github_actions, "update_pyproject_uv_version"), (
+        "update_pyproject_uv_version must be removed"
+    )
+    assert pyproject.read_text(encoding="utf-8") == original_content
