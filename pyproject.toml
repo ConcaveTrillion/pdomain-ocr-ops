@@ -14,9 +14,11 @@ license = { text = "MIT" }
 requires-python = ">=3.11"
 dependencies = [
     "eventsourcing>=9.4,<10",
-    "fastapi>=0.110",
+    "fastapi>=0.110,<0.137",
     "filelock>=3.13",
     "httpx>=0.27",
+    "httpx2>=2.5",
+    "starlette==1.0.0",
     "packaging>=24",
     "pdomain-book-tools>=0.18.0",
     "platformdirs>=4.2",
