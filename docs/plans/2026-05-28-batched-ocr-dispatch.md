@@ -276,7 +276,7 @@ Set `model: sonnet` on implementers.
 - [ ] **Step 8 — run, verify pass; then `make ci AI=1`.**
 - [ ] **Step 9 — commit:** `feat(ocr): det_bs/reco_bs kwargs + batch OCR entry point`.
 
-**Integration:** `finishing-a-development-branch` → merge to `pdomain-book-tools` `main`
+**Integration:** `finishing-a-development-branch` → merge to `pdomain-book-tools` `master`
 (no push).
 
 ### Task 2: ops — `pick_doctr_batch_sizes` hardware sizing

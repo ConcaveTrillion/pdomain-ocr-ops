@@ -160,7 +160,7 @@ Files of interest (from exploration; **read before editing**):
   → `to_dict` → `apply_text_normalizations` (the consumer path)
 - `tests/conftest.py`, `tests/test_pipeline.py`, `tests/e2e/`
 
-Git state at exploration: clean `main`, no in-flight branch.
+Git state at exploration: clean `master`, no in-flight branch.
 
 ### Task B1: Bump dependency floors
 
@@ -224,7 +224,7 @@ git commit -m "test(simple-gui): drop removed Page fields from fake dispatcher (
 
 ## Integration (orchestrator)
 
-For each repo: worktree → rebase origin/main → ff-only merge → push (on CT auth), per
+For each repo: worktree → rebase origin/master → ff-only merge → push (on CT auth), per
 workspace policy. No GitHub PRs. Each repo bumps its own tag if it cuts a release;
 both pin `pdomain-ops>=0.7.0` + `pdomain-book-tools>=0.17.0`. The release gate is
 cleared (all deps in the index), so resolve directly from the index — no temporary

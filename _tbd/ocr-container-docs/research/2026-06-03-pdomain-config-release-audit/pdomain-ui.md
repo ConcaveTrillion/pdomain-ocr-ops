@@ -82,4 +82,3 @@ repo: pdomain-ui
 - Protect releases from manual tag bypass or document that only `make release-*` is valid.
 - Pin the mise installer like `pdomain-prep-for-pgdp`.
 - Expand action-pin updater to include release-only actions and `pnpm/action-setup`.
-

@@ -76,4 +76,3 @@ repo: pdomain-index-npm
 - Document exact publisher PAT permissions required for `repository_dispatch`.
 - Update the stale "Python repos" script comment.
 - Add a small changelog or state that GitHub-generated notes are canonical.
-

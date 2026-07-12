@@ -207,7 +207,7 @@ Expected for #2: `effort:M kind:feature model-effort:medium model:sonnet status:
 
 ## Task D: File M2 carry-forward feature issues
 
-**Repo:** pdomain/pdomain-prep-for-pgdp  
+**Repo:** pdomain/pdomain-prep-for-pgdp
 All issues: `kind:feature status:backlog`. None get `bot:ship-issue-ready` at filing time — CT adds that when promoting to `status:ready`.
 
 - [ ] **Step 1: File bounded deferred-write executor issue**
@@ -342,7 +342,7 @@ Expected: 4 new issues (numbers will be 3–6 approximately) plus #2 (oxipng).
 
 ## Task E: File spec and chore issues
 
-**Repo:** pdomain/pdomain-prep-for-pgdp  
+**Repo:** pdomain/pdomain-prep-for-pgdp
 Spec issues: no `bot:ship-issue-ready` at filing time — CT adds it after writing the spec via `/spec-from-issue`.
 
 - [ ] **Step 1: File M3 spec issue**

@@ -348,10 +348,10 @@ model: sonnet  effort: S  area: pdomain-ocr-trainer-spa
 Blocked-by: #browser-verification
 
 Context: Before any deletion steps begin, all core-parity acceptance criteria (Tasks 16 + 17) must be verified clean in CI. This is the gate for Phase 4.
-Approach: Run full CI on `pdomain-ocr-trainer-spa` main branch; confirm all milestone acceptance tests and browser-verification tests pass; get CT sign-off.
+Approach: Run full CI on the `pdomain-ocr-trainer-spa` master branch; confirm all milestone acceptance tests and browser-verification tests pass; get CT sign-off.
 Verification: `make ci` green on `pdomain-ocr-trainer-spa` main; `make e2e-browser` green
 Acceptance:
-- [ ] `make ci` passes on `pdomain-ocr-trainer-spa` main branch
+- [ ] `make ci` passes on `pdomain-ocr-trainer-spa` master branch
 - [ ] `make e2e-browser` passes (all Playwright tests green)
 - [ ] CT sign-off on parity before deletion proceeds
 

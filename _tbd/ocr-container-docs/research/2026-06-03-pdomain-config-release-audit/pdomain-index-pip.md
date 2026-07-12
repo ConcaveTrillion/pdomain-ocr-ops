@@ -84,4 +84,3 @@ repo: pdomain-index-pip
 - Document required dispatch PAT permissions.
 - Add a changelog or explicitly declare GitHub Release notes canonical.
 - Tie `REPOS` allowlist maintenance to new package release checklists.
-

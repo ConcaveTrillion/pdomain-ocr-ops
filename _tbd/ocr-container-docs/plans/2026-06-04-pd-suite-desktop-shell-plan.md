@@ -21,7 +21,7 @@ This plan is built for parallel subagent execution. Read this before dispatching
 **Merge protocol (workspace CLAUDE.md — rebase-only linear history):**
 1. Agent works in `<repo>/.claude/worktrees/<slug>`, commits to branch `<branch>`.
 2. Orchestrator verifies `make ci AI=1` green in the worktree.
-3. `git -C <repo>/.claude/worktrees/<slug> fetch origin && git rebase origin/main`.
+3. `git -C <repo>/.claude/worktrees/<slug> fetch origin && git rebase origin/HEAD`.
 4. `git -C <repo> checkout main && git -C <repo> merge --ff-only <branch>`.
 5. Push only when CT authorizes. Then delete branch + `git worktree remove`.
 6. After removing a worktree that shared the canonical `.venv`, run `uv sync` + `make local-setup-py` from the canonical checkout (editable-orphan fix).

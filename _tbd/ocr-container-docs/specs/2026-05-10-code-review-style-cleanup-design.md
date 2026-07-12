@@ -205,7 +205,7 @@ The split also means the apply step is independently testable with fixture JSON 
 1. Check bots-paused → skip + reschedule if present
 2. cd /srv/bot-workspaces/style-sweep/<repo>/
 3. git fetch; git checkout wip/style-sweep (create from main HEAD if missing)
-4. git reset --hard origin/main
+4. git reset --hard origin/master
 5. Invoke style-review-detect.py with scope = full repo + cap (default 50 + 50) → JSON
    - detect.py honors the cap; emits sweep-capped event in JSON if hit
 6. Pipe JSON to style-review-apply.py (handles: git apply, make fast-check, commit, pd-push, comment posting, events log)

@@ -18,10 +18,10 @@ Other things I've been working on, that *support* this tool:
 
 - A "pd-ocr-labeler" locally-runnable python web GUI which runs locally (not via jupyter notebook as before) and performs OCR + "ground truth" matching against P3 pages, and provides everything necessary to properly clean up both bounding boxes and text for export into training of ML OCR detectors and recognizers. In addition, it provides the ability to add classification tags for "italics", "small caps", "all caps", "drop caps", "blackletter", etc. Eventually I hope to train specific detection/KIE models for word types as well.
 
-- A "pd-ocr-trainer" locally-runnable python web GUI which takes labeled pages, and trains a DocTR OCR detection and recognition model.  Current model vocabulary includes most characters that appear in most post-1800 European printed texts. It's easy to add additional characters to the model to be trained against as well. 
+- A "pd-ocr-trainer" locally-runnable python web GUI which takes labeled pages, and trains a DocTR OCR detection and recognition model.  Current model vocabulary includes most characters that appear in most post-1800 European printed texts. It's easy to add additional characters to the model to be trained against as well.
 
 I have labeled approximately 100 pages so far, and have seen excellent results. Note that this is true "OCR", there is no LLM or NLP prediction that "adds" unseen characters from the image based on context. Via fine tuning of the existing dbnet50 detection model and CRNN detection model, I'm getting close to 98% to 99% P3 match rates on unseen (by the model) pages. Multi-column pages that weren't pre-split by a content provider/manager still require a bit of cleanup of the "assignment of words to paragraphs" to "match" properly, but I am working on some heuristics and looking at some "page structure" ML models that might be able to help with that as well.
 
 The next step in my plan is building (and possibly hosting on a cheap AWS hardware) a "content prep" application/GUI that I want to use to leverage the fast GPU image processing tooling, plus these updated OCR models, in order to improve the quality and speed of scan prep and OCR (and perhaps make available to others). I've been working on an architecture and thing something like this could be hosted for $10-$20 a month or less, with burst cost for GPU "inference" depending on usage ("Modal" offers ad-hoc GPU bill-by-the-minute GPU containers, ECS is available as well).
 
-SPECIAL THANKS to Casey and 
+SPECIAL THANKS to Casey and

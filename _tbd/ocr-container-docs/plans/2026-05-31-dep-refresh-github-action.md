@@ -627,16 +627,16 @@ done
 
 Expected: each repo prints the enabled message.
 
-- [ ] **Step 3: Verify required CI status checks on `main`**
+- [ ] **Step 3: Verify required CI status checks on `master`**
 
 ```bash
 for repo in "${REPOS[@]}"; do
-  count=$(gh api "repos/ConcaveTrillion/$repo/branches/main/protection" \
+  count=$(gh api "repos/ConcaveTrillion/$repo/branches/master/protection" \
     2>/dev/null \
     | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('required_status_checks',{}).get('contexts',[])))" \
     2>/dev/null || echo "0")
   if [[ "$count" == "0" ]]; then
-    echo "WARNING: $repo — no required status checks. Set via GitHub UI: Settings → Branches → main."
+    echo "WARNING: $repo — no required status checks. Set via GitHub UI: Settings → Branches → master."
   else
     echo "ok ($count checks): $repo"
   fi
@@ -926,10 +926,10 @@ Once CI passes, state transitions to `MERGED`. Fetch and verify:
 
 ```bash
 git -C /workspaces/ocr-container/pdomain-book-tools fetch origin
-git -C /workspaces/ocr-container/pdomain-book-tools log origin/main -3 --oneline
+git -C /workspaces/ocr-container/pdomain-book-tools log origin/master -3 --oneline
 ```
 
-Expected: "chore: weekly dep refresh (actions pins + all deps)" appears at the tip of main.
+Expected: "chore: weekly dep refresh (actions pins + all deps)" appears at the tip of master.
 
 ---
 

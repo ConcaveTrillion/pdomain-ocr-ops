@@ -81,4 +81,3 @@ repo: pdomain-ops
 - Extend action-pin updater to include all actions used.
 - Align local-dev marker names and guard `upgrade-deps`.
 - Add a release checklist requiring changelog update before tagging.
-

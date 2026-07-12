@@ -21,7 +21,7 @@ reports — so integration breaks surface before a tag is cut, reproducibly.
 2. Backs up `pyproject.toml` + `uv.lock`.
 3. Flips each pd-* `[tool.uv.sources]` entry from
    `{ index = "pdomain-index-pip" }` to
-   `{ git = "https://github.com/pdomain/<sibling>.git", branch = "main" }`.
+   `{ git = "https://github.com/pdomain/<sibling>.git", branch = "master" }`.
 4. `uv lock` (captures each sibling's **current `main` SHA** → reproducible
    for the run) + `uv sync`.
 5. Runs the preflight — `make ci-slow` by default.

@@ -1,7 +1,7 @@
 # AI=1 Make Output Design
 
-**Date:** 2026-05-14  
-**Status:** Approved  
+**Date:** 2026-05-14
+**Status:** Approved
 **Scope:** All 8 pd-* repos
 
 ## Problem

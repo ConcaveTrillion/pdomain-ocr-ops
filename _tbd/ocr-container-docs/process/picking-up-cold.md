@@ -15,7 +15,7 @@ parallel workstreams: dispatch multiple per-repo subagents concurrently
 (one Agent block, multiple tool calls), each working in a pre-created
 sub-repo worktree that you, the orchestrator, hand them. Do NOT use
 `isolation: "worktree"` — the harness worktrees the workspace root, not
-the sub-repo. Merge each branch back to its repo's main locally
+the sub-repo. Merge each branch back to its repo's default branch locally
 (merge-commit, never squash) ONLY after CI is green AND a code review
 agent has signed off. No `git push`. No `gh pr create`. Local merge only.
 
@@ -35,7 +35,7 @@ DISCOVERY (do this first; don't propose work until done):
    Surface anything unexpected.
 
 3. **CI status on `main`.** For every pd-* repo:
-   `gh run list --repo ConcaveTrillion/<repo> --branch main --limit 1
+   `gh run list --repo ConcaveTrillion/<repo> --branch master --limit 1
     --json status,conclusion,name`
    Note which are red and pull the failing job log
    (`gh run view <id> --log-failed`). Categorise: my-fix-now / known-flaky
@@ -225,7 +225,7 @@ DISCOVERY (do this first; don't propose work until done):
    Surface stray uncommitted work, unpushed commits, non-bot worktrees.
 
 3. **CI status on `main`.** For every pd-* repo:
-     gh run list --repo ConcaveTrillion/<repo> --branch main --limit 1 \
+     gh run list --repo ConcaveTrillion/<repo> --branch master --limit 1 \
        --json status,conclusion,name
    For each red one, pull the failing job log:
      gh run view <run-id> --repo ConcaveTrillion/<repo> --log-failed

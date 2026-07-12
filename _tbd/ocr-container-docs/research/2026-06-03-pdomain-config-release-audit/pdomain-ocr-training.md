@@ -73,4 +73,3 @@ repo: pdomain-ocr-training
 - Add a release checklist enforcing changelog updates.
 - Include `actions/cache` in action-pin refresh.
 - Decide whether release CI should run the full supported Python matrix or explicitly document Python 3.12 as the release gate.
-

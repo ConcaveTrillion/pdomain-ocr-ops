@@ -79,4 +79,3 @@ repo: pdomain-book-tools
 - Update changelog through current tags or explicitly switch to GitHub-generated notes as canonical.
 - Make release CI's typecheck policy match normal CI, or document why warnings are tolerated during release.
 - Document `PDOMAIN_INDEX_DISPATCH` required permissions.
-

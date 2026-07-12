@@ -73,4 +73,3 @@ repo: pdomain-ocr-synth
 - Add and maintain `CHANGELOG.md`.
 - Document that GitHub Releases plus `pdomain-index-pip` are the only publish targets.
 - Make action-pin refresh update/check adjacent version comments.
-

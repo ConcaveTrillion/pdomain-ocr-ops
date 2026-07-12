@@ -80,4 +80,3 @@ repo: pdomain-ocr-cli
 - Add `pdomain-ops` to `scripts/update-pdomain-deps.sh`.
 - Add a minimal changelog or release-notes convention.
 - Consider removing the unused `pdomain-ops` checkout from release workflow if index resolution is now authoritative.
-

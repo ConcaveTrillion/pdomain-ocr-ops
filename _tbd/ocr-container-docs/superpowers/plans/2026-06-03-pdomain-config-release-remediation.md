@@ -66,7 +66,7 @@ Create or modify these files:
 ### Shared Decisions For Execution
 
 - Keep Python package releases dispatch-only. Do not add tag-push publish triggers to Python repos unless the user changes this decision.
-- Add `push: branches: [main]` CI to every repo where CI currently runs only on PRs.
+- Add `push: branches: [master]` CI to every repo where CI currently runs only on PRs.
 - Add `concurrency: { group: ci-${{ github.ref }}, cancel-in-progress: true }` to every non-index CI workflow that lacks it.
 - Keep `astral-sh/setup-uv` as an explicit allowed third-party action.
 - Replace `softprops/action-gh-release`, `pnpm/action-setup`, `jdx/mise-action`, and avoidable `actions/github-script` usage where equivalent shell/first-party steps exist.
@@ -511,7 +511,7 @@ For every repo whose `ci.yml` has only:
 ```yaml
 on:
   pull_request:
-    branches: [main]
+    branches: [master]
 ```
 
 replace it with:
@@ -519,9 +519,9 @@ replace it with:
 ```yaml
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 ```
 
 - [ ] **Step 2: Add concurrency where missing**

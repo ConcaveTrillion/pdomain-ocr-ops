@@ -75,7 +75,7 @@ Per-repo agents, `model: sonnet`, one per track. Every implementation dispatch g
 
 ### Wave 1 — parallel: Track B + Track A
 
-- [ ] **Step 1: Create worktrees** (cut from LOCAL main HEAD, not origin/main — local mains run ahead):
+- [ ] **Step 1: Create worktrees** (cut from LOCAL master HEAD, not origin/master — local masters run ahead):
 
 ```bash
 git -C /workspaces/ocr-container/pdomain-ops worktree add .claude/worktrees/shared-paths -b feat/shared-paths-export-manifest main
@@ -84,7 +84,7 @@ git -C /workspaces/ocr-container/pdomain-ocr-trainer-spa worktree add .claude/wo
 
 - [ ] **Step 2: Dispatch both agents in one message.** Prompt skeleton (both): first line = absolute worktree path; "Execute every task of <plan doc absolute path> with superpowers:executing-plans, TDD steps verbatim; work ONLY in the worktree; commit per task; run `make ci AI=1` at the end; no push, no PR, no merge; return branch + worktree path + CI result + deviations."
 - [ ] **Step 3: After each return:** `git -C <repo> status --short` on the canonical checkout (agents have touched canonical despite instructions — verify clean), then review the diff on the branch.
-- [ ] **Step 4: Merge Track B** (workspace protocol): rebase the worktree branch onto local `main`, `make ci AI=1` green in worktree, `git -C pdomain-ops merge --ff-only feat/shared-paths-export-manifest` on main, remove worktree, delete branch.
+- [ ] **Step 4: Merge Track B** (workspace protocol): rebase the worktree branch onto local `master`, `make ci AI=1` green in worktree, `git -C pdomain-ops merge --ff-only feat/shared-paths-export-manifest` on master, remove worktree, delete branch.
 - [ ] **Step 5: Merge Track A** the same way. Gate: the driver-contract e2e suite is green (testid contract preserved).
 - [ ] **Step 6: Surface CT gate 1** (ops release) — C/D proceed on local-dev regardless.
 

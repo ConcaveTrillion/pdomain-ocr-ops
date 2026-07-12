@@ -176,7 +176,7 @@ prep-for-pgdp's deskew step computes and acts on.
 ## Recommended pipeline order
 
 ```
-Photo:    PageDetect/crop → Dewarp(perspective + curl) → Deskew(residual) 
+Photo:    PageDetect/crop → Dewarp(perspective + curl) → Deskew(residual)
 Flatbed:  CurvatureDetect → [Dewarp only if curved] → Deskew
 ```
 

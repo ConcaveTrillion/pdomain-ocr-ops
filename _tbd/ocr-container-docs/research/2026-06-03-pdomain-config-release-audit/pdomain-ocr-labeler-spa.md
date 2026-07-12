@@ -78,4 +78,3 @@ repo: pdomain-ocr-labeler-spa
 - Align changelog dependency floors with `pyproject.toml`.
 - Decide whether Docker image version should be wired through `DOCKER_TAG` or git tag.
 - Make E2E blocking once flakiness is resolved.
-

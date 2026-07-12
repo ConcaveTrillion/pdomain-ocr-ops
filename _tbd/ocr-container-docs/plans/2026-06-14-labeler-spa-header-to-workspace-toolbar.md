@@ -2,7 +2,7 @@
 
 > **STATUS: EXECUTED & PUSHED — 2026-06-14.** pdomain-ui **0.7.3** released
 > (ButtonGroup/IconButton; StageToolbar/DropdownMenu/SettingsModal already
-> existed). labeler-spa `origin/main` **d87551b**: chrome-only header +
+> existed). labeler-spa `origin/master` **d87551b**: chrome-only header +
 > `WorkspaceToolbar` band + drawer search + theme→Settings; all `display:none`
 > testid-stubs removed (D-049/D-050/D-052) per CT directive; PageActionsCompact
 > adopts the pdomain-ui primitives; dead `PageActions.tsx` deleted. `make ci`
@@ -72,7 +72,7 @@
 
 **Acceptance:** Either a published pdomain-ui version exposing DropdownMenu/ButtonGroup/IconButton, or confirmation they already exist. labeler-spa can build the toolbar against released primitives.
 
-**Orchestrator after 0:** Opus review subagent audits the worktree → rebase onto local main → `git merge --ff-only` → (if released) bump labeler-spa via `make update-pd-deps`.
+**Orchestrator after 0:** Opus review subagent audits the worktree → rebase onto local master → `git merge --ff-only` → (if released) bump labeler-spa via `make update-pd-deps`.
 
 ---
 
@@ -103,7 +103,7 @@
 
 **Acceptance:** Header is chrome-only; an empty (but mounted) workspace toolbar band and a drawer worklist-header slot exist with stable testids. App still builds and all existing suites pass (relocated controls may be temporarily absent from view — that's expected and M2 restores them; if any existing test asserts a control's *presence in the header*, update it here to assert presence in its new slot's mount point or mark the relocation explicitly).
 
-**Orchestrator after 1:** Opus review → rebase → ff-merge. **M2 slices branch from this merged main.**
+**Orchestrator after 1:** Opus review → rebase → ff-merge. **M2 slices branch from this merged master.**
 
 ---
 
@@ -136,7 +136,7 @@
 - [ ] Failing test: theme is changeable via the SettingsModal Appearance panel; the legacy `theme-chips`/`theme-chip-*` are no longer in the header. (If the driver still needs theme testids, add them in the Appearance-panel integration and assert there.)
 - [ ] Run red. Remove local theme chips; rely on pdomain-ui Appearance panel; thread `uiPrefsConfig`/`settingsPanels` so theme persists. Run green. Commit. Return path+branch.
 
-**Orchestrator for M2:** Use explicit `git worktree add` per slice with absolute paths in each agent prompt (do not rely on `isolation:"worktree"` alone for parallel agents). After each slice returns: Opus review subagent (correctness, deferred items, inconsistency, testid integrity) → rebase that branch onto current local main → `git merge --ff-only`. Merge **sequentially** so conflicts surface one at a time; re-rebase any later slice if an earlier merge moves main. `git status` the canonical checkout after each dispatch to catch stray canonical writes.
+**Orchestrator for M2:** Use explicit `git worktree add` per slice with absolute paths in each agent prompt (do not rely on `isolation:"worktree"` alone for parallel agents). After each slice returns: Opus review subagent (correctness, deferred items, inconsistency, testid integrity) → rebase that branch onto current local master → `git merge --ff-only`. Merge **sequentially** so conflicts surface one at a time; re-rebase any later slice if an earlier merge moves master. `git status` the canonical checkout after each dispatch to catch stray canonical writes.
 
 **Acceptance:** All relocated controls live in their slots; header has zero document-scoped testids; every preserved testid present at its new location; all unit suites green.
 

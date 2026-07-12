@@ -1,6 +1,6 @@
 # Phone Terminal Access to VSCode Devcontainer
 
-**Date:** 2026-05-14  
+**Date:** 2026-05-14
 **Status:** Approved
 
 ## Problem

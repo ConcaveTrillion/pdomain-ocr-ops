@@ -206,7 +206,7 @@ Pilot **declared DONE** based on B6 outcomes.
 
 Per R4 acceptance threshold (≥2 successes, 0 orchestrator regressions), all criteria met:
 - 3 cycles attempted ✓
-- 3 cycles produced a draft PR (PR #17) ✓  
+- 3 cycles produced a draft PR (PR #17) ✓
 - 0 cycles left workspace in broken state ✓
 - 0 orchestrator regressions (the ruff format/B007 finding is a skill-quality finding, not an orchestrator regression) ✓
 - All findings documented (issue #42 filed) ✓

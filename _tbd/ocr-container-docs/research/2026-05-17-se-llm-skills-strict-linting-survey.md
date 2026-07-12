@@ -1,7 +1,7 @@
 # se-llm-skills strict-linting survey (2026-05-17)
 
 Commissioned by: `docs/decisions/2026-05-17-strict-linting.md` §se-llm-skills
-("survey separately").  
+("survey separately").
 Status: survey only; no config changes applied.
 
 ---

@@ -1,7 +1,7 @@
 # Design Spec: PageRecord in pdomain-ops
 
-**Date:** 2026-05-31  
-**Status:** Draft  
+**Date:** 2026-05-31
+**Status:** Draft
 **Repos affected:** pdomain-ops, pdomain-book-tools, pdomain-ocr-labeler-spa, pdomain-prep-for-pgdp, pdomain-ocr-cli, pdomain-ocr-simple-gui
 
 ---
@@ -341,7 +341,7 @@ class PageAggregate(Aggregate):
         ...
 ```
 
-Consumers that only need the current state import `PageRecord` from `pdomain_ops.pages`.  
+Consumers that only need the current state import `PageRecord` from `pdomain_ops.pages`.
 Only the labeler, prep pipeline, and future proofreading tools import `PageAggregate`.
 
 ### Persistence and snapshotting

@@ -73,4 +73,3 @@ repo: pdomain-ocr-simple-gui
 - Add a release runbook.
 - Update changelog/release-prep notes for tag-based dynamic versioning and active index dispatch.
 - Add a lightweight release CI job before publish, or document the local-only verification policy prominently.
-

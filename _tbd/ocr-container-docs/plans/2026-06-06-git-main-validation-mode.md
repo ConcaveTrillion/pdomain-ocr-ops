@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a transient `make ci-against-main` to every pd-* Python repo that temporarily resolves its pd-* dependencies from each sibling's latest `main` on GitHub, runs the release preflight (`ci-slow`), then restores the tree — so we can catch "sibling main will break me once released" before cutting a release.
+**Goal:** Add a transient `make ci-against-main` to every pd-* Python repo that temporarily resolves its pd-* dependencies from each sibling's latest `master` on GitHub, runs the release preflight (`ci-slow`), then restores the tree — so we can catch "sibling master will break me once released" before cutting a release.
 
-**Architecture:** A pure-Python source-rewriter (`scripts/git_main_sources.py`) flips `[tool.uv.sources]` pd-* entries from `{ index = "pdomain-index-pip" }` to `{ git = ".../<sib>.git", branch = "main" }`. A bash orchestrator (`scripts/ci-against-main.sh`) backs up `pyproject.toml`/`uv.lock`, applies the flip, runs `uv lock` (capturing each sibling's current main SHA → reproducible per run) + `uv sync`, runs the preflight, and restores both files via an `EXIT` trap (green or red). An opt-in `VALIDATE_AGAINST_MAIN=1` hook in the shared `release-common.sh` runs it before a release. Scope is **Python siblings only** — npm/`pdomain-ui` is explicitly out of scope.
+**Architecture:** A pure-Python source-rewriter (`scripts/git_main_sources.py`) flips `[tool.uv.sources]` pd-* entries from `{ index = "pdomain-index-pip" }` to `{ git = ".../<sib>.git", branch = "master" }`. A bash orchestrator (`scripts/ci-against-main.sh`) backs up `pyproject.toml`/`uv.lock`, applies the flip, runs `uv lock` (capturing each sibling's current master SHA → reproducible per run) + `uv sync`, runs the preflight, and restores both files via an `EXIT` trap (green or red). An opt-in `VALIDATE_AGAINST_MAIN=1` hook in the shared `release-common.sh` runs it before a release. Scope is **Python siblings only** — npm/`pdomain-ui` is explicitly out of scope.
 
 **Tech Stack:** bash, Python 3.11+ (`re`, `tomllib` for validation), `uv`, GNU make, pytest.
 
@@ -25,7 +25,7 @@
 
 ## File structure (per repo)
 
-- Create: `scripts/git_main_sources.py` — pure transform: rewrite `[tool.uv.sources]` pd-* entries to git+main. No side effects beyond writing the target file when run as `__main__`.
+- Create: `scripts/git_main_sources.py` — pure transform: rewrite `[tool.uv.sources]` pd-* entries to git+master. No side effects beyond writing the target file when run as `__main__`.
 - Create: `scripts/ci-against-main.sh` — orchestrator: guard → backup → flip → `uv lock`/`sync` → preflight → restore (trap).
 - Create: `tests/test_git_main_sources.py` — unit tests for the transform.
 - Modify: `Makefile` — add the `ci-against-main` target.
@@ -66,7 +66,7 @@ some-other = { index = "elsewhere" }
 def test_flip_single_sibling_to_git_main() -> None:
     out = flip_sources(_SRC, "pdomain", ["pdomain-book-tools"])
     assert (
-        'pdomain-book-tools = { git = "https://github.com/pdomain/pdomain-book-tools.git", branch = "main" }'
+        'pdomain-book-tools = { git = "https://github.com/pdomain/pdomain-book-tools.git", branch = "master" }'
         in out
     )
     # the flipped entry no longer points at the registry index
@@ -81,8 +81,8 @@ def test_flip_leaves_other_entries_untouched() -> None:
 
 def test_flip_multiple_siblings() -> None:
     out = flip_sources(_SRC, "pdomain", ["pdomain-book-tools", "pdomain-ops"])
-    assert 'pdomain-book-tools = { git = "https://github.com/pdomain/pdomain-book-tools.git", branch = "main" }' in out
-    assert 'pdomain-ops = { git = "https://github.com/pdomain/pdomain-ops.git", branch = "main" }' in out
+    assert 'pdomain-book-tools = { git = "https://github.com/pdomain/pdomain-book-tools.git", branch = "master" }' in out
+    assert 'pdomain-ops = { git = "https://github.com/pdomain/pdomain-ops.git", branch = "master" }' in out
 
 
 def test_missing_sibling_entry_raises() -> None:
@@ -96,7 +96,7 @@ def test_result_is_valid_toml() -> None:
     out = flip_sources(_SRC, "pdomain", ["pdomain-book-tools", "pdomain-ops"])
     parsed = tomllib.loads(out)
     src = parsed["tool"]["uv"]["sources"]["pdomain-book-tools"]
-    assert src == {"git": "https://github.com/pdomain/pdomain-book-tools.git", "branch": "main"}
+    assert src == {"git": "https://github.com/pdomain/pdomain-book-tools.git", "branch": "master"}
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -129,7 +129,7 @@ def flip_sources(text: str, owner: str, siblings: list[str]) -> str:
         text: Full ``pyproject.toml`` contents.
         owner: GitHub org/owner (e.g. ``"pdomain"``).
         siblings: pd-* package names whose ``[tool.uv.sources]`` entry should
-            be flipped from a registry index to ``{ git = ..., branch = "main" }``.
+            be flipped from a registry index to ``{ git = ..., branch = "master" }``.
 
     Raises:
         ValueError: if a requested sibling has no ``[tool.uv.sources]`` entry.
@@ -142,7 +142,7 @@ def flip_sources(text: str, owner: str, siblings: list[str]) -> str:
         )
         replacement = (
             f'{sib} = {{ git = "https://github.com/{owner}/{sib}.git", '
-            f'branch = "main" }}'
+            f'branch = "master" }}'
         )
         text, count = pattern.subn(replacement, text)
         if count == 0:

@@ -78,4 +78,3 @@ repo: pdomain-ocr-trainer-spa
 - Pin Docker uv image and nvm/source versions by digest/checksum, or remove Dockerfile if unused.
 - Add a changelog.
 - Fix nightly issue creation.
-

@@ -1,6 +1,6 @@
 # Design: pdomain-prep-for-pgdp Bot Wiring + Issue Taxonomy
 
-**Date:** 2026-05-11  
+**Date:** 2026-05-11
 **Scope:** Enroll pdomain-prep-for-pgdp in the ship-issue/style-review/style-sweep/decompose-spec bot
 suite; sync cross-repo label gaps; file the full roadmap issue set so bots can
 schedule delivery.
