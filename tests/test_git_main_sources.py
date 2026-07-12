@@ -17,7 +17,7 @@ some-other = { index = "elsewhere" }
 def test_flip_single_sibling_to_git_main() -> None:
     out = flip_sources(_SRC, "pdomain", ["pdomain-book-tools"])
     assert (
-        'pdomain-book-tools = { git = "https://github.com/pdomain/pdomain-book-tools.git", branch = "main" }'
+        'pdomain-book-tools = { git = "https://github.com/pdomain/pdomain-book-tools.git", branch = "master" }'
         in out
     )
     assert "pdomain-book-tools = { index" not in out
@@ -32,11 +32,11 @@ def test_flip_leaves_other_entries_untouched() -> None:
 def test_flip_multiple_siblings() -> None:
     out = flip_sources(_SRC, "pdomain", ["pdomain-book-tools", "pdomain-ops"])
     assert (
-        'pdomain-book-tools = { git = "https://github.com/pdomain/pdomain-book-tools.git", branch = "main" }'
+        'pdomain-book-tools = { git = "https://github.com/pdomain/pdomain-book-tools.git", branch = "master" }'
         in out
     )
     assert (
-        'pdomain-ops = { git = "https://github.com/pdomain/pdomain-ops.git", branch = "main" }'
+        'pdomain-ops = { git = "https://github.com/pdomain/pdomain-ops.git", branch = "master" }'
         in out
     )
 
@@ -52,4 +52,4 @@ def test_result_is_valid_toml() -> None:
     out = flip_sources(_SRC, "pdomain", ["pdomain-book-tools", "pdomain-ops"])
     parsed = tomllib.loads(out)
     src = parsed["tool"]["uv"]["sources"]["pdomain-book-tools"]
-    assert src == {"git": "https://github.com/pdomain/pdomain-book-tools.git", "branch": "main"}
+    assert src == {"git": "https://github.com/pdomain/pdomain-book-tools.git", "branch": "master"}
