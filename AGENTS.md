@@ -1,3 +1,11 @@
+---
+Status: active
+Owner: CT
+Created: 2026-05-19
+Last verified: 2026-07-13
+Kind: process
+---
+
 # Agent guidance
 
 Codex and other AI coding assistants: read `CLAUDE.md` and `CONVENTIONS.md`

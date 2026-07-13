@@ -1,4 +1,23 @@
+---
+Status: partial
+Owner: CT
+Created: 2026-05-22
+Last verified: 2026-07-13
+Kind: process
+---
+
 # Lint-rule Deviations — pdomain-ops
+
+## Agent Index
+
+- **Kind:** process
+- **Status:** partial
+- **Read when:** adding, removing, or reviewing a lint-rule suppression.
+- **Search terms:** lint deviations, suppressions, noqa, pyright ignore.
+
+The catalog remains required, but the 2026-07-13 migration found current
+suppressions that are not listed here. Treat it as incomplete until the catalog
+is reconciled with the source tree.
 
 Standing suppressions and per-file rule overrides in this repo.
 Each entry records: the rule, the tool, the file(s) affected, and the

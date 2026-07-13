@@ -1,4 +1,19 @@
+---
+Status: active
+Owner: CT
+Created: 2026-05-28
+Last verified: 2026-07-13
+Kind: process
+---
+
 # Writing Style
+
+## Agent Index
+
+- **Kind:** process
+- **Status:** active
+- **Read when:** writing docs, reports, issue text, PR text, or user-facing copy.
+- **Search terms:** writing style, readable prose, reader-facing copy.
 
 Use this style for docs, reports, issue text, PR text, and user-facing copy.
 

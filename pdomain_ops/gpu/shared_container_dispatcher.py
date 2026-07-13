@@ -58,10 +58,10 @@ class SharedContainerStageDispatcher(GPUBackend):
     async def run_ocr_batch(self, req: OcrBatchRequest) -> list[dict[str, object]]:
         """Batched OCR via shared container — deferred to Wave 5.
 
-        See pdomain-ops/docs/plans/2026-05-28-batched-ocr-dispatch.md
+        See docs/architecture/batched-ocr-dispatch.md.
         """
         raise NotImplementedError(
-            "Wave 5: remote batch — see pdomain-ops/docs/plans/2026-05-28-batched-ocr-dispatch.md"
+            "Remote OCR batching is deferred; see docs/architecture/batched-ocr-dispatch.md"
         )
 
 

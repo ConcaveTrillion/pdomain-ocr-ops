@@ -1,3 +1,11 @@
+---
+Status: active
+Owner: CT
+Created: 2026-05-19
+Last verified: 2026-07-13
+Kind: usage
+---
+
 # pdomain-ops
 
 Library + tiny CLI providing suite plumbing, shared prefs, and GPU dispatch adapters

@@ -1,3 +1,11 @@
+---
+Status: active
+Owner: CT
+Created: 2026-05-19
+Last verified: 2026-07-13
+Kind: process
+---
+
 # docs/
 
 How documentation is organized in this repo.
@@ -5,7 +13,6 @@ How documentation is organized in this repo.
 | Folder | Purpose | Use when |
 | --- | --- | --- |
 | `architecture/` | Durable reference — how the system works today. | Capturing current shape (modules, data flow, contracts, current-state diagrams). |
-| `archive/` | Cold storage. Mirrors the nine active folders. | A doc is no longer in force (shipped, superseded, abandoned). |
 | `decisions/` | ADRs — dated, append-only "we chose X because Y." | Recording a specific design choice with context, alternatives, consequences. |
 | `plans/` | Active execution — what order to make a spec real. | Sequencing work for an approved spec. |
 | `process/` | Cross-cutting workflow conventions (verification rules, merge strategy, release process). | Capturing how the team works, not what the system does. |
@@ -15,8 +22,9 @@ How documentation is organized in this repo.
 | `templates/` | Issue, spec, plan, ADR boilerplate. | Adding a starter template for a new doc type. |
 | `usage/` | Downstream reference — how to consume this app/tool/library. | A user or integrator needs to know how to use it. |
 
-Empty folders are intentional and tracked via `.gitkeep`.
+Retired docs are deleted after their durable behavior, rationale, and residual
+intent move into architecture, decisions, and context docs. The repo does not
+keep a parallel archive tree.
 
 Active docs map to GitHub issues — see this repo's issue tracker for status.
-This layout is workspace-standard; see
-`/workspaces/ocr-container/docs/README.md` for the master.
+Docgraph lifecycle rules live in [`DOCGRAPH.md`](../DOCGRAPH.md).

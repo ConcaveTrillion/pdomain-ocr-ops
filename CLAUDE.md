@@ -1,3 +1,11 @@
+---
+Status: active
+Owner: CT
+Created: 2026-05-19
+Last verified: 2026-07-13
+Kind: process
+---
+
 # CLAUDE — pdomain-ops
 
 Python ops library for the `pdomain-*` suite: suite plumbing (registry, prefs,
@@ -14,15 +22,13 @@ and schemas.emit. Imported by every `pdomain-*` SPA backend.
 | `make local-upgrade-deps` | upgrade deps then restore editable siblings (local-mode only) |
 | `make update-pdomain-deps` | bump pdomain-* sibling deps to registry latest; leaves diff for review |
 
-See [workspace `docs/process/local-dev.md`](../docs/process/local-dev.md) for the canonical local-dev pattern (spec #362).
-See [workspace `docs/process/update-pdomain-deps.md`](../docs/process/update-pdomain-deps.md) for the sibling-dep refresh pattern (spec #363).
-
 ## docs/ folder
 
 This repo follows the workspace docs/ template — see [`docs/README.md`](docs/README.md). Active
 folders: `architecture/`, `decisions/`, `plans/`, `process/`, `research/`,
-`runbooks/`, `specs/`, `templates/`, `usage/`, plus parallel `archive/`
-subfolders.
+`runbooks/`, `specs/`, `templates/`, and `usage/`. Retired work is reduced to
+durable architecture, decisions, and residual intent instead of moved to an
+archive tree.
 
 **Superpowers redirect.** When a superpowers skill (e.g. `brainstorming`,
 `writing-plans`) instructs you to save to `docs/superpowers/specs/<file>.md`

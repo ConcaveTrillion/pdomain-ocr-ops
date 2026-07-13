@@ -1,4 +1,19 @@
+---
+Status: active
+Owner: CT
+Created: 2026-05-31
+Last verified: 2026-07-13
+Kind: usage
+---
+
 # Dynamic-port SPA bootstrap
+
+## Agent Index
+
+- **Kind:** usage
+- **Status:** active
+- **Read when:** adopting dynamic-port startup in a suite SPA.
+- **Search terms:** dynamic port, find available port, register self, SPA bootstrap.
 
 ## Problem
 
