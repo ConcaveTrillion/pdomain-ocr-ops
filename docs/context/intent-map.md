@@ -17,37 +17,160 @@ Kind: context
 
 ## Active bets
 
-- **Lint catalog maintenance — active.** The catalog now matches the current
-  source tree. Keep it current because `CONVENTIONS.md` requires every
-  suppression to be documented.
-- **Salvaged `_tbd/` red-team review — active.** Compare each of the 210
-  tracked Markdown files with implementation and current practice. A material
-  divergence routes the source to supersession or retirement only after useful
-  ideas move to the right durable destination: architecture for shipped truth,
-  decisions for rationale, or this intent map for promising unbuilt work.
-  Label anything that did not ship or no longer matches current practice. Do
-  not manufacture conformance headings or discard a diverged document
-  wholesale.
+- **Finish the holding-area migration — active.** Keep `_tbd/**` outside the
+  governed graph until all 210 reviewed sources have a disposition. Preserve
+  useful shipped truth in architecture, rationale in decisions, and unbuilt
+  work here before retiring or deleting any source. Do not add headings merely
+  to make old material look current. Owner: CT. Route: this repository's docs
+  migration only. Evidence: the
+  [red-team ledger](../research/2026-07-13-salvaged-docs-red-team.md) and
+  [preservation decision](decisions.md#2026-07-13--red-team-salvaged-documents-before-lifecycle-action).
+  Sources mapped: `_tbd/README.md`.
+- **Maintain isolated ebook sessions — active.** Keep standalone ebook work
+  isolated from parent repository instructions and shared working-directory
+  state. Owner: the se-llm-skills or ebook-tool maintainer, not pdomain-ops.
+  Route: verify and maintain the procedure in that owning repository. Evidence:
+  the red-team ledger found no contradiction in the isolation goal. Source
+  mapped: `_tbd/ocr-container-docs/process/se-ebook-isolated-sessions.md`.
+- **Complete evidence-backed page-model adoption — active.** Identify only
+  consumer gaps that remain in PageRecord, PagePayload, provenance, extensions,
+  and persistence. Owner: each consuming pdomain repository. Route: record a
+  gap in that repository's intent map only after checking its code and tests.
+  Current pdomain-ops evidence lives in
+  [page lifecycle and storage](../architecture/page-lifecycle-and-storage.md).
+  Source mapped:
+  `_tbd/ocr-container-docs/archive/specs/2026-06-01-page-split-downstream-rollout.md`.
+
+The [lint-deviation catalog](../process/lint-deviations.md) remains a standing
+maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
 
 ## Deferred work
 
-- **Remote OCR batch dispatch — deferred.** Modal and shared-container batch
-  methods remain explicit unsupported stubs. The protocol seam is available in
-  [`batched-ocr-dispatch.md`](../architecture/batched-ocr-dispatch.md).
+- **Rebuild behavior capture and templates — deferred.** Derive a
+  cross-interface method and scanner-safe templates from current tests. Owner:
+  the repository that runs the pilot. Route: start with one Web implementation;
+  verify TUI and CLI lessons in their owning repositories. Sources mapped:
+  `_tbd/ocr-container-docs/process/behavior-e2e-capture.md`,
+  `_tbd/ocr-container-docs/process/behavior-e2e-gotchas.md`,
+  `_tbd/ocr-container-docs/templates/behavior-flows.md`, and
+  `_tbd/ocr-container-docs/templates/behavior-unit-spec.md`.
+- **Pilot docgraph-native documentation and UI inventories — deferred.** Keep
+  the inventory-first idea, but use current docgraph metadata and a reduced UI
+  contract. Owner: the first repository that requests a pilot. Route: prove one
+  inventory and one UI contract before proposing a workspace standard. Sources
+  mapped: `_tbd/ocr-container-docs/process/document-existing-repo.md`,
+  `_tbd/ocr-container-docs/process/ui-definition.md`,
+  `_tbd/ocr-container-docs/templates/repo-documentation-inventory.md`, and
+  `_tbd/ocr-container-docs/templates/ui-unit-definition.md`.
+- **Refresh notifications and operational visibility — deferred.** Evaluate a
+  low-risk notification loop, cross-tool configuration sync, and provider-neutral
+  cost visibility. Owner: workspace tooling, not pdomain-ops. Route: start with a
+  needs assessment against current Codex and Claude tools; do not revive the old
+  ctask data model. Sources mapped:
+  `_tbd/ocr-container-docs/research/2026-05-21-workspace-agent-tooling-audit.md`
+  and
+  `_tbd/ocr-container-docs/archive/plans/2026-05-17-cost-dashboard-redesign.md`.
+- **Benchmark OCR, HTR, and dewarp alternatives — deferred.** Compare
+  PP-OCRv5 ONNX, HTR engines, historical datasets, and selected dewarp options
+  with the shipped DocTR, Tesseract, textline-disparity, and UVDoc baseline.
+  Owner: pdomain-book-tools and the OCR training repositories. Route: require
+  dataset-license review and reproducible metrics before adoption. Evidence:
+  current dispatch is documented in
+  [batched OCR dispatch](../architecture/batched-ocr-dispatch.md). Sources
+  mapped:
+  `_tbd/ocr-container-docs/research/2026-06-02-ocr-engine-landscape-and-training-datasets.md`
+  and `_tbd/ocr-container-docs/research/dewarp/docunet-benchmark.md`.
+- **Publish a current project update — deferred.** Replace the unfinished
+  pd-* announcement with verified names, install paths, measured quality, and
+  current hosted-inference intent. Owner: CT or the project communications
+  owner. Route: draft from current repositories and reproducible measurements.
+  Source mapped: `_tbd/ocr-container-docs/archive/research/update-post.md`.
+- **Design a small docgraph-to-GitHub adapter — deferred.** Explore reversible
+  issue, spec, and task synchronization with human gates. Owner: workspace
+  automation. Route: design against current docgraph metadata and GitHub APIs;
+  do not restore the ship-issue daemon.
+- **Finish optional platform and remote adapters on demand — deferred.** Keep
+  Windows and macOS packaging, RemotePageStore, managed persistence, Modal,
+  shared-container dispatch, and hosted deployment deferred until a consumer
+  commits to them. Owner: pdomain-ops for its protocol seams; packaging or
+  hosted owners for their implementations. Evidence: local scope and explicit
+  unsupported seams are documented in
+  [batched OCR dispatch](../architecture/batched-ocr-dispatch.md) and
+  [page lifecycle and storage](../architecture/page-lifecycle-and-storage.md).
+- **Validate product-specific roadmap residue — deferred.** Check current code
+  and issues for open-in-labeler links, PageRecord replacement of manifest
+  bridges, simple-GUI managed deployment, missing shared UI components, and
+  platform or real-engine coverage. Owner: the affected product repository.
+  Route: copy only confirmed gaps into that repository's intent map.
+- **Reassess semantic and scheduled review assistance — deferred.** Consider
+  semantic review or scheduled cross-repo convention audits only if installed
+  plugins leave a measured gap. Owner: workspace tooling. Route: measure the
+  unmet need before writing a replacement design.
 
 ## Rejected directions
 
 - **Parallel archive tree — rejected.** Retired docs are reduced into durable
   architecture, decisions, and residual intent instead of moved under
   `docs/archive/`.
+- **Persistent coding-bot and ship-issue system — rejected.** Do not revive the
+  custom daemon, rolling WIP branch, state and cost databases, or unattended
+  PAT-driven runner. Current practice uses worktrees, plugins, session-scoped
+  agents, and human integration. Owner: workspace automation. Route: retain
+  only its threat-model and human-gate rationale; require a new design if a
+  concrete need returns.
+- **Full historical UI schema as a workspace standard — rejected.** Do not
+  require the complete state-matrix, interaction-ID, behavior-ID, and Claude
+  Design schema without a successful current pilot. Owner: shared UI process.
+  Route: the reduced pilot above is the only retained intent. Draft sources
+  mapped: `_tbd/ocr-container-docs/process/ui-definition.md` and
+  `_tbd/ocr-container-docs/templates/ui-unit-definition.md`.
 
 ## Blocked (waiting on)
 
-None.
+- **Cross-repo release, SHA, and static-security policy — blocked.** Active
+  repositories implement many gates, but their release workflows differ and
+  the historical universal release-ci claim is false. Owner: workspace release
+  maintainers. Blocker: a current inventory of every active and legacy repo,
+  followed by an owner decision on required uniformity. Sources mapped:
+  `_tbd/ocr-container-docs/plans/2026-06-01-sha-pinning-enforcement.md`,
+  `_tbd/ocr-container-docs/process/python-release-standard.md`,
+  `_tbd/ocr-container-docs/process/static-testing.md`, and
+  `_tbd/ocr-container-docs/archive/plans/2026-05-17-legacy-minimal-scope-strict-linting.md`.
+- **External phone-access infrastructure — blocked.** Repository evidence
+  cannot confirm current Tailscale, SSH, Termux, tmux, ACL, or credential state.
+  Owner: CT. Blocker: inspect the live host, tailnet, and phone. Route: write a
+  secret-safe current runbook if active; otherwise retire the old material.
+  Sources mapped:
+  `_tbd/ocr-container-docs/archive/plans/2026-05-14-phone-terminal-access.md`
+  and
+  `_tbd/ocr-container-docs/archive/specs/2026-05-14-phone-terminal-access-design.md`.
+- **Unavailable legacy and external repositories — blocked.** The current
+  workspace cannot verify remaining work in se-llm-skills or pd-png-optimizer.
+  Owner: each repository owner. Blocker: source access and an owner-confirmed
+  lifecycle. Sources mapped:
+  `_tbd/ocr-container-docs/archive/plans/2026-05-17-se-llm-skills-strict-linting.md`
+  and
+  `_tbd/ocr-container-docs/archive/plans/2026-05-17-pd-png-optimizer-strict-linting.md`.
 
 ## Needs owner decision
 
-None. The owner authorized the `_tbd/` red-team review on 2026-07-13.
+- **Legacy bot workspace support.** Decide whether `/srv/bot-workspaces`, bot
+  slots, and related devcontainer permissions still serve current automation.
+  Owner: CT and devcontainer maintainers. Evidence: some Makefiles retain the
+  filesystem support, while the claude-bot, ctask, and ship-issue protocol is
+  stale. Source mapped: `_tbd/ocr-container-docs/process/bot-workspaces.md`.
+- **Codex persistence runbook.** Decide whether Codex state still needs an
+  owner-maintained backup and restore procedure. Owner: CT and devcontainer
+  maintainers. Evidence: `/home/vscode/.codex` remains relevant, but the old
+  volume, workspace, and scripts are obsolete. Source mapped:
+  `_tbd/ocr-container-docs/runbooks/codex-devcontainer-persistence.md`.
+- **Live GitHub label taxonomy.** Decide whether shared issue automation still
+  needs a machine-readable kind, status, priority, and area contract. Owner: CT
+  and GitHub workspace maintainers. Evidence: repositories and automation
+  changed, and live labels were not inspected. Route: inventory live labels
+  before publishing a standard. Sources mapped:
+  `_tbd/ocr-container-docs/architecture/label-taxonomy.md` and
+  `_tbd/ocr-container-docs/archive/specs/2026-05-17-gh-label-taxonomy-design.md`.
 
 ## Legacy-unverified sweep
 

@@ -42,6 +42,17 @@ parsed with a warning rather than rejected; callers choose whether that newer
 version is acceptable. A missing manifest returns `None`, while corrupt JSON or
 model data raises `ValueError`.
 
+## Ownership and non-goals
+
+`pdomain-ops` owns the filesystem exchange contract and public schema models.
+Publishers decide which paths and manifests to expose. Consumers decide whether
+a published path or a newer manifest version is usable. The registry is not a
+service-discovery network, and the manifest is not a remote job protocol.
+
+The schema emitter is the supported producer boundary for these public models.
+Consumers should not duplicate model introspection or infer schema membership
+from internal modules.
+
 ## Evidence
 
 - **Code:** `pdomain_ops/suite/shared_paths.py`, `pdomain_ops/suite/paths.py`,
@@ -53,4 +64,8 @@ model data raises `ValueError`.
   `tests/test_public_surface.py`
 - **Commits:** `4111e95`, `808abf6`, `4898f33`, `36eab34`, `603f275`,
   `d7209ab`, `b568838`, `60ef0a4`, `676fe90`
+- **Salvaged sources:**
+  `_tbd/ocr-container-docs/plans/2026-06-10-trainer-spa-next-arc.md`,
+  `_tbd/ocr-container-docs/archive/plans/2026-05-16-pd-book-tools-review-metadata-and-schemas-emit.md`,
+  `_tbd/ocr-container-docs/archive/plans/2026-05-17-pd-book-tools-pydantic-core-schemas.md`
 - **Verified:** 2026-07-13; the focused suite passed 44 tests.

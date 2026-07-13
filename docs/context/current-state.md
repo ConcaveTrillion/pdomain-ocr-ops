@@ -17,9 +17,13 @@ Kind: context
 
 ## What matters now
 
-Docgraph is initialized for this repository. Shipped OCR batching and
-shared-path/export-manifest behavior live in
-[`batched-ocr-dispatch.md`](../architecture/batched-ocr-dispatch.md) and
+Docgraph is initialized for this repository. Shipped OCR batching and GPU
+adapter ownership live in
+[`batched-ocr-dispatch.md`](../architecture/batched-ocr-dispatch.md). Page
+lifecycle and local storage seams live in
+[`page-lifecycle-and-storage.md`](../architecture/page-lifecycle-and-storage.md).
+Shared device, update, desktop, path, and schema boundaries live in
+[`suite-services.md`](../architecture/suite-services.md) and
 [`shared-paths-and-export-manifest.md`](../architecture/shared-paths-and-export-manifest.md).
 
 ## In-flight work
@@ -27,11 +31,12 @@ shared-path/export-manifest behavior live in
 - The [lint-deviation catalog](../process/lint-deviations.md) is reconciled
   with the current source tree.
 - Remote Modal and shared-container OCR batch dispatch remains deferred.
-- Red-team each of the 210 salvaged Markdown files under `_tbd/` against
-  implementation and current practice. Preserve useful material in
-  architecture, decisions, or the intent map before superseding or retiring a
-  materially diverged source. The holding area remains outside the governed
-  graph during this review.
+- The evidence review of all 210 salvaged Markdown files is complete. The
+  [salvaged documentation red-team ledger](../research/2026-07-13-salvaged-docs-red-team.md)
+  records each recommendation. The [intent map](intent-map.md) now preserves
+  20 deduplicated active, deferred, blocked, rejected, or owner-decision items.
+  Promote remaining shipped truth and rationale before retiring or deleting
+  any `_tbd/` source. The holding area remains outside the governed graph.
 
 ## Verification
 
