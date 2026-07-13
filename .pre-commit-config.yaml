@@ -37,11 +37,9 @@ repos:
     rev: v0.23.0
     hooks:
     -   id: markdownlint-cli2
-        exclude: ^_tbd/
     -   id: markdownlint-cli2
         alias: markdownlint-cli2-fix
         args: [--fix]
-        exclude: ^_tbd/
         stages: [manual]
 -   repo: local
     hooks:

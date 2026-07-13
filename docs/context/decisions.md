@@ -371,3 +371,21 @@ Kind: context
 - **Remaining work:** Complete architecture and intent preservation, resolve
   uncertain rows with owners or owning repositories, verify the ledger, then
   use the docgraph retirement workflow for the approved removal.
+
+### 2026-07-13 — Retired: salvaged holding corpus
+
+- **Old path:** `_tbd/` (222 tracked files: 210 Markdown sources, four design
+  assets, and eight empty placeholders).
+- **Outcome:** The corpus was red-teamed and deleted after preservation.
+- **Superseded by:**
+  [`2026-07-13-salvaged-docs-red-team.md`](../research/2026-07-13-salvaged-docs-red-team.md),
+  the current architecture records, this decision log, and
+  [`intent-map.md`](intent-map.md).
+- **Removal commit:** This corpus-retirement commit.
+- **Rationale kept:** The ledger preserves every disposition; architecture
+  preserves verified shipped behavior; the preceding decision themes preserve
+  durable rationale; the intent map preserves promising work and explicit
+  blockers for questions that require external state or another repository.
+- **Remaining work:** Resolve the retained blocked and owner-decision items in
+  their owning systems. Their source documents are retired because they are not
+  current truth; their uncertainty remains explicit in the intent map.

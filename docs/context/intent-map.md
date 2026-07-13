@@ -17,15 +17,6 @@ Kind: context
 
 ## Active bets
 
-- **Finish the holding-area migration — active.** Keep `_tbd/**` outside the
-  governed graph until all 210 reviewed sources have a disposition. Preserve
-  useful shipped truth in architecture, rationale in decisions, and unbuilt
-  work here before retiring or deleting any source. Do not add headings merely
-  to make old material look current. Owner: CT. Route: this repository's docs
-  migration only. Evidence: the
-  [red-team ledger](../research/2026-07-13-salvaged-docs-red-team.md) and
-  [preservation decision](decisions.md#2026-07-13--red-team-salvaged-documents-before-lifecycle-action).
-  Sources mapped: `_tbd/README.md`.
 - **Maintain isolated ebook sessions — active.** Keep standalone ebook work
   isolated from parent repository instructions and shared working-directory
   state. Owner: the se-llm-skills or ebook-tool maintainer, not pdomain-ops.
@@ -43,6 +34,15 @@ Kind: context
 
 The [lint-deviation catalog](../process/lint-deviations.md) remains a standing
 maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
+
+## Completed work
+
+- **Salvaged holding-area migration — done.** All 210 Markdown sources were
+  red-teamed, useful content was promoted to architecture, decisions, and this
+  intent map, and all 222 tracked holding-area files were retired. Evidence:
+  the [red-team ledger](../research/2026-07-13-salvaged-docs-red-team.md) and
+  the corpus tombstone in [decisions](decisions.md). Owner: CT. Final
+  disposition: retired after preservation. Source mapped: `_tbd/README.md`.
 
 ## Deferred work
 

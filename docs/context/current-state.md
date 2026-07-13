@@ -26,17 +26,20 @@ Shared device, update, desktop, path, and schema boundaries live in
 [`suite-services.md`](../architecture/suite-services.md) and
 [`shared-paths-and-export-manifest.md`](../architecture/shared-paths-and-export-manifest.md).
 
+## Completed migration
+
+The salvaged holding corpus is retired. The
+[red-team ledger](../research/2026-07-13-salvaged-docs-red-team.md) preserves
+all 210 document dispositions. Architecture, decisions, and the
+[intent map](intent-map.md) retain shipped truth, rationale, promising work,
+and unresolved external-state blockers. The obsolete `_tbd/` exclusions are
+removed from repository tooling.
+
 ## In-flight work
 
 - The [lint-deviation catalog](../process/lint-deviations.md) is reconciled
   with the current source tree.
 - Remote Modal and shared-container OCR batch dispatch remains deferred.
-- The evidence review of all 210 salvaged Markdown files is complete. The
-  [salvaged documentation red-team ledger](../research/2026-07-13-salvaged-docs-red-team.md)
-  records each recommendation. The [intent map](intent-map.md) now preserves
-  20 deduplicated active, deferred, blocked, rejected, or owner-decision items.
-  Promote remaining shipped truth and rationale before retiring or deleting
-  any `_tbd/` source. The holding area remains outside the governed graph.
 
 ## Verification
 

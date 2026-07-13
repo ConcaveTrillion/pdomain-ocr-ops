@@ -7,12 +7,12 @@ mode = "git"
 convention = "agent-index"
 freshness_days = 30
 include = ['*.md', 'docs/**/*.md']
-exclude = ['agent/**', 'agents/**', 'skills/**', 'prompts/**', '.claude/**', '.codex/**', '.cursor/**', '.docgraph/**', '_tbd/**']
+exclude = ['agent/**', 'agents/**', 'skills/**', 'prompts/**', '.claude/**', '.codex/**', '.cursor/**', '.docgraph/**']
 
 # Non-md files scanned for reverse references to indexed markdown docs.
 # Default hard-excludes (.git, .venv, node_modules, .worktrees, dot-dirs) always apply.
 reference_include = ['**/*.py', '**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.go', '**/*.rs', '**/*.toml', '**/*.yaml', '**/*.yml', '**/*.json']
-reference_exclude = ['agent/**', 'agents/**', 'skills/**', 'prompts/**', '.claude/**', '.codex/**', '.cursor/**', '.docgraph/**', '.venv/**', 'node_modules/**', '_tbd/**']
+reference_exclude = ['agent/**', 'agents/**', 'skills/**', 'prompts/**', '.claude/**', '.codex/**', '.cursor/**', '.docgraph/**', '.venv/**', 'node_modules/**']
 
 [infer]
 "specs/**" = { kind = "spec", status = "active" }
