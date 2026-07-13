@@ -17,8 +17,17 @@ Kind: context
 
 ## Active bets
 
-- **Lint catalog reconciliation — active.** Keep the catalog because
-  `CONVENTIONS.md` requires it, but fill its current source-coverage gaps.
+- **Lint catalog maintenance — active.** The catalog now matches the current
+  source tree. Keep it current because `CONVENTIONS.md` requires every
+  suppression to be documented.
+- **Salvaged `_tbd/` red-team review — active.** Compare each of the 210
+  tracked Markdown files with implementation and current practice. A material
+  divergence routes the source to supersession or retirement only after useful
+  ideas move to the right durable destination: architecture for shipped truth,
+  decisions for rationale, or this intent map for promising unbuilt work.
+  Label anything that did not ship or no longer matches current practice. Do
+  not manufacture conformance headings or discard a diverged document
+  wholesale.
 
 ## Deferred work
 
@@ -38,14 +47,11 @@ None.
 
 ## Needs owner decision
 
-- **Salvaged `_tbd/` documentation.** Decide which of the 210 tracked Markdown
-  files to promote into a pdomain repository and which to delete. The holding
-  area says the old OCR meta-repo content is unique historical material, so the
-  migration excludes `_tbd/**` rather than inferring lifecycle outcomes.
+None. The owner authorized the `_tbd/` red-team review on 2026-07-13.
 
 ## Legacy-unverified sweep
 
 <!-- can-retire: docs/plans/2026-05-28-batched-ocr-dispatch.md; shipped local scope promoted to docs/architecture/batched-ocr-dispatch.md, with remote work retained above. -->
 <!-- can-retire: docs/plans/2026-06-10-shared-paths-and-export-manifest.md; shipped behavior promoted to docs/architecture/shared-paths-and-export-manifest.md. -->
 <!-- still-active: docs/process/writing-style.md; CLAUDE.md and CONVENTIONS.md still name it as authoritative. -->
-<!-- needs-owner-review resolved as partial: docs/process/lint-deviations.md; its policy remains active but the catalog is incomplete against current source. -->
+<!-- needs-owner-review resolved as active: docs/process/lint-deviations.md; the catalog is reconciled against current source. -->

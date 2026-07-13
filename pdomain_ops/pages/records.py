@@ -8,15 +8,17 @@ page ordering. Both are plain pydantic — zero eventsourcing imports
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime  # noqa: TC003  # Pydantic resolves this field type at runtime
 from enum import StrEnum
-from pathlib import Path  # noqa: TC003
+from pathlib import Path  # noqa: TC003  # Pydantic resolves this field type at runtime
 from typing import Any
-from uuid import UUID  # noqa: TC003
+from uuid import UUID  # noqa: TC003  # Pydantic resolves this field type at runtime
 
 from pydantic import BaseModel, Field
 
-from pdomain_ops.pages.provenance import ProvenanceGraph  # noqa: TC001
+from pdomain_ops.pages.provenance import (
+    ProvenanceGraph,  # noqa: TC001  # Pydantic resolves this model type at runtime
+)
 
 
 class RotationSource(StrEnum):

@@ -53,3 +53,21 @@ Kind: context
 - **Evidence:** `_tbd/README.md` and the tracked-file count on 2026-07-13.
 - **Remaining work:** Resolve the owner-decision item in
   [`intent-map.md`](intent-map.md).
+
+### 2026-07-13 — Red-team salvaged documents before lifecycle action
+
+- **Context:** The 210 tracked Markdown files under `_tbd/` may describe ideas
+  that diverge from implementation or current practice. Their historical value
+  does not make every document current truth.
+- **Decision:** Red-team each document against implementation and current
+  practice. Route materially diverged documents to supersession or retirement.
+  Do not add conformance headings merely to make a document appear current.
+- **Rationale:** Lifecycle status should reflect evidence. Before superseding
+  or retiring a diverged source, preserve useful ideas in the correct durable
+  destination: architecture for shipped truths, decisions for rationale, and
+  the intent map for promising unbuilt ideas. Explicitly label what did not
+  ship or no longer matches current practice; do not discard a diverged
+  document wholesale.
+- **Evidence:** Owner authorization on 2026-07-13.
+- **Remaining work:** Review the corpus without migrating or deleting `_tbd/`
+  until each document has been red-teamed.

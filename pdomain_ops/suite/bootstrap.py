@@ -111,7 +111,7 @@ def bootstrap_spa(
     # --- 3. Register with suite registry (best-effort) ---
     try:
         register_self(_caller_package=caller_package, actual_port=port)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001  # startup continues when optional registry integration fails
         logger.warning(
             "Suite registry registration failed for %r (non-fatal): %s",
             caller_package,
@@ -120,7 +120,7 @@ def bootstrap_spa(
 
     # --- 4. Print startup URL ---
     label = url_label if url_label is not None else caller_package
-    print(f"🚀 {label} at http://{host}:{port}/")  # noqa: T201
+    print(f"🚀 {label} at http://{host}:{port}/")  # noqa: T201  # startup URL is intentional CLI output
 
     # --- 5. Return the bound port ---
     return port

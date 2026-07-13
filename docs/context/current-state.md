@@ -24,11 +24,14 @@ shared-path/export-manifest behavior live in
 
 ## In-flight work
 
-- Reconcile the partial [lint-deviation catalog](../process/lint-deviations.md)
-  with suppressions in the current source tree.
+- The [lint-deviation catalog](../process/lint-deviations.md) is reconciled
+  with the current source tree.
 - Remote Modal and shared-container OCR batch dispatch remains deferred.
-- The 210 salvaged Markdown files under `_tbd/` remain outside the governed
-  graph until the owner decides which content to keep or delete.
+- Red-team each of the 210 salvaged Markdown files under `_tbd/` against
+  implementation and current practice. Preserve useful material in
+  architecture, decisions, or the intent map before superseding or retiring a
+  materially diverged source. The holding area remains outside the governed
+  graph during this review.
 
 ## Verification
 

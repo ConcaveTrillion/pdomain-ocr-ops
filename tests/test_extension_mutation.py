@@ -171,7 +171,7 @@ def test_set_extension_consistent_after_snapshot(tmp_path: Path) -> None:
     """
 
     class SnappyApp(PagesApplication):
-        snapshotting_intervals = {PageAggregate: 2}  # noqa: RUF012
+        snapshotting_intervals = {PageAggregate: 2}  # noqa: RUF012  # test overrides framework class configuration
 
     app = SnappyApp(env=_sqlite_env(tmp_path))
     pid = uuid4()

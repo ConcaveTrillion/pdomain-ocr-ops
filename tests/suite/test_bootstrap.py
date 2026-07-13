@@ -14,7 +14,7 @@ from pdomain_ops.suite.bootstrap import bootstrap_spa
 # ---------------------------------------------------------------------------
 
 _PREFERRED = 8000
-_ALL_INTERFACES = "0.0.0.0"  # noqa: S104
+_ALL_INTERFACES = "0.0.0.0"  # noqa: S104  # test verifies explicit all-interface binding
 
 
 def _make_find_port_patch(return_port: int):

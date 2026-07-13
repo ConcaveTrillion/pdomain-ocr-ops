@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+from typing import TYPE_CHECKING
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -10,9 +11,12 @@ from fastapi.testclient import TestClient
 from pdomain_ops.suite.update import EditableInstallError
 from pdomain_ops.suite.update_routes import mount_update_routes
 
+if TYPE_CHECKING:
+    import pytest
 
-def test_get_update(monkeypatch: object) -> None:
-    monkeypatch.setattr(  # type: ignore[union-attr]
+
+def test_get_update(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
         "pdomain_ops.suite.update_routes.check_latest",
         lambda **k: {
             "current": "0.9.0",
@@ -29,9 +33,9 @@ def test_get_update(monkeypatch: object) -> None:
     assert r.json()["update_available"] is True
 
 
-def test_post_update_invokes_apply(monkeypatch: object) -> None:
+def test_post_update_invokes_apply(monkeypatch: pytest.MonkeyPatch) -> None:
     seen: dict[str, str] = {}
-    monkeypatch.setattr(  # type: ignore[union-attr]
+    monkeypatch.setattr(
         "pdomain_ops.suite.update_routes.apply_upgrade",
         lambda dist, **k: seen.setdefault("dist", dist),
     )
@@ -42,13 +46,13 @@ def test_post_update_invokes_apply(monkeypatch: object) -> None:
     assert seen["dist"] == "pdomain-ocr-simple-gui"
 
 
-def test_post_update_returns_409_on_editable(monkeypatch: object) -> None:
+def test_post_update_returns_409_on_editable(monkeypatch: pytest.MonkeyPatch) -> None:
     """EditableInstallError raised by apply_upgrade maps to HTTP 409."""
 
     def raise_editable(dist: str, **k: object) -> None:
         raise EditableInstallError(f"{dist!r} is editable")
 
-    monkeypatch.setattr(  # type: ignore[union-attr]
+    monkeypatch.setattr(
         "pdomain_ops.suite.update_routes.apply_upgrade",
         raise_editable,
     )
@@ -59,13 +63,13 @@ def test_post_update_returns_409_on_editable(monkeypatch: object) -> None:
     assert "editable" in r.json()["detail"]
 
 
-def test_post_update_returns_502_on_upgrade_failure(monkeypatch: object) -> None:
+def test_post_update_returns_502_on_upgrade_failure(monkeypatch: pytest.MonkeyPatch) -> None:
     """CalledProcessError from the subprocess maps to HTTP 502."""
 
     def raise_cpe(dist: str, **k: object) -> None:
         raise subprocess.CalledProcessError(1, ["uv", "tool", "upgrade", dist])
 
-    monkeypatch.setattr(  # type: ignore[union-attr]
+    monkeypatch.setattr(
         "pdomain_ops.suite.update_routes.apply_upgrade",
         raise_cpe,
     )

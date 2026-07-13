@@ -11,8 +11,8 @@ break too. Any ergonomic awkwardness found here should be addressed before consu
 from __future__ import annotations
 
 import json
-from pathlib import Path  # noqa: TC003
-from uuid import UUID  # noqa: TC003
+from pathlib import Path  # noqa: TC003  # fixtures construct paths at runtime
+from uuid import UUID  # noqa: TC003  # tests construct UUID values at runtime
 
 from pdomain_book_tools.ocr.page import Page
 
@@ -200,7 +200,8 @@ def test_provenance_head_blob_refs_survive_in_memory(tmp_path: Path) -> None:
         blob_refs=[content_hash, image_hash],
     )
 
-    head = agg.record.provenance.head  # type: ignore[union-attr]
+    assert agg.record.provenance is not None
+    head = agg.record.provenance.head
     assert head is not None
     assert head.blob_refs == [content_hash, image_hash]
 

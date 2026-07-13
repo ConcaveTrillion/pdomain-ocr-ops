@@ -111,7 +111,7 @@ select = [
 ]
 ignore = [
     # Line length: many long docstrings, error messages, and URLs; enforcing
-    # 88-char wrapping everywhere adds noise without improving readability.
+    # 100-char wrapping everywhere adds noise without improving readability.
     "E501",
     # Docstring style: D203 (1-blank-before-class-docstring) conflicts with
     # D211 (no-blank-before-class-docstring); D212 (multi-line-summary-first-line)
@@ -167,19 +167,23 @@ known-first-party = ["pdomain_ops"]
 
 [tool.ruff.lint.per-file-ignores]
 # Tests: assert is the idiom (S101); magic numbers common (PLR2004); no
-# annotations required (ANN); no docstrings required (D); security rules
+# annotations required (ANN); no docstrings required (D); print output is
+# allowed in test helpers (T201); security rules
 # relaxed (S105/S106/S311 — hardcoded passwords/random are test fixtures);
 # pytest.raises match= not required for every test (PT011);
 # /tmp paths are fine in tests (S108); trivial comparisons can be intentional (PLR0133);
 # loop-var reassignment as pattern (PLW2901); list-building loops in tests are fine (PERF401);
 # BLE001: concurrency stress tests collect thread errors via broad except;
 # PLW1510: subprocess.run check= omitted intentionally (returncode asserted explicitly);
-# SIM117: nested with blocks are clearer for pytest.raises + context combos.
+# SIM117: nested with blocks are clearer for pytest.raises + context combos;
+# S603/S607: tests intentionally invoke subprocesses, including trusted tools
+# resolved through PATH.
 "tests/**/*.py" = ["S101", "S105", "S106", "S311", "T201", "ANN", "D", "PLR2004", "PT011", "S108", "PLR0133", "PLW2901", "PERF401", "BLE001", "PLW1510", "SIM117", "S603", "S607"]
 # Scripts: print() is the output mechanism; no docstrings required; S607 partial
 # executable path is idiomatic when invoking system tools (uv, git, etc.)
 "scripts/*.py" = ["T201", "D", "S607"]
-# __init__.py: re-exports without docstrings; F401 used for public API surface.
+# __init__.py: re-exports without docstrings; F401 and TC keep runtime imports
+# available as the public API surface instead of hiding them under TYPE_CHECKING.
 "**/__init__.py" = ["D104", "F401", "TC"]
 # Private modules: internal convention, no docstrings required.
 "**/_*.py" = ["D"]

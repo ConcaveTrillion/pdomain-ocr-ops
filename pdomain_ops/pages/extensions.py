@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from pydantic import BaseModel
 
-from pdomain_ops.pages.records import PageRecord  # noqa: TC001
+if TYPE_CHECKING:
+    from pdomain_ops.pages.records import PageRecord
 
 M = TypeVar("M", bound=BaseModel)
 

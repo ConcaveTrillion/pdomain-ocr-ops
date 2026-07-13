@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pdomain_ops.gpu.device import pick_device
-from pdomain_ops.suite.prefs import PrefsAdapter  # noqa: TC001
-from pdomain_ops.suite.types import UIPrefs  # noqa: TC001
+
+if TYPE_CHECKING:
+    from pdomain_ops.suite.prefs import PrefsAdapter
+    from pdomain_ops.suite.types import UIPrefs
 
 
 def resolve_effective_device(

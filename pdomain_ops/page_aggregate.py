@@ -267,7 +267,7 @@ class PagesApplication(Application[UUID]):
     for durable storage. Migrate to Postgres by swapping the env (design spec §8).
     """
 
-    snapshotting_intervals = {  # noqa: RUF012
+    snapshotting_intervals = {  # noqa: RUF012  # framework configuration is an intentional class mapping
         PageAggregate: 20,
         ProjectAggregate: 20,
     }

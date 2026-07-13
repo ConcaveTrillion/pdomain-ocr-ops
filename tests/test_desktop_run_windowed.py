@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import socket
 import threading  # noqa: TC003 — used at runtime for threading.Event in test bodies
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from pdomain_ops.desktop import ShellDeps, _default_resolve_port, run_windowed
 
@@ -94,7 +98,7 @@ class TestRunWindowedPreferredPort:
 
     def _make_deps(
         self,
-        resolve_port_fn: object,
+        resolve_port_fn: Callable[[], int],
         events: list[object],
     ) -> ShellDeps:
         """Build fake ShellDeps that records server port and URL."""
@@ -111,7 +115,7 @@ class TestRunWindowedPreferredPort:
             open_window=_open_window,
             run_tray=lambda on_quit: None,
             stop_tray=lambda: None,
-            resolve_port=resolve_port_fn,  # type: ignore[arg-type]
+            resolve_port=resolve_port_fn,
             acquire_instance=lambda port: object(),
         )
 
@@ -243,7 +247,7 @@ def test_boot_order_and_shutdown():
 def test_existing_instance_focuses_not_respawn():
     events: list[object] = []
 
-    def _must_not_start(app_module: str, port: int) -> object:
+    def _must_not_start(app_module: str, port: int) -> Callable[[], None]:
         msg = "must not start server when instance exists"
         raise AssertionError(msg)
 
@@ -286,11 +290,11 @@ def test_wait_healthy_false_raises_and_teardown():
 def test_tray_quit_sets_quit_event_and_teardown_runs():
     """Simulating tray-Quit (calling on_quit) sets quit_event; open_window observes it."""
     captured_quit_event: list[threading.Event] = []
-    on_quit_captured: list[object] = []
+    on_quit_captured: list[Callable[[], None]] = []
     teardown_called: list[bool] = []
     tray_stopped: list[bool] = []
 
-    def _run_tray(on_quit: object) -> None:
+    def _run_tray(on_quit: Callable[[], None]) -> None:
         # Capture the on_quit callback so the test can call it later.
         on_quit_captured.append(on_quit)
 
@@ -299,7 +303,7 @@ def test_tray_quit_sets_quit_event_and_teardown_runs():
         # Simulate user triggering tray-Quit while the window is "open":
         # call the captured on_quit, which should set quit_event.
         assert on_quit_captured, "run_tray must be called before open_window"
-        on_quit_captured[0]()  # type: ignore[operator]
+        on_quit_captured[0]()
         # open_window returns only after quit_event is set (as the real impl would).
         # Here we just verify it is set and return.
         assert quit_event.is_set(), "quit_event must be set after on_quit()"

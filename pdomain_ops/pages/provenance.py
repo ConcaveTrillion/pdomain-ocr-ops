@@ -8,7 +8,7 @@ Design spec §5.
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime  # noqa: TC003  # Pydantic resolves this field type at runtime
 from typing import Any
 
 from pydantic import BaseModel, Field

@@ -70,7 +70,7 @@ def test_save_and_reload_replays_state(tmp_path: Path) -> None:
 
 def test_snapshotting_truncates_replay(tmp_path: Path) -> None:
     class SnappyApp(PagesApplication):
-        snapshotting_intervals = {PageAggregate: 2}  # noqa: RUF012
+        snapshotting_intervals = {PageAggregate: 2}  # noqa: RUF012  # test overrides framework class configuration
 
     app = SnappyApp(env=_sqlite_env(tmp_path))
     pid = uuid4()

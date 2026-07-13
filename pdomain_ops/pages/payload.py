@@ -9,11 +9,13 @@ the durable form for lifecycle consumers.
 from __future__ import annotations
 
 from typing import Any
-from uuid import UUID  # noqa: TC003
+from uuid import UUID  # noqa: TC003  # Pydantic resolves this field type at runtime
 
 from pydantic import BaseModel, model_validator
 
-from pdomain_ops.pages.records import PageRecord  # noqa: TC001
+from pdomain_ops.pages.records import (
+    PageRecord,  # noqa: TC001  # Pydantic resolves this model type at runtime
+)
 
 
 class PagePayload(BaseModel):

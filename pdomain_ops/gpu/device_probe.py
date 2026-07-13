@@ -68,7 +68,7 @@ def _nvidia_smi_names() -> list[str]:
     if executable is None:
         return []
     try:
-        result = subprocess.run(  # noqa: S603
+        result = subprocess.run(  # noqa: S603  # argv uses the resolved trusted nvidia-smi executable
             [executable, "--query-gpu=name", "--format=csv,noheader"],
             check=False,
             capture_output=True,
@@ -104,7 +104,7 @@ def _lspci_nvidia_names() -> list[str]:
     if executable is None:
         return []
     try:
-        result = subprocess.run(  # noqa: S603
+        result = subprocess.run(  # noqa: S603  # argv uses the resolved trusted lspci executable
             [executable, "-nn"],
             check=False,
             capture_output=True,

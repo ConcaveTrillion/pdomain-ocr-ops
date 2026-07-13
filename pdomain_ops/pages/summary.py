@@ -7,7 +7,10 @@ mutation; callers set ``PageRecord.provenance_summary`` when they build a payloa
 
 from __future__ import annotations
 
-from pdomain_ops.pages.provenance import ProvenanceGraph  # noqa: TC001
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pdomain_ops.pages.provenance import ProvenanceGraph
 
 
 def build_provenance_summary(graph: ProvenanceGraph | None) -> str:

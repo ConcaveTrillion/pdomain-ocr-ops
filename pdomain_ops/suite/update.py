@@ -130,7 +130,7 @@ def check_latest(
             return _safe
         latest = max(versions, key=Version)
         update_available = compare_versions(current=current, latest=latest)
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # update checks fail closed on registry or version errors
         return _safe
     else:
         return {

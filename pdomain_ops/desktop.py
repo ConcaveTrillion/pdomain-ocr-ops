@@ -193,7 +193,7 @@ def _default_wait_healthy(port: int, timeout: float) -> bool:
             r = httpx.get(f"http://127.0.0.1:{port}/healthz", timeout=0.5)
             if r.status_code == 200:
                 return True
-        except Exception:  # noqa: BLE001, S110
+        except Exception:  # noqa: BLE001, S110  # health polling tolerates transient request failures
             pass
         time.sleep(0.1)
     return False
@@ -245,7 +245,7 @@ def _default_open_window(url: str, title: str, quit_event: threading.Event) -> N
             os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = pyqt6_plugins
 
     # Step 3: Import webview and open the window.
-    import webview  # pyright: ignore[reportMissingImports]
+    import webview  # pyright: ignore[reportMissingImports]  # optional desktop dependency loaded only for GUI use
 
     window = webview.create_window(title, url)
 
@@ -292,8 +292,10 @@ def _make_tray_seams() -> tuple[
         Args:
             on_quit: Callback invoked when the user selects "Quit" from the tray.
         """
-        import pystray  # pyright: ignore[reportMissingImports]
-        from PIL import Image  # pyright: ignore[reportMissingImports]
+        import pystray  # pyright: ignore[reportMissingImports]  # optional tray dependency loaded only when enabled
+        from PIL import (
+            Image,  # pyright: ignore[reportMissingImports]  # optional tray dependency loaded only when enabled
+        )
 
         # Minimal 16x16 RGBA icon (no file dependency)
         img = Image.new("RGBA", (16, 16), color=(100, 149, 237, 255))
@@ -567,7 +569,7 @@ def restart() -> None:
     """
     import os
 
-    os.execv(sys.executable, [sys.executable, *sys.argv])  # noqa: S606
+    os.execv(sys.executable, [sys.executable, *sys.argv])  # noqa: S606  # restart must replace this process
 
 
 # ---------------------------------------------------------------------------
