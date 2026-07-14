@@ -74,11 +74,33 @@ def _make_stub_adapters():
     )
 
 
+def _all_route_paths(app):
+    """Collect route paths, descending into FastAPI's _IncludedRouter wrappers.
+
+    FastAPI >=0.137 wraps ``include_router`` results in an ``_IncludedRouter``
+    that exposes no ``.path``; the real routes hang off its nested router.
+    """
+    paths = []
+    pending = list(app.routes)
+    while pending:
+        route = pending.pop()
+        path = getattr(route, "path", None)
+        if path is not None:
+            paths.append(path)
+        nested = (
+            getattr(route, "routes", None)
+            or getattr(getattr(route, "original_router", None), "routes", None)
+            or getattr(getattr(route, "router", None), "routes", None)
+        )
+        if nested:
+            pending.extend(nested)
+    return paths
+
+
 def test_mount_routes_accepts_fastapi_app():
     app = FastAPI()
     mount_routes(app, adapters=_make_stub_adapters())
-    route_paths = [r.path for r in app.routes]
-    assert "/api/suite/installed" in route_paths
+    assert "/api/suite/installed" in _all_route_paths(app)
 
 
 def test_mount_routes_defaults_to_local_adapters(tmp_path, monkeypatch):
@@ -86,5 +108,4 @@ def test_mount_routes_defaults_to_local_adapters(tmp_path, monkeypatch):
     app = FastAPI()
     # Should now work without raising (SuiteAdapters.local() is wired in M11)
     mount_routes(app)
-    route_paths = [r.path for r in app.routes]
-    assert "/api/suite/installed" in route_paths
+    assert "/api/suite/installed" in _all_route_paths(app)
