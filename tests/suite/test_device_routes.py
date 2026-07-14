@@ -110,3 +110,22 @@ def test_get_device_non_local_mode_returns_mode_only(monkeypatch, local_prefs):
     assert body.get("offload_target") is None
     # Non-local mode returns no device list
     assert body.get("available", []) == []
+
+
+def test_get_device_translates_auto_local_to_cuda_id(monkeypatch, local_prefs):
+    monkeypatch.setattr(
+        "pdomain_ops.suite.device_routes.list_devices",
+        lambda: [
+            DeviceInfoEntry(id="cuda:0", label="GPU 0"),
+            DeviceInfoEntry(id="cpu", label="CPU"),
+        ],
+    )
+    monkeypatch.setattr("pdomain_ops.suite.device_prefs.pick_device", lambda: "local")
+    app = FastAPI()
+    mount_device_routes(app, prefs=local_prefs, app_id="app1", mode="local")
+    c = TestClient(app)
+
+    body = c.get("/api/suite/device").json()
+
+    assert body["current"] == "cuda:0"
+    assert body["current"] in {d["id"] for d in body["available"]}

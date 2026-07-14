@@ -63,3 +63,27 @@ async def test_run_stage_propagates_kwargs(monkeypatch):
     dispatcher = LocalStageDispatcher(registry=registry)
     await dispatcher.run_stage("ocr", "page-1", threshold=0.9, mode="fast")
     assert received_kwargs == {"threshold": 0.9, "mode": "fast"}
+
+
+@pytest.mark.asyncio
+async def test_run_stage_accepts_cuda_id():
+    async def fake(page_id, device, **kwargs):
+        return {}
+
+    registry = {("ocr", "local"): fake}
+    dispatcher = LocalStageDispatcher(registry=registry)
+    result = await dispatcher.run_stage("ocr", "p1", device="cuda:0")
+    assert result.device == "local"  # registry hit, no silent cpu fallback
+
+
+@pytest.mark.asyncio
+async def test_run_stage_canonicalizes_resolver_output():
+    # red-team catch: the resolver path must be canonicalized too, or a stored
+    # "cuda:0" pref reintroduces the exact silent-cpu-fallback bug this fixes
+    async def fake(page_id, device, **kwargs):
+        return {}
+
+    registry = {("ocr", "local"): fake}
+    dispatcher = LocalStageDispatcher(registry=registry, device_resolver=lambda: "cuda:0")
+    result = await dispatcher.run_stage("ocr", "p1")
+    assert result.device == "local"

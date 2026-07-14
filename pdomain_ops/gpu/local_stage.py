@@ -7,7 +7,7 @@ import time
 import warnings
 from typing import TYPE_CHECKING, Any
 
-from pdomain_ops.gpu.device import pick_device, pick_doctr_batch_sizes
+from pdomain_ops.gpu.device import canonical_execution_device, pick_device, pick_doctr_batch_sizes
 from pdomain_ops.gpu.types import OcrBatchRequest, StageResult
 
 if TYPE_CHECKING:
@@ -79,9 +79,21 @@ class LocalStageDispatcher:
         When *device* is given (e.g. a user CPU/GPU choice), it overrides
         auto-detection. Otherwise pick_device() chooses.
         Fallthrough order: requested/detected device -> "cpu" (if not in registry).
+
+        Every candidate is canonicalized to registry vocabulary before lookup
+        (e.g. "cuda:0" -> "local") -- the registry only ever holds cpu/local/mps
+        keys, so an uncanonicalized display id would silently miss and fall
+        through to cpu.
         """
-        if device is None:
-            device = self._device_resolver() if self._device_resolver else pick_device()
+        device = (
+            canonical_execution_device(device)
+            or (
+                canonical_execution_device(self._device_resolver())
+                if self._device_resolver
+                else None
+            )
+            or pick_device()
+        )
 
         # Try preferred device first, fall through to cpu
         impl = self._registry.get((stage_id, device))

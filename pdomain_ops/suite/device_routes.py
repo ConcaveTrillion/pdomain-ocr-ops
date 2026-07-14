@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from pdomain_ops.gpu.device import display_device_id
 from pdomain_ops.gpu.device_probe import DeviceInfoEntry, list_devices
 from pdomain_ops.suite.device_prefs import clear_device_preference, resolve_effective_device
 
@@ -60,10 +61,14 @@ def mount_device_routes(
             source = "suite"
         else:
             source = "auto"
+        devices = list_devices()
         return DeviceInfo(
             mode="local",
-            available=[_device_to_dict(d) for d in list_devices()],
-            current=resolve_effective_device(prefs, app_id, snapshot=snap),
+            available=[_device_to_dict(d) for d in devices],
+            current=display_device_id(
+                resolve_effective_device(prefs, app_id, snapshot=snap),
+                [d.id for d in devices],
+            ),
             effective_source=source,
         )
 

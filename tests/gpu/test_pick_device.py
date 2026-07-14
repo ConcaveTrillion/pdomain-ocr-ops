@@ -1,6 +1,6 @@
 import pytest
 
-from pdomain_ops.gpu.device import pick_device
+from pdomain_ops.gpu.device import canonical_execution_device, display_device_id, pick_device
 
 
 def test_picks_local_when_pdomain_gpu_backend_local(monkeypatch):
@@ -60,3 +60,31 @@ def test_pgdp_env_var_alias_warns(monkeypatch, recwarn):
     assert result == "mps"
     warning_messages = [str(w.message) for w in recwarn.list]
     assert any("PGDP_GPU_BACKEND" in msg or "deprecated" in msg.lower() for msg in warning_messages)
+
+
+@pytest.mark.parametrize(
+    ("device", "expected"),
+    [
+        ("cuda:0", "local"),
+        ("cuda:1", "local"),
+        ("cuda", "local"),
+        ("cpu", "cpu"),
+        ("mps", "mps"),
+        ("local", "local"),
+        (None, None),
+    ],
+)
+def test_canonical_execution_device(device, expected):
+    assert canonical_execution_device(device) == expected
+
+
+def test_display_device_id_maps_local_to_first_cuda_id():
+    assert display_device_id("local", ["cuda:0", "cpu"]) == "cuda:0"
+
+
+def test_display_device_id_keeps_local_when_no_cuda_available():
+    assert display_device_id("local", ["cpu"]) == "local"
+
+
+def test_display_device_id_passthrough_for_non_local():
+    assert display_device_id("cpu", ["cuda:0", "cpu"]) == "cpu"

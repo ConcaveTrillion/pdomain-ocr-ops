@@ -12,6 +12,19 @@ Kind: changelog
 
 ### Fixed
 
+- One canonical device vocabulary is now enforced at the GPU dispatch and
+  suite-routes boundaries. `pdomain_ops.gpu.device` gains
+  `canonical_execution_device()` (maps `"cuda"` / `"cuda:N"` -> `"local"`,
+  passthrough otherwise, `None` -> `None`) and `display_device_id()` (maps
+  `"local"` back to the first `"cuda:N"` in an available-devices list for UI
+  display). `LocalStageDispatcher.run_stage` now canonicalizes every device
+  candidate -- explicit `device=`, then `device_resolver()` output, then
+  `pick_device()` -- before registry lookup, closing a silent-cpu-fallback bug
+  where a stored `"cuda:0"` preference from `device_resolver` never matched
+  the `cpu`/`local`/`mps`-keyed stage registry. `device_routes.get_device` now
+  wraps the resolved device with `display_device_id()` so `GET
+  /api/suite/device` reports a real `cuda:N` id instead of the internal
+  `"local"` sentinel.
 - `LocalFilePrefs` no longer blocks indefinitely on a contended prefs file
   lock. The `filelock.FileLock` is now acquired with a finite timeout
   (default 5s) instead of `timeout=-1` (block forever). An orphaned lock

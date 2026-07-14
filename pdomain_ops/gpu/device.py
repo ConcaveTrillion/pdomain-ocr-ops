@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import os
 import warnings
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 _VALID_DEVICES = frozenset({"local", "mps", "cpu"})
 
@@ -81,6 +84,28 @@ def pick_device() -> Literal["local", "mps", "cpu"]:
     if _mps_available():
         return "mps"
     return "cpu"
+
+
+def canonical_execution_device(device: str | None) -> str | None:
+    """Map any accepted device id to registry vocabulary ('local'/'mps'/'cpu').
+
+    'cuda', 'cuda:0', 'cuda:1', ... -> 'local'; passthrough otherwise; None -> None.
+    """
+    if device is None:
+        return None
+    if device == "cuda" or (device.startswith("cuda:") and device[5:].isdigit()):
+        return "local"
+    return device
+
+
+def display_device_id(execution_device: str, available_ids: Sequence[str]) -> str:
+    """Map 'local' to the first matching 'cuda:N' in available_ids (else return unchanged)."""
+    if execution_device != "local":
+        return execution_device
+    for candidate in available_ids:
+        if candidate.startswith("cuda:"):
+            return candidate
+    return execution_device
 
 
 def _physical_cores() -> int:

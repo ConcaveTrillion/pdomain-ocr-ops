@@ -10,7 +10,9 @@ def test_run_stage_uses_device_resolver():
         seen["dev"] = device
         return {"ok": True}
 
+    # device_resolver output is canonicalized to registry vocabulary before
+    # lookup: "cuda:0" -> "local" (the registry only ever holds cpu/local/mps).
     d = LocalStageDispatcher(device_resolver=lambda: "cuda:0")
-    d.register_stage("s", "cuda:0", fake_impl)
+    d.register_stage("s", "local", fake_impl)
     asyncio.run(d.run_stage("s", "p1"))
-    assert seen["dev"] == "cuda:0"
+    assert seen["dev"] == "local"
