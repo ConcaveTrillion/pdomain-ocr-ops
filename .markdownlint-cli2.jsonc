@@ -1,4 +1,6 @@
 {
+  "ignores": ["docs-issues/**"],
+
   // Project-wide markdownlint configuration.
   //
   // Most defaults are kept; the rules below are too noisy for the
