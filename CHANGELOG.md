@@ -25,6 +25,11 @@ Kind: changelog
   wraps the resolved device with `display_device_id()` so `GET
   /api/suite/device` reports a real `cuda:N` id instead of the internal
   `"local"` sentinel.
+- `LocalStageDispatcher.run_ocr_batch` now honors `device_resolver` when the
+  request carries no explicit device: it canonicalizes `req.device`, then the
+  `device_resolver()` output, then falls back to `pick_device()` -- the same
+  precedence `run_stage` uses. Previously a batch request with no `device`
+  ignored `device_resolver` entirely and always auto-detected.
 - `LocalFilePrefs` no longer blocks indefinitely on a contended prefs file
   lock. The `filelock.FileLock` is now acquired with a finite timeout
   (default 5s) instead of `timeout=-1` (block forever). An orphaned lock

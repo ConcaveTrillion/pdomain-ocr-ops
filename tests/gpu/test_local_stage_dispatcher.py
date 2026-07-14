@@ -1,7 +1,10 @@
+from pathlib import Path
+from unittest.mock import MagicMock
+
 import pytest
 
 from pdomain_ops.gpu.local_stage import LocalStageDispatcher, UnknownStageError
-from pdomain_ops.gpu.types import StageResult
+from pdomain_ops.gpu.types import OcrBatchRequest, StageResult
 
 
 @pytest.mark.asyncio
@@ -87,3 +90,40 @@ async def test_run_stage_canonicalizes_resolver_output():
     dispatcher = LocalStageDispatcher(registry=registry, device_resolver=lambda: "cuda:0")
     result = await dispatcher.run_stage("ocr", "p1")
     assert result.device == "local"
+
+
+@pytest.mark.asyncio
+async def test_batch_uses_device_resolver_when_request_has_no_device(monkeypatch):
+    import pdomain_book_tools.hf as _hf_mod
+    import pdomain_book_tools.ocr.doctr_support as _doctr_support
+
+    import pdomain_ops.gpu.default_stages as ds
+    import pdomain_ops.gpu.doctr_batch as doctr_batch_mod
+
+    ds._predictor_cache.clear()
+    monkeypatch.setattr(
+        _hf_mod, "resolve_ocr_models", lambda: (Path("/fake/det.pt"), Path("/fake/reco.pt"))
+    )
+    monkeypatch.setattr(
+        _doctr_support,
+        "get_finetuned_torch_doctr_predictor",
+        lambda d, r, det_bs=2, reco_bs=128: object(),
+    )
+
+    captured = {}
+
+    def fake_run_doctr_batch(
+        images, *, predictor, device, build_smaller=None, source_identifiers=None
+    ):
+        captured["device"] = device
+        page = MagicMock()
+        page.to_dict.return_value = {}
+        return [page]
+
+    monkeypatch.setattr(doctr_batch_mod, "run_doctr_batch", fake_run_doctr_batch)
+
+    dispatcher = LocalStageDispatcher(device_resolver=lambda: "cpu")
+    req = OcrBatchRequest(images=[b"x"], source_identifiers=["s/0"], engine="doctr", language="en")
+    await dispatcher.run_ocr_batch(req)
+
+    assert captured["device"] == "cpu"
