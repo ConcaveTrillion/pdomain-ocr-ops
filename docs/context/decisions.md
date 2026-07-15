@@ -396,7 +396,7 @@ Kind: context
 ### 2026-07-15 — Retired local writing-style document
 
 - **Old path:** `docs/process/writing-style.md`.
-- **Outcome:** Superseded.
+- **Outcome:** Superseded, then reinstated the same day (see next entry).
 - **Superseded by:** Plugin-owned `write-readably` and
   `edit-for-readability` routing in `AGENTS.md` and `CONVENTIONS.md`.
 - **Removal commit:** `7e0a846`.
@@ -405,8 +405,17 @@ Kind: context
   rules: a roughly seventh-grade reading target, rare parentheses, no
   parenthetical em dashes, specific link practices, and command-detail
   deduplication.
-- **Decline record:** `.repo-setup.json` sets `"declined_writing_style": true`
-  so setup-repo re-runs report the absence as declined instead of copying the
-  reference back in. A later setup run briefly restored the file before this
-  record existed; that restore was reverted the same day.
 - **Remaining work:** None.
+
+### 2026-07-15 — Reinstated local writing-style document
+
+- **Path:** `docs/process/writing-style.md`.
+- **Outcome:** Restored. Reverses the same-day retirement above.
+- **Reason:** Owner direction to keep a repo-local copy of the writing style.
+- **Relationship to plugin routing:** The plugin-owned `write-readably` and
+  `edit-for-readability` routing in `AGENTS.md` and `CONVENTIONS.md` stays. The
+  local document again carries the repo-local additions the plugin standard
+  does not: the roughly seventh-grade reading target, rare parentheses, no
+  parenthetical em dashes, specific link practices, and command-detail
+  deduplication.
+- **Remaining work:** Keep the local document and the managed guidance aligned.
