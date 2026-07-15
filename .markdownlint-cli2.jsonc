@@ -1,5 +1,8 @@
 {
-  "ignores": ["docs-issues/**"],
+  // docs/issues/TEMPLATE.md is a fill-in template: its <placeholder> tokens read
+  // as inline HTML and its heading style is deliberately atx. Real issue reports
+  // under docs/issues/ are still linted.
+  "ignores": ["docs/issues/TEMPLATE.md"],
 
   // Project-wide markdownlint configuration.
   //

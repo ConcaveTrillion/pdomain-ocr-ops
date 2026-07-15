@@ -69,8 +69,8 @@ Lead with the **smallest decisive evidence**, separate **observation** from
 
 ## Open issues
 
-- _None yet._
+- *None yet.*
 
 ## Resolved issues
 
-- _None yet._
+- *None yet.*
