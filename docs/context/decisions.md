@@ -405,4 +405,8 @@ Kind: context
   rules: a roughly seventh-grade reading target, rare parentheses, no
   parenthetical em dashes, specific link practices, and command-detail
   deduplication.
+- **Decline record:** `.repo-setup.json` sets `"declined_writing_style": true`
+  so setup-repo re-runs report the absence as declined instead of copying the
+  reference back in. A later setup run briefly restored the file before this
+  record existed; that restore was reverted the same day.
 - **Remaining work:** None.
