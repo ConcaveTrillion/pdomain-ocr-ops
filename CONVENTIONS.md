@@ -21,13 +21,13 @@ should stay short.
 ## Rule: No comments explaining what code does
 
 **The rule.** Don't add comments that restate what the code does;
-well-named identifiers already do that. Only add a comment when the
-WHY is non-obvious: a hidden constraint, a subtle invariant, or a
+well-named identifiers already explain it. Add a comment only when the WHY is
+non-obvious. Examples include a hidden constraint, a subtle invariant, or a
 workaround for a specific bug.
 
-**Why.** Comments rot when code changes and become misleading. The rule
-also applies to docstrings — one short line max; no multi-paragraph
-docstrings and no multi-line comment blocks.
+**Why.** Comments rot when code changes and become misleading. This rule also
+applies to docstrings. Use one short line at most. Do not use multi-paragraph
+docstrings or multi-line comment blocks.
 
 **Common high-confidence violations** (bot auto-fix candidates)
 
@@ -42,21 +42,22 @@ docstrings and no multi-line comment blocks.
 
 **Common judgment-call violations** (bot flags, CT decides)
 
-- Comments that reference the PR, issue, or task that introduced the code — belongs in commit message, not source.
+- Comments that reference the PR, issue, or task that introduced the code. This
+  context belongs in the commit message, not the source.
 - Multi-line preamble that mixes WHY (worth keeping) with WHAT (worth removing).
 
 ## Rule: Unicode escape sequences for ruff-flagged ambiguous characters
 
 **The rule.** Characters ruff flags under RUF001/002/003 (ambiguous Unicode —
 curly quotes, en-dashes, em-dashes, multiplication signs, non-breaking spaces,
-etc.) must be written as `\uXXXX` escape sequences in string and docstring
-literals. In comments, replace with the plain ASCII equivalent. In every case
-include a short inline comment naming the character, e.g.
+etc.) must use `\uXXXX` escape sequences in string and docstring literals. In
+comments, replace them with the plain ASCII equivalent. Always include a short
+inline comment that names the character, e.g.
 `"""  # LEFT DOUBLE QUOTATION MARK`.
 
-**Why.** Literal curly quotes and dashes are visually indistinguishable from
-ASCII equivalents in most editors and diff views, making string comparisons and
-grep silently fragile. Escape sequences make intent explicit and are safe across
+**Why.** Most editors and diff views make literal curly quotes and dashes look
+like their ASCII equivalents. This similarity makes string comparisons and grep
+silently fragile. Escape sequences make intent explicit and work safely across
 all encodings. `# noqa: RUF00x` masks the problem instead of fixing it.
 
 **Common high-confidence violations** (bot auto-fix candidates)
@@ -71,9 +72,9 @@ all encodings. `# noqa: RUF00x` masks the problem instead of fixing it.
 **Common judgment-call violations** (bot flags, CT decides)
 
 - Test strings that intentionally exercise curly-quote round-trip through the
-  OCR pipeline and must contain the literal character — keep the literal with an
+  OCR pipeline and must contain the literal character. Keep the literal with an
   explicit `# noqa: RUF001  # intentional: testing curly-quote round-trip`
-  comment that names the character and states the reason.
+  comment. The comment must name the character and state the reason.
 
 ## Rule: Use `uv run` for all Python and tool invocation
 
@@ -82,8 +83,8 @@ CLI through `uv run`. Never call bare `python`, `python3`, `pytest`, or
 `pre-commit` from a Makefile target, CI step, or hook.
 
 **Why.** Direct invocation skips the project's `.venv` and the lockfile-pinned
-toolchain; tests pass locally and fail in CI (or vice versa) because the bare
-interpreter sees different installed package versions. `uv run` is uniformly
+toolchain. The bare interpreter may see different installed package versions,
+so tests can pass locally and fail in CI, or vice versa. `uv run` is uniformly
 fast (<200 ms warm) and always selects the project venv.
 
 **Common high-confidence violations** (bot auto-fix candidates)
@@ -95,14 +96,16 @@ fast (<200 ms warm) and always selects the project venv.
 
 **Common judgment-call violations** (bot flags, CT decides)
 
-- One-off REPL commands typed in CT's interactive shell — out of scope for this rule.
+- One-off REPL commands typed in CT's interactive shell. These commands are out
+  of scope for this rule.
 
 ## Rule: Design spec files live in `docs/specs/` until the milestone ships
 
 **The rule.** A design spec file produced by `/spec-from-issue` lives at
 `docs/specs/<date>-<topic>-design.md` while the milestone's chore issues are open.
-When the milestone's last chore closes and the implementation lands, move the file to
-`docs/architecture/` in a housekeeping commit:
+Move the file to `docs/architecture/` in a housekeeping commit when both
+conditions are met: the milestone's last chore closes, and the implementation
+lands.
 
 ```bash
 git mv docs/specs/<date>-<topic>-design.md docs/architecture/
@@ -111,10 +114,10 @@ git commit -m "docs: promote <topic> spec to architecture/ (milestone shipped)"
 
 Update any `Spec: docs/specs/...` pointers in still-open issues after the move.
 
-**Why.** `docs/specs/` is the active working area — implementing agents follow `Spec:`
-pointers to find their instructions. `docs/architecture/` is the permanent design record
-for shipped features. Mixing shipped and in-progress specs in one directory makes it
-unclear which specs are still authoritative for ongoing work.
+**Why.** `docs/specs/` is the active working area. Implementing agents follow
+`Spec:` pointers to find their instructions. `docs/architecture/` is the
+permanent design record for shipped features. Mixing shipped and in-progress
+specs makes it unclear which specs still govern ongoing work.
 
 **Common high-confidence violations** (bot auto-fix candidates)
 
@@ -129,23 +132,27 @@ unclear which specs are still authoritative for ongoing work.
 
 **The rule.** Prefer fixing the underlying issue; suppress a lint rule only
 when the deviation is genuinely correct (e.g. an optional dependency import
-guarded by `try`/`except`). When a suppression *is* warranted —
+guarded by `try`/`except`). When a suppression *is* warranted, including
 `# pyright: ignore[...]`, `# type: ignore[...]`, `# noqa: ...`, or a
-`[tool.ruff.lint]` `ignore` / `per-file-ignores` entry — it must (1) carry a
-short inline rationale at the point of deviation explaining *why* the
-suppression is safe, and (2) be catalogued in the repo's
-`docs/process/lint-deviations.md`, which records the rule, the tool, the
-file locations, and the justification. Use basedpyright's native
+`[tool.ruff.lint]` `ignore` / `per-file-ignores` entry, it must meet two
+conditions:
+
+1. Add a short inline rationale at the point of deviation. Explain *why* the
+   suppression is safe.
+2. Catalogue the suppression in the repo's
+   `docs/process/lint-deviations.md`. Record the rule, tool, file locations,
+   and justification.
+
+Use basedpyright's native
 `# pyright: ignore[reportRuleName]` form — mypy-style `# type: ignore[code]`
 codes are not honored by basedpyright.
 
 **Why.** A bare suppression hides whether the deviation was a deliberate,
-reviewed decision or a shortcut, and rots silently when the surrounding code
-changes. The inline comment makes intent visible where the code is read; the
-central doc makes the whole suppression set auditable in one place so it can't
-quietly grow. This rule is the escape valve for the
-"Unicode escape sequences" rule above — when a `# noqa` genuinely must stay,
-this is how it gets justified.
+reviewed decision or a shortcut. It also rots silently when the surrounding
+code changes. The inline comment shows intent where people read the code. The
+central doc keeps the whole suppression set auditable in one place so it cannot
+quietly grow. This rule is the escape valve for the "Unicode escape sequences"
+rule above. Use it to justify a `# noqa` that genuinely must stay.
 
 **Common high-confidence violations** (bot auto-fix candidates)
 
