@@ -19,9 +19,9 @@ Use this style for docs, reports, issue text, PR text, and user-facing copy.
 
 ## Goal
 
-Write text that is easy to scan without sounding clipped. Make it clear for
+Write text that is easy to scan but does not sound clipped. Write clearly for
 readers who are tired, new to the project, or reading in a second language.
-Aim for about a 7th grade English level.
+Aim for about a 7th-grade English level.
 
 ## Rules
 
@@ -33,19 +33,19 @@ Aim for about a 7th grade English level.
 - Prefer common words.
 - Use active voice when it is natural.
 - Avoid long chains of clauses.
-- Use short paragraphs, but keep closely related sentences together.
+- Keep paragraphs short, but keep closely related sentences together.
 - Avoid repeating the same idea in nearby sentences.
 - Use lists when they make steps or choices easier to scan.
 - Keep technical terms when they are the correct names.
 - Explain a technical term the first time it may be unclear.
-- Use parentheses rarely. They are fine for first-time acronym write-outs, such
-  as `CI (continuous integration)`.
+- Use parentheses rarely. They are fine when writing out an acronym for the
+  first time, such as `CI (continuous integration)`.
 - Do not use parenthetical em dashes.
 
 ## Links and Detail
 
-- If another project doc explains a topic, link to it instead of repeating the
-  detail.
+- If another project doc explains a topic, link to that doc instead of repeating
+  the details.
 - Link helpful references on first use.
 - Prefer official docs for standard tools.
 - Use local source links with line anchors for project behavior.
@@ -61,5 +61,5 @@ Aim for about a 7th grade English level.
 
 ## Before Publishing
 
-Read the text once as if the reader is tired or new to the project. Fix any
-sentence that needs a second read. Split long paragraphs. Remove filler.
+Read the text once as if you are tired or new to the project. Fix any sentence
+that needs a second read. Split long paragraphs. Remove filler.
