@@ -17,8 +17,8 @@ Kind: context
 
 ### 2026-07-13 — Retire completed implementation plans
 
-- **Context:** Two inferred-active plans describe behavior that shipped in May
-  and June 2026.
+- **Context:** Two plans inferred to be active describe behavior that shipped
+  in May and June 2026.
 - **Decision:** Delete the plans after promoting their durable behavior to
   [`batched-ocr-dispatch.md`](../architecture/batched-ocr-dispatch.md) and
   [`shared-paths-and-export-manifest.md`](../architecture/shared-paths-and-export-manifest.md).
@@ -36,8 +36,8 @@ Kind: context
 - **Decision:** Remove the archive scaffold and stop treating archive as a
   lifecycle destination.
 - **Rationale:** Docgraph retirement preserves durable truth in architecture,
-  decisions, and residual intent. Empty cold-storage folders add a competing
-  convention without preserving knowledge.
+  decisions, and residual intent. Empty cold-storage folders preserve no
+  knowledge and add a competing convention.
 - **Evidence:** Owner direction on 2026-07-13 and commit `a603ce9`, which created
   the otherwise-unused scaffold.
 - **Remaining work:** none.
@@ -48,8 +48,9 @@ Kind: context
   OCR meta-repository, and its README requires keep-or-delete review.
 - **Decision:** Exclude `_tbd/**` from docgraph indexing and reverse-reference
   scans until the owner classifies that corpus.
-- **Rationale:** Those files are not wired into pdomain-ops, but their unique
-  historical content makes automatic deletion or lifecycle inference unsafe.
+- **Rationale:** Those files are not wired into pdomain-ops. However, their
+  unique historical content makes automatic deletion or lifecycle inference
+  unsafe.
 - **Evidence:** `_tbd/README.md` and the tracked-file count on 2026-07-13.
 - **Remaining work:** Resolve the owner-decision item in
   [`intent-map.md`](intent-map.md).
@@ -63,11 +64,11 @@ Kind: context
   practice. Route materially diverged documents to supersession or retirement.
   Do not add conformance headings merely to make a document appear current.
 - **Rationale:** Lifecycle status should reflect evidence. Before superseding
-  or retiring a diverged source, preserve useful ideas in the correct durable
-  destination: architecture for shipped truths, decisions for rationale, and
-  the intent map for promising unbuilt ideas. Explicitly label what did not
-  ship or no longer matches current practice; do not discard a diverged
-  document wholesale.
+  or retiring a diverged source, preserve its useful ideas in the correct
+  durable destination. Architecture holds shipped truths, decisions hold
+  rationale, and the intent map holds promising unbuilt ideas. Explicitly
+  label what did not ship or no longer matches current practice. Do not
+  discard a diverged document wholesale.
 - **Evidence:** Owner authorization on 2026-07-13.
 - **Remaining work:** Review the corpus without migrating or deleting `_tbd/`
   until each document has been red-teamed.
@@ -76,17 +77,18 @@ Kind: context
 
 - **Context:** Historical workspace automation combined schedulers, model
   calls, issue mutation, credentials, and cost tracking in one bot stack.
-- **Decision:** Treat least privilege, narrow command surfaces, explicit
-  eligibility and blocker checks, observable outcomes, bounded budgets, and
-  human escalation as portable workspace requirements. Keep deterministic
-  helpers free of hidden model calls.
+- **Decision:** Treat the following as portable workspace requirements: least
+  privilege, narrow command surfaces, explicit eligibility and blocker checks,
+  observable outcomes, bounded budgets, and human escalation. Keep
+  deterministic helpers free of hidden model calls.
 - **Rationale:** Automation failures remain recoverable when authority and
   transitions are visible and mutation requires an explicit gate.
 - **Evidence:** `_tbd/ocr-container-docs/archive/plans/2026-05-09-workspace-foundation.md`,
   `_tbd/ocr-container-docs/archive/specs/2026-05-14-coding-bot-design.md`,
   current `CLAUDE.md`, installed Superpowers skills, and Codex tool permissions.
-  Current practice uses Codex collaboration, plugins, and worktrees instead of
-  the Claude/ctask scheduler and its branch, PAT, and model-label protocol.
+  Current practice uses Codex collaboration, plugins, and worktrees. These
+  replace the Claude/ctask scheduler and its branch, PAT, and model-label
+  protocol.
 - **Remaining work:** Apply this rationale when designing cross-repo
   automation; it does not define pdomain-ops runtime architecture.
 
@@ -127,9 +129,9 @@ Kind: context
 
 - **Context:** The salvaged label system separated issue kind, workflow status,
   triage outcome, priority, area, and dependency relationships.
-- **Decision:** Preserve those concepts as orthogonal, portable workspace
-  rationale. Require human approval before issue creation and keep parent,
-  child, and blocker links machine-checkable.
+- **Decision:** Preserve those separate concepts as portable workspace
+  rationale. Require human approval before issue creation. Keep parent, child,
+  and blocker links machine-checkable.
 - **Rationale:** Collapsing type, state, and intent makes automation ambiguous
   and can reactivate retired work accidentally.
 - **Evidence:** `_tbd/ocr-container-docs/architecture/label-taxonomy.md`,
@@ -197,7 +199,7 @@ Kind: context
 
 - **Context:** A package build, GitHub release, and package-index refresh are
   related but distinct failure domains.
-- **Decision:** Pin managed actions immutably, derive version truth from package
+- **Decision:** Pin managed actions immutably. Derive version truth from package
   metadata, verify artifacts before publishing, and notify indexes separately.
   An index-notification failure does not invalidate an artifact already
   published successfully.
@@ -287,7 +289,7 @@ Kind: context
 - **Decision:** Reject traversal and unsafe paths, separate local authority from
   uploaded data, require explicit consent for persistent mutations and
   upgrades, make launcher installation opt-in, and isolate and purge test data.
-- **Rationale:** Local access is powerful; safe defaults prevent an interface
+- **Rationale:** Local access is powerful. Safe defaults prevent an interface
   convenience from becoming implicit filesystem or system authority.
 - **Evidence:** `_tbd/ocr-container-docs/specs/2026-05-26-pd-ocr-simple-gui-reconciliation-design.md`,
   `_tbd/ocr-container-docs/specs/2026-06-04-pd-suite-desktop-shell-design.md`,
@@ -357,11 +359,12 @@ Kind: context
   proposes 185 retirement candidates, but it does not itself authorize
   deletion.
 - **Decision:** Treat eventual holding-corpus removal as one corpus-level
-  tombstone action. Delete no source until verified shipped truth is preserved
-  in architecture, durable rationale is preserved in decisions, promising
-  unbuilt work is routed to intent, unresolved external-state questions retain
-  explicit blockers in the intent map, and the ledger is checked against the
-  final disposition set.
+  tombstone action. Delete no source until all preservation gates pass.
+  Architecture must preserve verified shipped truth, decisions must preserve
+  durable rationale, and intent must preserve promising unbuilt work. The
+  intent map must retain explicit blockers for unresolved external-state
+  questions. The ledger must also be checked against the final disposition
+  set.
 - **Rationale:** One evidence-backed corpus tombstone avoids repetitive
   per-document entries while preventing wholesale loss of useful material.
 - **Evidence:** `_tbd/README.md`, all source paths recorded in
@@ -398,7 +401,8 @@ Kind: context
   `edit-for-readability` routing in `AGENTS.md` and `CONVENTIONS.md`.
 - **Removal commit:** `7e0a846`.
 - **Rationale kept:** The plugin keeps the shared readability standard. Per
-  owner direction, this retirement intentionally retires the local-only roughly
-  seventh-grade reading target, rare parentheses and no parenthetical em dashes,
-  specific link practices, and command-detail deduplication.
+  owner direction, this retirement intentionally retires several local-only
+  rules: a roughly seventh-grade reading target, rare parentheses, no
+  parenthetical em dashes, specific link practices, and command-detail
+  deduplication.
 - **Remaining work:** None.
