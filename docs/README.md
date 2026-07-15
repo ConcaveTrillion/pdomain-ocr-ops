@@ -8,23 +8,23 @@ Kind: process
 
 # docs/
 
-How documentation is organized in this repo.
+This directory organizes the repo's documentation by purpose and stage of work.
 
 | Folder | Purpose | Use when |
 | --- | --- | --- |
-| `architecture/` | Durable reference — how the system works today. | Capturing current shape (modules, data flow, contracts, current-state diagrams). |
-| `decisions/` | ADRs — dated, append-only "we chose X because Y." | Recording a specific design choice with context, alternatives, consequences. |
-| `plans/` | Active execution — what order to make a spec real. | Sequencing work for an approved spec. |
+| `architecture/` | Durable reference for how the system works today. | Capturing the current modules, data flow, contracts, and current-state diagrams. |
+| `decisions/` | Dated, append-only architecture decision records (ADRs): "we chose X because Y." | Recording a specific design choice, including its context, alternatives, and consequences. |
+| `plans/` | Active execution steps that put a spec into effect. | Setting the work order for an approved spec. |
 | `process/` | Cross-cutting workflow conventions (verification rules, merge strategy, release process). | Capturing how the team works, not what the system does. |
 | `research/` | Investigation in progress. Messy by design. | Exploring before committing to a design. |
-| `runbooks/` | Operational reference — something is broken or being operated. | An on-call or ops task needs a recipe. |
+| `runbooks/` | Operational reference for broken systems and routine operations. | Following a recipe for an on-call or ops task. |
 | `specs/` | Aspirational, pre-implementation design. | Describing what to build, before code. |
 | `templates/` | Issue, spec, plan, ADR boilerplate. | Adding a starter template for a new doc type. |
-| `usage/` | Downstream reference — how to consume this app/tool/library. | A user or integrator needs to know how to use it. |
+| `usage/` | Downstream reference for using this app, tool, or library. | Explaining its use to a user or integrator. |
 
 Retired docs are deleted after their durable behavior, rationale, and residual
 intent move into architecture, decisions, and context docs. The repo does not
 keep a parallel archive tree.
 
-Active docs map to GitHub issues — see this repo's issue tracker for status.
-Docgraph lifecycle rules live in [`DOCGRAPH.md`](../DOCGRAPH.md).
+Active docs map to GitHub issues. See this repo's issue tracker for their
+status. [`DOCGRAPH.md`](../DOCGRAPH.md) defines the docgraph lifecycle rules.
