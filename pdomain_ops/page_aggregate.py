@@ -54,6 +54,7 @@ from uuid import UUID
 from eventsourcing.application import Application
 from eventsourcing.domain import Aggregate, event
 from eventsourcing.persistence import Transcoding
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
@@ -84,6 +85,7 @@ class PageAggregate(Aggregate):
         self._record = record.model_copy(deep=True)
 
     @staticmethod
+    @override
     def create_id(record: PageRecord) -> UUID:  # ties aggregate id to page_id
         """Return the stable aggregate ID from the page record."""
         return record.page_id
@@ -194,6 +196,7 @@ class ProjectAggregate(Aggregate):
         self._record = record.model_copy(deep=True)
 
     @staticmethod
+    @override
     def create_id(record: ProjectRecord) -> UUID:
         """Return the stable aggregate ID from the project record."""
         return record.project_id
@@ -230,9 +233,11 @@ class _PageRecordTranscoding(Transcoding):
     type = PageRecord
     name = "pdomain_ops.PageRecord"
 
+    @override
     def encode(self, obj: PageRecord) -> dict[str, Any]:
         return obj.model_dump(mode="json")
 
+    @override
     def decode(self, data: dict[str, Any]) -> PageRecord:
         return PageRecord.model_validate(data)
 
@@ -241,9 +246,11 @@ class _ProjectRecordTranscoding(Transcoding):
     type = ProjectRecord
     name = "pdomain_ops.ProjectRecord"
 
+    @override
     def encode(self, obj: ProjectRecord) -> dict[str, Any]:
         return obj.model_dump(mode="json")
 
+    @override
     def decode(self, data: dict[str, Any]) -> ProjectRecord:
         return ProjectRecord.model_validate(data)
 
@@ -252,9 +259,11 @@ class _ProvenanceNodeTranscoding(Transcoding):
     type = ProvenanceNode
     name = "pdomain_ops.ProvenanceNode"
 
+    @override
     def encode(self, obj: ProvenanceNode) -> dict[str, Any]:
         return obj.model_dump(mode="json")
 
+    @override
     def decode(self, data: dict[str, Any]) -> ProvenanceNode:
         return ProvenanceNode.model_validate(data)
 
@@ -272,6 +281,7 @@ class PagesApplication(Application[UUID]):
         ProjectAggregate: 20,
     }
 
+    @override
     def register_transcodings(self, transcoder: Any) -> None:
         """Register pydantic model transcodings for page and project types."""
         super().register_transcodings(transcoder)

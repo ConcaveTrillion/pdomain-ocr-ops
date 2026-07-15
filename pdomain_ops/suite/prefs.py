@@ -11,12 +11,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, runtime_checkable
 
 import filelock
-from typing_extensions import Protocol
+from typing_extensions import Protocol, override
 
 from pdomain_ops.suite.types import CommonUIPrefs, UIPrefs
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
 
 _logger = logging.getLogger(__name__)
 
@@ -48,6 +48,7 @@ class PrefsLockTimeout(filelock.Timeout):
         super().__init__(lock_file)
         self.timeout = timeout
 
+    @override
     def __str__(self) -> str:
         return (
             f"Could not acquire prefs lock on {self.lock_file!r} within "
@@ -114,7 +115,7 @@ class LocalFilePrefs:
         self._lock_timeout = _resolve_lock_timeout(lock_timeout)
 
     @contextlib.contextmanager
-    def _acquire(self) -> Iterator[None]:
+    def _acquire(self) -> Generator[None]:
         """Acquire the prefs lock with a finite timeout, releasing on exit.
 
         Uses ``with filelock.FileLock(...)`` so the lock's ``__enter__`` honors

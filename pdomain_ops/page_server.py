@@ -84,7 +84,9 @@ class LocalPageStore:
 
     def get_page(self, page_id: UUID) -> PageAggregate:
         """Return the PageAggregate for page_id from the backing application."""
-        return self._app.repository.get(page_id)  # pyright: ignore[reportReturnType]  # repository API returns a wider aggregate protocol
+        return self._app.repository.get(
+            page_id
+        )  # repository API returns a wider aggregate protocol
 
     def save_project(self, aggregate: ProjectAggregate) -> None:
         """Persist a ProjectAggregate via the backing application."""
@@ -92,7 +94,9 @@ class LocalPageStore:
 
     def get_project(self, project_id: UUID) -> ProjectAggregate:
         """Return the ProjectAggregate for project_id from the backing application."""
-        return self._app.repository.get(project_id)  # pyright: ignore[reportReturnType]  # repository API returns a wider aggregate protocol
+        return self._app.repository.get(
+            project_id
+        )  # repository API returns a wider aggregate protocol
 
 
 class SingleShard:

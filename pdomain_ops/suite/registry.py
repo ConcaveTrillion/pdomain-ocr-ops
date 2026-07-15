@@ -46,7 +46,7 @@ class LocalTomlSuiteRegistry:
         if not self._path.exists():
             return {"apps": {}}
         try:
-            with open(self._path, "rb") as f:
+            with self._path.open("rb") as f:
                 data = tomli.load(f)
             if "apps" not in data:
                 data["apps"] = {}
@@ -57,7 +57,7 @@ class LocalTomlSuiteRegistry:
     def _write_raw(self, data: dict[str, Any]) -> None:
         """Write raw TOML data to disk."""
         self._path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self._path, "wb") as f:
+        with self._path.open("wb") as f:
             tomli_w.dump(data, f)
 
     def list_installed(self) -> list[InstalledApp]:

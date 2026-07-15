@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 import sys
 import tomllib
+from pathlib import Path
 
 
 def flip_sources(text: str, owner: str, siblings: list[str]) -> str:
@@ -45,10 +46,10 @@ def _main(argv: list[str]) -> int:
         )
         return 2
     path, owner, siblings = argv[0], argv[1], argv[2:]
-    with open(path, encoding="utf-8") as fh:
+    with Path(path).open(encoding="utf-8") as fh:
         original = fh.read()
     flipped = flip_sources(original, owner, siblings)
-    with open(path, "w", encoding="utf-8") as fh:
+    with Path(path).open("w", encoding="utf-8") as fh:
         fh.write(flipped)
     print(f"flipped {len(siblings)} pd-* source(s) to git master in {path}")
     return 0

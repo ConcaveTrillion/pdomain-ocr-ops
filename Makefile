@@ -80,7 +80,7 @@ format-check: lint-check ## Alias for lint-check (canonical name for read-only f
 format: ## Format code
 	uv run ruff format pdomain_ops tests
 
-typecheck: ## Run basedpyright at recommended mode (workspace canonical)
+typecheck: ## Run basedpyright: strict on pdomain_ops, recommended for tests/scripts
 	uv run basedpyright pdomain_ops --level error
 
 test: ## Run tests with parallelization

@@ -16,8 +16,6 @@ from typing_extensions import Protocol
 if TYPE_CHECKING:
     from pdomain_ops.suite.types import InstalledApp
 
-    pass
-
 
 class LaunchResultOpened(BaseModel):
     """Sibling launched (or already running); url is ready to use."""

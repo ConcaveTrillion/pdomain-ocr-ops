@@ -28,6 +28,7 @@ import os
 import sys
 import threading
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -103,10 +104,9 @@ def _pyqt6_plugin_path() -> str | None:
         return None
 
     # spec.origin is the path to PyQt6/__init__.py; parent is the package dir.
-    pyqt6_dir = os.path.dirname(spec.origin)
-    plugins_dir = os.path.join(pyqt6_dir, "Qt6", "plugins")
-    if os.path.isdir(plugins_dir):
-        return plugins_dir
+    plugins_dir = Path(spec.origin).parent / "Qt6" / "plugins"
+    if plugins_dir.is_dir():
+        return str(plugins_dir)
     return None
 
 
@@ -247,7 +247,10 @@ def _default_open_window(url: str, title: str, quit_event: threading.Event) -> N
     # Step 3: Import webview and open the window.
     import webview  # pyright: ignore[reportMissingImports]  # optional desktop dependency loaded only for GUI use
 
-    window = webview.create_window(title, url)
+    # webview ships no type stubs; bind to Any at the boundary so member access
+    # is Any rather than Unknown (which strict flags), without scattering ignores.
+    webview_api: Any = webview
+    window = webview_api.create_window(title, url)
 
     def _destroy_on_quit() -> None:
         quit_event.wait()
@@ -261,7 +264,7 @@ def _default_open_window(url: str, title: str, quit_event: threading.Event) -> N
     # Use a single call with optional kwargs to avoid an extra reportUnknownMemberType
     # warning from basedpyright (webview has no type stubs).
     _gui_kwargs = {"gui": "qt"} if sys.platform.startswith("linux") else {}
-    webview.start(**_gui_kwargs)
+    webview_api.start(**_gui_kwargs)
 
     # Ensure quit_event is set so the watchdog/tray threads also unblock,
     # in case the window was closed by the user directly.
@@ -293,8 +296,11 @@ def _make_tray_seams() -> tuple[
             on_quit: Callback invoked when the user selects "Quit" from the tray.
         """
         import pystray  # pyright: ignore[reportMissingImports]  # optional tray dependency loaded only when enabled
+
+        # pystray ships no type stubs; bind to Any at the boundary (see run_window).
+        pystray_api: Any = pystray
         from PIL import (
-            Image,  # pyright: ignore[reportMissingImports]  # optional tray dependency loaded only when enabled
+            Image,  # optional tray dependency loaded only when enabled
         )
 
         # Minimal 16x16 RGBA icon (no file dependency)
@@ -303,8 +309,8 @@ def _make_tray_seams() -> tuple[
         def _quit_action(icon: Any, item: Any) -> None:
             on_quit()
 
-        menu = pystray.Menu(pystray.MenuItem("Quit", _quit_action))
-        icon = pystray.Icon("pd-suite", img, "pd-suite", menu)
+        menu = pystray_api.Menu(pystray_api.MenuItem("Quit", _quit_action))
+        icon = pystray_api.Icon("pd-suite", img, "pd-suite", menu)
         holder.icon = icon
 
         def _run() -> None:

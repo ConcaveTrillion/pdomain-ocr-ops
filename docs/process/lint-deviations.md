@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-05-22
-Last verified: 2026-07-13
+Last verified: 2026-07-15
 Kind: process
 ---
 
@@ -25,14 +25,11 @@ The governing rule is [Document every lint-rule suppression](../../CONVENTIONS.m
 ### `reportMissingImports`
 
 The following imports are optional dependencies that the default development
-and CI environment does not install:
+and CI environment does not install, so basedpyright cannot resolve them:
 
-- `pdomain_ops/desktop.py`: `webview`, `pystray`, and `PIL.Image` support the
-  optional GUI and tray paths.
-- `pdomain_ops/gpu/device.py`: `cupy`, `torch`, and `psutil` support optional
-  GPU and device probes.
-- `pdomain_ops/gpu/doctr_batch.py`: `torch` and `cv2` support the optional
-  `[gpu]` execution path.
+- `pdomain_ops/desktop.py`: `webview` and `pystray` support the optional GUI and
+  tray paths.
+- `pdomain_ops/gpu/device.py`: `cupy` supports the optional `[gpu]` probe.
 - `pdomain_ops/gpu/modal_app.py`: `modal` supports the optional `[modal]`
   deployment entry point.
 - `pdomain_ops/gpu/modal_dispatcher.py`: `modal.Function` supports remote
@@ -42,6 +39,11 @@ These imports are guarded, deferred until the feature is used, or kept in an
 optional deployment module. Use the native
 `# pyright: ignore[reportMissingImports]` form because basedpyright does not
 honor mypy import codes.
+
+The `torch`, `psutil`, `cv2`, and `PIL.Image` imports no longer carry this
+suppression: those packages are present in the canonical `uv`-synced gate
+environment, so `reportMissingImports` does not fire and the strict
+`reportUnnecessaryTypeIgnoreComment` rule flags the ignore as redundant.
 
 ### Third-party stub gaps
 
@@ -59,12 +61,24 @@ honor mypy import codes.
 - `pdomain_ops/gpu/device.py` suppresses `reportReturnType` on the `explicit`
   and `legacy` device returns. Both values pass `_VALID_DEVICES` checks before
   return, but basedpyright does not preserve the literal narrowing.
-- `pdomain_ops/page_server.py` suppresses `reportReturnType` on the page and
-  project repository lookups. The repository API returns a wider aggregate
-  protocol than these typed convenience methods expose.
 - `pdomain_ops/suite/types.py` suppresses `reportAssignmentType` on
   `registered_at`, `layer_colors`, and `common`. Each field starts as `None`.
   It receives its declared non-optional value in `model_post_init`.
+
+### Partially-typed first-party boundary and shared cache
+
+- `pdomain_ops/gpu/default_stages.py` and `pdomain_ops/gpu/local_stage.py`
+  suppress `reportUnknownVariableType` on the
+  `get_finetuned_torch_doctr_predictor` import. The `pdomain-book-tools`
+  function is only partially annotated at that boundary, so strict mode reports
+  its inferred type as unknown.
+- `pdomain_ops/gpu/local_stage.py` suppresses `reportPrivateUsage` on its import
+  of `_predictor_cache` from `pdomain_ops/gpu/default_stages.py`. The cache is a
+  deliberate GPU-package-internal share between the local and default stages.
+
+Optional untyped modules (`webview`, `pystray`, `cupy`) are bound to an
+`Any`-typed local at the import boundary instead of being suppressed, so their
+member access is `Any` rather than unknown without scattering per-call ignores.
 
 ## Inline Ruff suppressions
 
@@ -177,13 +191,45 @@ rationales. This section is the central catalog.
 
 ## Config-level basedpyright deviations
 
-### Recommended mode does not fail on warnings
+### Strict mode on the package; no warning failures
 
-`pyproject.toml` sets `typeCheckingMode = "recommended"` and explicitly sets
-`failOnWarnings = false`. Recommended mode is the workspace-canonical strict
-mode. CI and release gates enforce errors with `--level error`. Warnings from
-optional GPU dependency type information remain visible without blocking the
-gate.
+`pyproject.toml` sets `typeCheckingMode = "strict"` and explicitly sets
+`failOnWarnings = false`. The 2026-07-15 decision made strict the
+workspace-canonical mode for the shipped package, overriding the earlier
+2026-05-17 choice of recommended. It also enables `reportImplicitOverride` and
+`reportUnnecessaryTypeIgnoreComment`. CI and release gates enforce errors with
+`--level error`; warnings remain visible without blocking the gate.
+
+Tests and scripts stay at recommended-equivalent strictness. basedpyright does
+not honor a per-execution-environment `typeCheckingMode`, so the `tests` and
+`scripts` execution environments in `pyproject.toml` instead set the
+strict-only inference rules (`reportUnknownParameterType`,
+`reportMissingParameterType`, `reportUnknownMemberType`, and the rest of that
+family) to `none`. Un-annotated test fixtures and `monkeypatch` code would
+otherwise flood strict with inferred-`Any` errors. Real type errors
+(`reportArgumentType`, `reportCallIssue`, and similar) stay enforced everywhere.
+
+### Unused-function detection is off
+
+`pyproject.toml` sets `reportUnusedFunction = false`. This suite-plumbing
+library mounts its FastAPI route handlers as nested functions inside `register_*`
+helpers (ten or more across `suite/`). Strict flags each decorator-registered
+handler as "not accessed", but the decorator registration is the real use, so
+the rule is a systematic false positive here. The disable is package-wide rather
+than per-handler because per-site ignores would recur on every new route and
+drift out of sync. The trade-off: it also silences any genuine module-level dead
+function, such as `pdomain_ops/desktop.py::_noop_app`, which currently has no
+callers. Those cases are triaged in `docs/context/intent-map.md`, not hidden
+silently.
+
+### A basedpyright baseline carries the pre-existing backlog
+
+`.basedpyright/baseline.json` suppresses a pre-existing set of package
+diagnostics so the gate reports only new regressions. Enabling strict on the
+package and downgrading test inference rules pruned it from 263 entries to the
+current backlog; every remaining entry is a strict diagnostic in `pdomain_ops`
+that predates the strict flip. Clearing that backlog is tracked as follow-up
+work in the intent map, not resolved here.
 
 ### Import-cycle diagnostics are disabled
 
@@ -199,8 +245,10 @@ The `Makefile` `typecheck` target and the local basedpyright pre-commit hook in
 package, not `tests/` or `scripts/`.
 
 `pyproject.toml` still includes `pdomain_ops`, `tests`, and `scripts` for editor
-checking. Its execution-environment tables set roots only for `tests` and
-`scripts`. They do not configure more lenient diagnostics.
+checking. Its `tests` and `scripts` execution-environment tables downgrade the
+strict-only inference rules to `none` (see "Strict mode on the package" above),
+so editor checking of test and script code matches the recommended-equivalent
+gate rather than full strict.
 
 The `Makefile` `pre-commit-check` target sets `SKIP=basedpyright` because
 `make ci` runs the dedicated `typecheck` target immediately afterward. This

@@ -15,7 +15,7 @@ import logging
 import os
 import tempfile
 from datetime import datetime  # noqa: TC003  # Pydantic requires runtime import
-from pathlib import Path  # noqa: TC003  # Pydantic requires runtime import
+from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -105,8 +105,8 @@ def write_manifest(export_root: Path, manifest: DoctrExportManifest) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(manifest.model_dump_json(by_alias=True, indent=2))
-        os.replace(tmp_name, dest)
+        Path(tmp_name).replace(dest)
     except Exception:
         with contextlib.suppress(OSError):
-            os.unlink(tmp_name)
+            Path(tmp_name).unlink()
         raise

@@ -419,3 +419,28 @@ Kind: context
   parenthetical em dashes, specific link practices, and command-detail
   deduplication.
 - **Remaining work:** Keep the local document and the managed guidance aligned.
+
+### 2026-07-15 — basedpyright strict mode on the shipped package
+
+- **Context:** The `bind_project.py --strict` comparison flagged this repo's
+  basedpyright config as diverging from the shared strict template. The owner
+  chose to adopt strict, overriding the 2026-05-17 decision to keep recommended
+  mode as canonical.
+- **Decision:** Set `typeCheckingMode = "strict"` in `pyproject.toml` and enable
+  `reportImplicitOverride` and `reportUnnecessaryTypeIgnoreComment`. Add the
+  ruff `FA`, `PIE`, and `PTH` families (`PLE` was already covered by `PL`).
+  Strict applies to `pdomain_ops` only: the `Makefile` gate already runs
+  `basedpyright pdomain_ops --level error`, and the `tests`/`scripts` execution
+  environments downgrade the strict-only inference rules so un-annotated test
+  code is not forced to full strict. Disable `reportUnusedFunction`, which
+  systematically false-positives on FastAPI decorator-registered handlers.
+- **Scope of the flip:** Whole-repo strict would surface 1,897 errors, 1,916 of
+  them low-value test annotations. Package-scoped strict surfaced 44 new errors,
+  all fixed (11 `@override`, 8 stale-ignore removals, `Any`-bound untyped import
+  boundaries, a `Generator` return, path narrowing, and pathlib rewrites).
+- **Evidence:** `pyproject.toml`, `docs/process/lint-deviations.md`, and a green
+  `make ci` (ruff, ruff-format, `basedpyright pdomain_ops --level error` at 0
+  errors, 474 tests passing).
+- **Remaining work:** The pre-existing `.basedpyright/baseline.json` backlog
+  pruned from 263 to 34 package entries. Clearing that backlog is deferred in
+  the intent map.

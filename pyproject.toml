@@ -108,6 +108,10 @@ select = [
     "TRY",          # tryceratops — TRY400 enforces log.exception over log.error in except
     "LOG",          # flake8-logging — proper log.* usage
     "G",            # flake8-logging-format — lazy formatting in log calls
+    # Added per 2026-07-15 strict-config alignment (FA/PIE/PTH; PLE already in PL)
+    "FA",           # flake8-future-annotations
+    "PIE",          # flake8-pie — misc lints (useless lambdas, placeholders)
+    "PTH",          # flake8-use-pathlib — prefer pathlib over os.path
 ]
 ignore = [
     # Line length: many long docstrings, error messages, and URLs; enforcing
@@ -209,10 +213,21 @@ known-first-party = ["pdomain_ops"]
 include = ["pdomain_ops", "tests", "scripts"]
 exclude = ["**/__pycache__", "**/.venv", "**/node_modules"]
 
-# "recommended" is the workspace-canonical strict mode per 2026-05-17 decisions.
-# Catches unannotated functions, inferred-Any propagation, untyped decorators,
-# and missing return types that "standard" mode skips.
-typeCheckingMode = "recommended"
+# "strict" is the workspace-canonical mode per the 2026-07-15 decision, which
+# overrode the earlier 2026-05-17 choice of "recommended". Strict adds full
+# generic-argument checks, implicit-override detection, and unnecessary-ignore
+# detection on top of what recommended catches.
+typeCheckingMode = "strict"
+reportImplicitOverride = true
+reportUnnecessaryTypeIgnoreComment = true
+# Off (package-wide): FastAPI mounts its route handlers as nested functions
+# inside register_* helpers (10+ across suite/*), and strict flags each
+# decorator-registered handler as "not accessed". The decorator registration is
+# the real use, so this rule is a systematic false positive here. A package-wide
+# disable is chosen over 10+ per-handler ignores that would recur on every new
+# route. Trade-off: it also silences genuine module-level dead functions (e.g.
+# desktop._noop_app), which are triaged separately in the intent map.
+reportUnusedFunction = false
 # Warnings are tracked separately; CI/release gates enforce errors only via
 # `basedpyright ... --level error`.
 failOnWarnings = false
@@ -226,11 +241,36 @@ venvPath = "."
 venv = ".venv"
 
 # Per-execution-environment overrides: tests and scripts get more leniency.
+# The shipped package (pdomain_ops) runs at the global "strict" mode (2026-07-15
+# decision). Tests and scripts are intentionally un-annotated (ruff ignores ANN
+# there), so strict's type-inference rules flood them with inferred-Any noise.
+# basedpyright ignores a per-environment `typeCheckingMode`, so the equivalent
+# of "recommended for tests" is to silence exactly the strict-only inference
+# family below. Real type bugs (reportArgumentType, reportCallIssue,
+# reportAttributeAccessIssue, ...) stay enforced everywhere.
 [[tool.basedpyright.executionEnvironments]]
 root = "tests"
+reportUnknownParameterType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnknownVariableType = "none"
+reportUnknownMemberType = "none"
+reportMissingParameterType = "none"
+reportMissingTypeArgument = "none"
+reportPrivateUsage = "none"
+reportUnusedFunction = "none"
 
 [[tool.basedpyright.executionEnvironments]]
 root = "scripts"
+reportUnknownParameterType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnknownVariableType = "none"
+reportUnknownMemberType = "none"
+reportMissingParameterType = "none"
+reportMissingTypeArgument = "none"
+reportPrivateUsage = "none"
+reportUnusedFunction = "none"
 
 [tool.pytest.ini_options]
 addopts = [

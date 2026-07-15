@@ -51,6 +51,15 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
 
 ## Deferred work
 
+- **Clear the basedpyright strict backlog — deferred.** Enabling strict on
+  `pdomain_ops` (2026-07-15 decision) left 34 pre-existing package diagnostics in
+  `.basedpyright/baseline.json`. Route: fix them so the baseline can be emptied
+  and `basedpyright pdomain_ops --level error` passes with no baseline. Owner: CT.
+- **Triage `desktop._noop_app` — deferred.** `pdomain_ops/desktop.py::_noop_app`
+  has no callers in the repo; its "kept for test usage" docstring is stale. The
+  package-wide `reportUnusedFunction = false` (needed for FastAPI handlers) hides
+  it. Route: confirm no external string/entry-point reference, then remove it or
+  document a real use. Owner: CT.
 - **Rebuild behavior capture and templates — deferred.** Derive a
   cross-interface method and scanner-safe templates from current tests. Owner:
   the repository that runs the pilot. Route: start with one Web implementation.

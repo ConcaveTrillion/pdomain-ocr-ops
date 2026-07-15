@@ -38,7 +38,7 @@ def test_mps_included_when_available(monkeypatch):
 def test_mps_not_included_when_unavailable(monkeypatch):
     monkeypatch.setattr(
         "pdomain_ops.gpu.device_probe._probe_mps",
-        lambda: [],
+        list,
     )
     ids = [d.id for d in list_devices()]
     assert "mps" not in ids
@@ -48,10 +48,10 @@ def test_mps_not_included_when_unavailable(monkeypatch):
 def test_detect_nvidia_hardware_from_lspci_when_torch_cuda_unavailable(monkeypatch) -> None:
     """NVIDIA hardware presence is separate from CUDA runtime usability."""
 
-    monkeypatch.setattr(device_probe, "_probe_cuda", lambda: [])
-    monkeypatch.setattr(device_probe, "_probe_mps", lambda: [])
-    monkeypatch.setattr(device_probe, "_nvidia_smi_names", lambda: [])
-    monkeypatch.setattr(device_probe, "_proc_nvidia_names", lambda: [])
+    monkeypatch.setattr(device_probe, "_probe_cuda", list)
+    monkeypatch.setattr(device_probe, "_probe_mps", list)
+    monkeypatch.setattr(device_probe, "_nvidia_smi_names", list)
+    monkeypatch.setattr(device_probe, "_proc_nvidia_names", list)
     monkeypatch.setattr(
         device_probe,
         "_lspci_nvidia_names",
@@ -86,7 +86,7 @@ def test_detect_nvidia_hardware_deduplicates_against_cuda_devices(monkeypatch) -
             )
         ],
     )
-    monkeypatch.setattr(device_probe, "_probe_mps", lambda: [])
+    monkeypatch.setattr(device_probe, "_probe_mps", list)
     monkeypatch.setattr(
         device_probe,
         "_detect_unusable_nvidia_hardware",

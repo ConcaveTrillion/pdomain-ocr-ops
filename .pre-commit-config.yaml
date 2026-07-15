@@ -52,7 +52,7 @@ repos:
         files: ^(pyproject\.toml|uv\.lock)$
 
     -   id: basedpyright
-        name: basedpyright type check (recommended mode; workspace canonical)
+        name: basedpyright type check (strict on package; workspace canonical)
         entry: uv run basedpyright pdomain_ops --level error
         language: system
         stages: [pre-commit]

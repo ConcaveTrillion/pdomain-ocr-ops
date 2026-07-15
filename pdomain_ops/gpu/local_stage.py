@@ -132,7 +132,9 @@ class LocalStageDispatcher:
         backoff can rebuild a predictor at reduced batch sizes and store it
         back under its own cache key.
         """
-        from pdomain_ops.gpu.default_stages import _predictor_cache
+        from pdomain_ops.gpu.default_stages import (
+            _predictor_cache,  # pyright: ignore[reportPrivateUsage]  # deliberate gpu-package-internal shared cache
+        )
         from pdomain_ops.gpu.doctr_batch import run_doctr_batch
 
         device = (
@@ -151,7 +153,7 @@ class LocalStageDispatcher:
             try:
                 from pdomain_book_tools.hf import resolve_ocr_models
                 from pdomain_book_tools.ocr.doctr_support import (
-                    get_finetuned_torch_doctr_predictor,
+                    get_finetuned_torch_doctr_predictor,  # pyright: ignore[reportUnknownVariableType]  # pdomain_book_tools boundary is partially untyped
                 )
             except ImportError:
                 return None  # No finetuned models available; run_doctr_batch will use CPU

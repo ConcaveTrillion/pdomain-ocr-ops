@@ -57,7 +57,7 @@ def _is_oom(exc: BaseException) -> bool:
 def _empty_cuda_cache() -> None:
     """Call torch.cuda.empty_cache() if torch is available; no-op otherwise."""
     try:
-        import torch  # pyright: ignore[reportMissingImports]  # optional [gpu] dep
+        import torch  # optional [gpu] dep
 
         torch.cuda.empty_cache()
     except Exception:  # noqa: BLE001,S110 — best-effort cache clear; log not useful here
@@ -68,7 +68,7 @@ def _decode_image(img: np.ndarray | bytes) -> np.ndarray:
     """Decode *img* to an ndarray if it is bytes; pass through ndarrays."""
     if isinstance(img, np.ndarray):
         return img
-    import cv2  # pyright: ignore[reportMissingImports]  # optional [gpu] dep; always present with doctr
+    import cv2  # optional [gpu] dep; always present with doctr
 
     arr = np.frombuffer(img, dtype=np.uint8)
     decoded = cv2.imdecode(arr, cv2.IMREAD_COLOR)

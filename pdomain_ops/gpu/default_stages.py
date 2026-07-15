@@ -209,7 +209,7 @@ def _make_doctr_finetuned_sync(
 
     def _run() -> dict[str, Any]:
         from pdomain_book_tools.ocr.doctr_support import (
-            get_finetuned_torch_doctr_predictor,
+            get_finetuned_torch_doctr_predictor,  # pyright: ignore[reportUnknownVariableType]  # pdomain_book_tools boundary is partially untyped
         )
         from pdomain_book_tools.ocr.document import Document
 

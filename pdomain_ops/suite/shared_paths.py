@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import filelock
+from typing_extensions import override
 
 _logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class SharedPathsLockTimeout(filelock.Timeout):
         super().__init__(lock_file)
         self.timeout = timeout
 
+    @override
     def __str__(self) -> str:
         return (
             f"Could not acquire shared-paths lock on {self.lock_file!r} within "
@@ -87,10 +89,10 @@ def _atomic_write(json_path: Path, data: dict[str, Any]) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, default=str)
-        os.replace(tmp_name, json_path)
+        Path(tmp_name).replace(json_path)
     except Exception:
         with contextlib.suppress(OSError):
-            os.unlink(tmp_name)
+            Path(tmp_name).unlink()
         raise
 
 
@@ -166,9 +168,9 @@ def resolve_shared_path(
 
     paths: dict[str, Any] = data.get("paths") or {}
     entry = paths.get(key)
-    if entry is None or not isinstance(entry, dict):
+    if not isinstance(entry, dict):
         return None
-    raw_path: str | None = entry.get("path")
-    if not raw_path:
+    raw_path = cast("dict[str, Any]", entry).get("path")
+    if not isinstance(raw_path, str) or not raw_path:
         return None
     return Path(raw_path)

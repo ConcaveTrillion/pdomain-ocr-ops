@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import warnings
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -23,12 +23,14 @@ def _cuda_available() -> bool:
     try:
         import cupy  # pyright: ignore[reportMissingImports]  # optional GPU dep; installed via [gpu] extra
 
-        if cupy.cuda.runtime.getDeviceCount() > 0:
+        # cupy ships no type stubs; bind to Any so member access is Any, not Unknown.
+        cupy_api: Any = cupy
+        if cupy_api.cuda.runtime.getDeviceCount() > 0:
             return True
     except Exception:
         pass
     try:
-        import torch  # pyright: ignore[reportMissingImports]  # optional GPU dep; installed via [gpu] extra
+        import torch  # optional GPU dep; installed via [gpu] extra
 
         return torch.cuda.is_available() and torch.cuda.device_count() > 0
     except Exception:
@@ -38,7 +40,7 @@ def _cuda_available() -> bool:
 def _mps_available() -> bool:
     """Return True if Apple MPS (Metal Performance Shaders) is available."""
     try:
-        import torch  # pyright: ignore[reportMissingImports]  # optional GPU dep; installed via [gpu] extra
+        import torch  # optional GPU dep; installed via [gpu] extra
 
         return torch.backends.mps.is_available()
     except Exception:
@@ -113,7 +115,7 @@ def _physical_cores() -> int:
     logical so torch's intra-op threads don't oversubscribe hyperthreads.
     """
     try:
-        import psutil  # pyright: ignore[reportMissingImports]  # optional dep
+        import psutil  # optional dep
 
         cores = psutil.cpu_count(logical=False)
         if cores:
@@ -126,7 +128,7 @@ def _physical_cores() -> int:
 def _cuda_free_bytes() -> int | None:
     """Free VRAM in bytes on the active CUDA device, or None if unavailable."""
     try:
-        import torch  # pyright: ignore[reportMissingImports]  # optional GPU dep
+        import torch  # optional GPU dep
 
         if not torch.cuda.is_available():
             return None

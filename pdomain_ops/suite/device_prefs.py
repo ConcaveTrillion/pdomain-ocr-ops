@@ -29,7 +29,7 @@ def resolve_effective_device(
     """
     snap = snapshot if snapshot is not None else prefs.read()
     app_section = snap.apps.get(app_id, {})
-    override = app_section.get("compute_device") if isinstance(app_section, dict) else None
+    override = app_section.get("compute_device")
     if override:
         return override
     if snap.common.compute_device_default:
