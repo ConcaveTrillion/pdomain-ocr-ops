@@ -19,30 +19,34 @@ Kind: research
 
 ## Goal
 
-Test every salvaged Markdown document against implementation and current
-practice before any lifecycle action. The review asks whether the repository
-suite took a different direction and identifies useful material that must move
-to architecture, decisions, or intent before a source is retired.
+Test every salvaged Markdown document against current implementation and
+practice before taking any lifecycle action. The review identifies where the
+repository suite took a different direction. It also identifies useful material
+that must move to architecture, decisions, or intent before a source is retired.
 
 ## Method
 
 Six independent batches reviewed all 210 unique Markdown paths in the salvaged
 corpus. Each review compared the document with available current source, tests,
 configuration, documentation, repository layout, and Git evidence. Reviewers
-recorded the present claim, concrete divergence, recommended status, retirement
-candidacy, current evidence, and preservation routes.
+recorded the present claim and concrete divergence. They also recorded the
+recommended status, retirement candidacy, current evidence, and preservation
+routes.
 
 A recommendation is an evidence-backed triage result, not a lifecycle mutation.
-Rows marked stale, partial, draft, or active retain uncertainty where the
-owning repository, external service, live GitHub state, or current tool was not
-available for direct verification.
+Rows marked stale, partial, draft, or active retain uncertainty where direct
+verification was unavailable for the owning repository, external service, live
+GitHub state, or current tool.
 
 ## Evidence
 
-The ledger contains 210 unique source paths. Recommendations total `abandoned` 12, `active` 2, `draft` 4, `implemented` 69, `partial` 8, `retired` 22, `stale` 14, `superseded` 79.
-Retirement candidates are proposals only. The `A:`, `D:`, and `I:`
-prefixes route useful material to architecture, durable decisions, and active
-or deferred intent.
+The ledger contains 210 unique source paths. Recommendations total `abandoned`
+12, `active` 2, `draft` 4, `implemented` 69, `partial` 8, `retired` 22, `stale`
+14, and `superseded` 79.
+
+Retirement candidates are proposals only. The `A:`, `D:`, and `I:` prefixes
+route useful material to architecture, durable decisions, and active or
+deferred intent.
 
 | Source | Recommended status | Concrete divergence | Retire? | Superseding or current evidence | Preserve |
 |---|---|---|---|---|---|
@@ -259,26 +263,25 @@ or deferred intent.
 
 ## Conclusions
 
-The corpus is mostly historical execution material: 79
-documents are superseded, 69 describe implemented work, and
-22 are already retirement-shaped continuity or execution
-artifacts. Another 12 describe directions that current evidence
-shows were not adopted.
+The corpus is mostly historical execution material. Of its documents, 79 are
+superseded, 69 describe implemented work, and 22 are already retirement-shaped
+continuity or execution artifacts. Another 12 describe directions that current
+evidence shows were not adopted.
 
-The 14 stale, 8 partial, 4 draft, and
-2 active recommendations need more care. Several depend on
-repositories or services outside the current workspace, live GitHub state, or
-owner intent. Their rows state the missing or conflicting evidence instead of
-claiming conformance.
+The 14 stale, 8 partial, 4 draft, and 2 active recommendations need more care.
+Several depend on repositories or services outside the current workspace, live
+GitHub state, or owner intent. Their rows state the missing or conflicting
+evidence instead of claiming conformance.
 
-Implementation divergence does not make useful content disposable. Before a
-retirement, preserve verified shipped truth in architecture, durable rationale
-in decisions, and promising unbuilt work in the intent map. Explicitly label
-anything that did not ship or no longer matches current practice.
+Implementation divergence does not make useful content disposable. Before
+retirement, preserve verified shipped truth in architecture and durable
+rationale in decisions. Preserve promising unbuilt work in the intent map.
+Explicitly label anything that did not ship or no longer matches current
+practice.
 
 ## Next steps
 
-1. Review uncertain and non-retirement rows with the owner and owning
+1. Review uncertain and non-retirement rows with the owner and the owning
    repositories.
 2. Promote the reusable decision themes and verified shipped facts before any
    source deletion.
@@ -289,8 +292,8 @@ anything that did not ship or no longer matches current practice.
 
 ## What this does NOT establish
 
-This ledger does not prove that every implementation is correct, every external
-repository is current, or every live GitHub issue and label was inspected. It
-does not authorize deletion, migration, supersession, or retirement by itself.
-It does not make `_tbd/**` current truth or bring that excluded corpus into the
-governed graph.
+This ledger does not prove that every implementation is correct or that every
+external repository is current. It also does not prove that every live GitHub
+issue and label was inspected. By itself, the ledger does not authorize
+deletion, migration, supersession, or retirement. It does not make `_tbd/**`
+current truth or bring that excluded corpus into the governed graph.
