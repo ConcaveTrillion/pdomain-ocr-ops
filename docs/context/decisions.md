@@ -396,7 +396,7 @@ Kind: context
 - **Outcome:** Superseded.
 - **Superseded by:** Plugin-owned `write-readably` and
   `edit-for-readability` routing in `AGENTS.md` and `CONVENTIONS.md`.
-- **Removal commit:** Pending this migration commit.
+- **Removal commit:** `7e0a846`.
 - **Rationale kept:** The plugin keeps the shared readability standard. Per
   owner direction, this retirement intentionally retires the local-only roughly
   seventh-grade reading target, rare parentheses and no parenthetical em dashes,
