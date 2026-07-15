@@ -12,11 +12,12 @@ Kind: process
 
 ## Rule: Write docs clearly
 
-**The rule.** Follow [Writing Style](docs/process/writing-style.md) for docs,
-reports, issue text, PR text, and user-facing copy.
+**The rule.** Use `write-readably` for new durable reader-facing artifacts and
+`edit-for-readability` for existing prose rewrites. Apply the same readability
+standard inline to short conversational updates.
 
-**Why.** Detailed style guidance belongs in a process doc. CONVENTIONS.md
-should stay short.
+**Why.** Plugin-owned guidance keeps the shared standard current without
+duplicated drift.
 
 ## Rule: No comments explaining what code does
 

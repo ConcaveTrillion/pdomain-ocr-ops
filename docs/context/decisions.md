@@ -389,3 +389,16 @@ Kind: context
 - **Remaining work:** Resolve the retained blocked and owner-decision items in
   their owning systems. Their source documents are retired because they are not
   current truth; their uncertainty remains explicit in the intent map.
+
+### 2026-07-15 — Retired local writing-style document
+
+- **Old path:** `docs/process/writing-style.md`.
+- **Outcome:** Superseded.
+- **Superseded by:** Plugin-owned `write-readably` and
+  `edit-for-readability` routing in `AGENTS.md` and `CONVENTIONS.md`.
+- **Removal commit:** Pending this migration commit.
+- **Rationale kept:** The plugin keeps the shared readability standard. Per
+  owner direction, this retirement intentionally retires the local-only roughly
+  seventh-grade reading target, rare parentheses and no parenthetical em dashes,
+  specific link practices, and command-detail deduplication.
+- **Remaining work:** None.

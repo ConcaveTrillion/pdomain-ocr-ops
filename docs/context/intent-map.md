@@ -181,5 +181,9 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
 
 <!-- can-retire: docs/plans/2026-05-28-batched-ocr-dispatch.md; shipped local scope promoted to docs/architecture/batched-ocr-dispatch.md, with remote work retained above. -->
 <!-- can-retire: docs/plans/2026-06-10-shared-paths-and-export-manifest.md; shipped behavior promoted to docs/architecture/shared-paths-and-export-manifest.md. -->
-<!-- still-active: docs/process/writing-style.md; CLAUDE.md and CONVENTIONS.md still name it as authoritative. -->
+<!-- can-retire: docs/process/writing-style.md; plugin routing in AGENTS.md and
+CONVENTIONS.md replaces the shared readability guidance. The owner intentionally
+retires the local-only additions: the roughly seventh-grade reading target,
+rare parentheses and no parenthetical em dashes, specific link practices, and
+command-detail deduplication. -->
 <!-- needs-owner-review resolved as active: docs/process/lint-deviations.md; the catalog is reconciled against current source. -->
