@@ -8,23 +8,24 @@ Kind: usage
 
 # pdomain-ops
 
-Library + tiny CLI providing suite plumbing, shared prefs, and GPU dispatch adapters
-for the pdomain-* suite.
+`pdomain-ops` provides suite plumbing, shared preferences, and GPU dispatch
+adapters for the pdomain-* suite through a library and a small CLI.
 
-`pdomain-ops` is a library (not a daemon) that runs in-process inside each pdomain-* app's
-FastAPI server. It provides:
+The library is not a daemon. It runs in-process inside each pdomain-* app's
+FastAPI server and provides:
 
 - **Suite registry** (`installed.toml`): apps self-register so the AppShell launcher
   can discover and spawn siblings.
-- **Shared UI prefs** (`ui-prefs.json`): cross-app theme, density, accent color,
+- **Shared UI preferences** (`ui-prefs.json`): cross-app theme, density, accent color,
   layer colors, and per-app extension blobs.
-- **Sibling launcher**: spawn sibling apps by binary, poll `/healthz`, surface
-  the URL.
-- **Auth and storage adapters**: local-mode stubs; Phase 4 adds cloud backends.
+- **Sibling launcher**: spawns sibling apps by binary, polls `/healthz`, and
+  reports the URL.
+- **Auth and storage adapters**: provides local-mode stubs. Phase 4 adds cloud
+  backends.
 - **GPU dispatch adapters**: `StageDispatcher` for short page-level calls,
   `LongJobRunner` (SQLite-backed) for training runs and batch jobs.
 
-## Quick start
+## Mount suite routes
 
 ```python
 from fastapi import FastAPI
@@ -36,9 +37,10 @@ mount_routes(app)  # adds /api/suite/*
 
 ## Dynamic-port SPA bootstrap
 
-SPAs use `find_available_port` to avoid `EADDRINUSE` crashes when the
-preferred port is already taken, and `register_self(actual_port=port)` to
-record the real port in the suite registry:
+Single-page applications (SPAs) use `find_available_port` to avoid
+`EADDRINUSE` crashes when the preferred port is already taken. They use
+`register_self(actual_port=port)` to record the real port in the suite
+registry:
 
 ```python
 import uvicorn
@@ -52,8 +54,8 @@ def main() -> None:
     uvicorn.run(app, host="127.0.0.1", port=port)
 ```
 
-See [`docs/usage/dynamic-port-bootstrap.md`](docs/usage/dynamic-port-bootstrap.md)
-for the full pattern including stage-2 adoption notes.
+For the full pattern, including stage-2 adoption notes, see
+[`docs/usage/dynamic-port-bootstrap.md`](docs/usage/dynamic-port-bootstrap.md).
 
 ## JSON Schema for downstream codegen
 
@@ -61,16 +63,17 @@ for the full pattern including stage-2 adoption notes.
 uv run python -m pdomain_ops.schemas > schemas.json
 ```
 
-See `pdomain_ops/schemas/emit.py::PUBLIC_MODELS` for the registration surface.
+The registration surface is `pdomain_ops/schemas/emit.py::PUBLIC_MODELS`.
 
-## Design
+## Design history and shipped GPU dispatch
 
-Full spec: `docs/specs/2026-05-16-cross-cut-design.md` in the workspace.
+The full workspace spec is `docs/specs/2026-05-16-cross-cut-design.md`.
 
-Phase 1.7 (shipped in v0.2.0): `pdomain-prep-for-pgdp`'s GPU dispatch primitives
-(`ModalStageDispatcher`, `SharedContainerStageDispatcher`, `register_default_stages()`)
-migrated into `pdomain-ops`. The registry now ships DocTR and Tesseract OCR stages
-by default via `register_default_stages()`.
+Phase 1.7 shipped in v0.2.0. It moved `pdomain-prep-for-pgdp`'s GPU dispatch
+primitives (`ModalStageDispatcher`, `SharedContainerStageDispatcher`, and
+`register_default_stages()`) into `pdomain-ops`. The registry now uses
+`register_default_stages()` to provide DocTR and Tesseract OCR stages by
+default.
 
 ## Repository entry points
 
