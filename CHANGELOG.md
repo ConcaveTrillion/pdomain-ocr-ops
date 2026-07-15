@@ -12,17 +12,17 @@ Kind: changelog
 
 ### Fixed
 
-- One canonical device vocabulary is now enforced at the GPU dispatch and
-  suite-routes boundaries. `pdomain_ops.gpu.device` gains
-  `canonical_execution_device()` (maps `"cuda"` / `"cuda:N"` -> `"local"`,
-  passthrough otherwise, `None` -> `None`) and `display_device_id()` (maps
-  `"local"` back to the first `"cuda:N"` in an available-devices list for UI
-  display). `LocalStageDispatcher.run_stage` now canonicalizes every device
-  candidate -- explicit `device=`, then `device_resolver()` output, then
-  `pick_device()` -- before registry lookup, closing a silent-cpu-fallback bug
-  where a stored `"cuda:0"` preference from `device_resolver` never matched
-  the `cpu`/`local`/`mps`-keyed stage registry. `device_routes.get_device` now
-  wraps the resolved device with `display_device_id()` so `GET
+- GPU dispatch and suite routes now enforce one canonical device vocabulary.
+  `pdomain_ops.gpu.device` gains `canonical_execution_device()`, which maps
+  `"cuda"` / `"cuda:N"` -> `"local"`, passes through other values, and maps
+  `None` -> `None`. It also gains `display_device_id()`, which maps `"local"`
+  back to the first `"cuda:N"` in an available-devices list for UI display.
+  Before registry lookup, `LocalStageDispatcher.run_stage` now canonicalizes
+  each device candidate in this order: explicit `device=`, `device_resolver()`
+  output, then `pick_device()`. This change closes a silent-cpu-fallback bug: a
+  stored `"cuda:0"` preference from `device_resolver` never matched the
+  `cpu`/`local`/`mps`-keyed stage registry. `device_routes.get_device` now wraps
+  the resolved device with `display_device_id()`. As a result, `GET
   /api/suite/device` reports a real `cuda:N` id instead of the internal
   `"local"` sentinel.
 - `LocalStageDispatcher.run_ocr_batch` now honors `device_resolver` when the
@@ -31,20 +31,23 @@ Kind: changelog
   precedence `run_stage` uses. Previously a batch request with no `device`
   ignored `device_resolver` entirely and always auto-detected.
 - `LocalFilePrefs` no longer blocks indefinitely on a contended prefs file
-  lock. The `filelock.FileLock` is now acquired with a finite timeout
-  (default 5s) instead of `timeout=-1` (block forever). An orphaned lock
-  holder (e.g. a killed `pytest -n auto` worker or a leftover e2e uvicorn
-  subprocess) used to wedge the caller forever; it now raises the new typed
-  `PrefsLockTimeout` (a subclass of `filelock.Timeout`). The timeout is
-  configurable via the `lock_timeout=` constructor arg or the
-  `PDOMAIN_PREFS_LOCK_TIMEOUT` env var. `PrefsLockTimeout`, `LocalFilePrefs`,
-  `PrefsAdapter`, and `DEFAULT_LOCK_TIMEOUT` are now re-exported from
-  `pdomain_ops.suite`. Backward compatible: the `PrefsAdapter` Protocol is
-  unchanged and existing callers catching `filelock.Timeout` still work.
+  lock. It now acquires `filelock.FileLock` with a finite timeout (default 5s)
+  instead of `timeout=-1` (block forever). An orphaned lock holder, such as a
+  killed `pytest -n auto` worker or a leftover e2e uvicorn subprocess, used to
+  wedge the caller forever. It now raises the new typed `PrefsLockTimeout`, a
+  subclass of `filelock.Timeout`. Configure the timeout with the
+  `lock_timeout=` constructor arg or the `PDOMAIN_PREFS_LOCK_TIMEOUT` env var.
+  `PrefsLockTimeout`, `LocalFilePrefs`, `PrefsAdapter`, and
+  `DEFAULT_LOCK_TIMEOUT` are now re-exported from `pdomain_ops.suite`. This
+  change is backward compatible: the `PrefsAdapter` Protocol is unchanged, and
+  existing callers catching `filelock.Timeout` still work.
 
 ### Changed
 
-- `[desktop]` extra now bundles the QT backend on Linux (`qtpy>=2`, `PyQt6>=6.7`, `PyQt6-WebEngine>=6.7`). pywebview requires a GUI backend; QT is the only fully pip-installable, self-contained choice for isolated `uv tool` venvs.
+- The `[desktop]` extra now bundles the QT backend on Linux (`qtpy>=2`,
+  `PyQt6>=6.7`, `PyQt6-WebEngine>=6.7`). pywebview requires a GUI backend. QT
+  is the only fully pip-installable, self-contained choice for isolated
+  `uv tool` venvs.
 - Bump `pdomain-book-tools` floor to `>=0.18.0`. The batch OCR method
   `Document.from_images_ocr_via_doctr` now defaults to `auto_rotate=True`, so
   rotated pages are corrected automatically without any change in ops call-sites.
@@ -147,7 +150,7 @@ Kind: changelog
 ### Breaking
 
 - Distribution renamed from `pdomain-ocr-ops` to `pdomain-ops`. The library
-  has outgrown its OCR-specific name — it houses suite plumbing, GPU dispatch,
+  has outgrown its OCR-specific name. It houses suite plumbing, GPU dispatch,
   prefs, sibling-spawn, port helpers, and SPA bootstrap that are not OCR-specific.
 - Python import path changed: `pdomain_ocr_ops` → `pdomain_ops`. All
   downstream consumers must update their dependency pin and imports.
@@ -165,12 +168,14 @@ Kind: changelog
 
 ### Fixed
 
-- Add `# pyright: ignore[reportMissingTypeStubs]` inline on `pdomain_book_tools` import
-  lines in `default_stages.py`. The basedpyright baseline stored column-position-based
-  suppressions that matched Python 3.13 but not Python 3.12, leaving 2 unmatched
-  warnings in CI. Inline ignores are stable across Python versions. Removed 2 now-
-  redundant baseline entries (275 → 273). pdomain-book-tools is a wheel without `py.typed`
-  (genuinely stubless), so this suppression is correct per workspace conventions.
+- Add `# pyright: ignore[reportMissingTypeStubs]` inline on
+  `pdomain_book_tools` import lines in `default_stages.py`. The basedpyright
+  baseline stored column-position-based suppressions that matched Python 3.13
+  but not Python 3.12. This mismatch left 2 unmatched warnings in CI. Inline
+  ignores are stable across Python versions. Removed 2 now-redundant baseline
+  entries (275 → 273). pdomain-book-tools is a wheel without `py.typed`
+  (genuinely stubless), so this suppression is correct per workspace
+  conventions.
 
 ## [0.2.1] - 2026-05-19
 
