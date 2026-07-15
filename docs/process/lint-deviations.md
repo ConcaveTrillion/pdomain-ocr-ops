@@ -15,8 +15,9 @@ Kind: process
 - **Read when:** adding, removing, or reviewing a lint-rule suppression.
 - **Search terms:** lint deviations, suppressions, noqa, pyright ignore.
 
-This catalog records every standing inline suppression, config-level override,
-and narrowed type-check gate in the repository. Update it whenever one changes.
+This catalog lists every standing inline suppression, config-level override,
+and narrowed type-check gate in the repository. Update the catalog whenever one
+of them changes.
 The governing rule is [Document every lint-rule suppression](../../CONVENTIONS.md#rule-document-every-lint-rule-suppression).
 
 ## Inline basedpyright suppressions
@@ -37,10 +38,10 @@ and CI environment does not install:
 - `pdomain_ops/gpu/modal_dispatcher.py`: `modal.Function` supports remote
   dispatch when the `[modal]` extra is installed.
 
-These imports are guarded, deferred until the feature is used, or contained in
-an optional deployment module. The native
-`# pyright: ignore[reportMissingImports]` form is required because basedpyright
-does not honor mypy import codes.
+These imports are guarded, deferred until the feature is used, or kept in an
+optional deployment module. Use the native
+`# pyright: ignore[reportMissingImports]` form because basedpyright does not
+honor mypy import codes.
 
 ### Third-party stub gaps
 
@@ -50,8 +51,8 @@ does not honor mypy import codes.
 - `pdomain_ops/gpu/modal_app.py` suppresses
   `reportUnknownMemberType`, `reportUnknownVariableType`, and
   `reportUntypedFunctionDecorator` on `modal.Image`, `modal.App`, and three
-  `@app.function` decorators. Modal does not provide complete type information
-  for this optional deployment module.
+  `@app.function` decorators. Modal's type information is incomplete for this
+  optional deployment module.
 
 ### Narrowed return and deferred field types
 
@@ -62,8 +63,8 @@ does not honor mypy import codes.
   project repository lookups. The repository API returns a wider aggregate
   protocol than these typed convenience methods expose.
 - `pdomain_ops/suite/types.py` suppresses `reportAssignmentType` on
-  `registered_at`, `layer_colors`, and `common`. Each field starts as `None`
-  and receives its declared non-optional value in `model_post_init`.
+  `registered_at`, `layer_colors`, and `common`. Each field starts as `None`.
+  It receives its declared non-optional value in `model_post_init`.
 
 ## Inline Ruff suppressions
 
@@ -87,7 +88,7 @@ as annotations:
   constructed by fixtures at runtime.
 
 Moving these imports under `TYPE_CHECKING` would break model construction or
-the tests themselves.
+the tests.
 
 ### Intentional broad exception handling: `BLE001` and `S110`
 
@@ -102,8 +103,8 @@ the tests themselves.
 - `pdomain_ops/suite/shared_paths.py` suppresses `BLE001` because malformed
   persisted JSON falls back to the empty/default state.
 - `pdomain_ops/suite/update.py` suppresses `BLE001` where update checks fail
-  closed on registry or version errors, and suppresses `BLE001` with `S110`
-  where metadata errors mean the install is treated as non-editable.
+  closed on registry or version errors. It suppresses `BLE001` with `S110`
+  where metadata errors cause the install to be treated as non-editable.
 
 ### Trusted process execution: `S603` and `S606`
 
@@ -134,7 +135,8 @@ the tests themselves.
 
 `pdomain_ops/gpu/events.py` suppresses `TRY004` at two `ValueError` sites after
 type checks. The `parse_pdevent` contract reports every malformed
-`@@PDEVENT@@` payload as `ValueError`, so callers need only one exception type.
+`@@PDEVENT@@` payload as `ValueError`. Callers therefore need only one exception
+type.
 
 ## Config-level Ruff deviations
 
@@ -179,9 +181,9 @@ rationales. This section is the central catalog.
 
 `pyproject.toml` sets `typeCheckingMode = "recommended"` and explicitly sets
 `failOnWarnings = false`. Recommended mode is the workspace-canonical strict
-mode, while CI and release gates enforce errors with `--level error`.
-Warnings from optional GPU dependency type information remain visible without
-blocking the gate.
+mode. CI and release gates enforce errors with `--level error`. Warnings from
+optional GPU dependency type information remain visible without blocking the
+gate.
 
 ### Import-cycle diagnostics are disabled
 
@@ -193,12 +195,12 @@ failures as `ImportError`.
 
 The `Makefile` `typecheck` target and the local basedpyright pre-commit hook in
 `.pre-commit-config.yaml` both run
-`uv run basedpyright pdomain_ops --level error`. They gate the shipped package,
-not `tests/` or `scripts/`.
+`uv run basedpyright pdomain_ops --level error`. They gate only the shipped
+package, not `tests/` or `scripts/`.
 
 `pyproject.toml` still includes `pdomain_ops`, `tests`, and `scripts` for editor
-checking. Its execution-environment tables only set roots for `tests` and
-`scripts`; they do not configure more lenient diagnostics.
+checking. Its execution-environment tables set roots only for `tests` and
+`scripts`. They do not configure more lenient diagnostics.
 
 The `Makefile` `pre-commit-check` target sets `SKIP=basedpyright` because
 `make ci` runs the dedicated `typecheck` target immediately afterward. This
@@ -208,7 +210,8 @@ therefore does not run basedpyright.
 ## Resolved suppressions
 
 No mypy-style `# type: ignore[...]` suppressions remain in tracked Python files
-outside `_tbd/`. Earlier artifacts in `pdomain_ops/suite/register_self.py`,
-`pdomain_ops/gpu/modal_app.py`, `tests/suite/test_register_self.py`, and
-`tests/gpu/test_modal_dispatcher.py` either suppressed no basedpyright
-diagnostic or were replaced by fixes to the underlying type issue.
+outside `_tbd/`. Earlier artifacts appeared in
+`pdomain_ops/suite/register_self.py`, `pdomain_ops/gpu/modal_app.py`,
+`tests/suite/test_register_self.py`, and `tests/gpu/test_modal_dispatcher.py`.
+They either suppressed no basedpyright diagnostic or were replaced by fixes to
+the underlying type issue.
