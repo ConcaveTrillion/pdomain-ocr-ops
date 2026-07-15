@@ -442,5 +442,5 @@ Kind: context
   `make ci` (ruff, ruff-format, `basedpyright pdomain_ops --level error` at 0
   errors, 474 tests passing).
 - **Remaining work:** The pre-existing `.basedpyright/baseline.json` backlog
-  pruned from 263 to 34 package entries. Clearing that backlog is deferred in
+  pruned from 263 to 33 package entries. Clearing that backlog is deferred in
   the intent map.

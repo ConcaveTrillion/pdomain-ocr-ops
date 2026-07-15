@@ -52,7 +52,7 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
 ## Deferred work
 
 - **Clear the basedpyright strict backlog — deferred.** Enabling strict on
-  `pdomain_ops` (2026-07-15 decision) left 34 pre-existing package diagnostics in
+  `pdomain_ops` (2026-07-15 decision) left 33 pre-existing package diagnostics in
   `.basedpyright/baseline.json`. Route: fix them so the baseline can be emptied
   and `basedpyright pdomain_ops --level error` passes with no baseline. Owner: CT.
 - **Triage `desktop._noop_app` — deferred.** `pdomain_ops/desktop.py::_noop_app`
