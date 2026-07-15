@@ -1,8 +1,8 @@
 ---
 Status: active
-Owner: <owner>
-Created: <YYYY-MM-DD>
-Last verified: <YYYY-MM-DD>
+Owner: CT
+Created: 2026-07-15
+Last verified: 2026-07-15
 Kind: process
 Level: I1
 ---
@@ -14,7 +14,7 @@ Level: I1
 - **Kind:** process
 - **Status:** active
 - **Level:** I1
-- **Last verified:** <YYYY-MM-DD>
+- **Last verified:** 2026-07-15
 - **Read when:** filing a bug / defect / investigation report, or looking up an
   open issue's status, evidence, or resolution.
 - **Search terms:** issues folder, bug report, defect report, issue template,

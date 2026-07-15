@@ -177,13 +177,12 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
   `_tbd/ocr-container-docs/architecture/label-taxonomy.md` and
   `_tbd/ocr-container-docs/archive/specs/2026-05-17-gh-label-taxonomy-design.md`.
 
+## Open issues
+
+- No issue reports are filed yet. Governed bug, regression, and investigation
+  reports live in [`docs/issues/`](../issues/README.md); file new ones there and
+  link each from this list.
+
 ## Legacy-unverified sweep
 
-<!-- can-retire: docs/plans/2026-05-28-batched-ocr-dispatch.md; shipped local scope promoted to docs/architecture/batched-ocr-dispatch.md, with remote work retained above. -->
-<!-- can-retire: docs/plans/2026-06-10-shared-paths-and-export-manifest.md; shipped behavior promoted to docs/architecture/shared-paths-and-export-manifest.md. -->
-<!-- can-retire: docs/process/writing-style.md; plugin routing in AGENTS.md and
-CONVENTIONS.md replaces the shared readability guidance. The owner intentionally
-retires the local-only additions: the roughly seventh-grade reading target,
-rare parentheses and no parenthetical em dashes, specific link practices, and
-command-detail deduplication. -->
 <!-- needs-owner-review resolved as active: docs/process/lint-deviations.md; the catalog is reconciled against current source. -->
