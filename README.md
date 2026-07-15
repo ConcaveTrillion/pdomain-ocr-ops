@@ -71,3 +71,10 @@ Phase 1.7 (shipped in v0.2.0): `pdomain-prep-for-pgdp`'s GPU dispatch primitives
 (`ModalStageDispatcher`, `SharedContainerStageDispatcher`, `register_default_stages()`)
 migrated into `pdomain-ops`. The registry now ships DocTR and Tesseract OCR stages
 by default via `register_default_stages()`.
+
+## Repository entry points
+
+- [Release history](CHANGELOG.md)
+- [Canonical agent guidance](AGENTS.md)
+- [Claude compatibility entry point](CLAUDE.md)
+- [Codex docgraph entry point](CODEX.md)
