@@ -30,10 +30,13 @@ Shared device, update, desktop, path, and schema boundaries live in
 
 The salvaged holding corpus is retired. The
 [red-team ledger](../research/2026-07-13-salvaged-docs-red-team.md) preserves
-all 210 document dispositions. Architecture, decisions, and the
-[intent map](intent-map.md) retain shipped truth, rationale, promising work,
-and unresolved external-state blockers. The obsolete `_tbd/` exclusions are
-removed from repository tooling.
+all 210 document dispositions.
+
+Architecture, decisions, and the [intent map](intent-map.md) retain shipped
+truth and rationale. They also retain promising work and unresolved
+external-state blockers.
+
+Repository tooling no longer contains the obsolete `_tbd/` exclusions.
 
 ## In-flight work
 
