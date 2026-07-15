@@ -19,42 +19,42 @@ Kind: architecture
 
 ## Records and aggregate ownership
 
-`PageRecord` contains durable operational metadata for one physical page. Its
-`page_id` is also the `PageAggregate` identifier. `ProjectRecord.page_ids`
-defines project page order. OCR content models remain outside this lifecycle
-layer.
+The page lifecycle layer stores durable operational metadata for each physical
+page in `PageRecord`. The record's `page_id` is also the `PageAggregate`
+identifier. `ProjectRecord.page_ids` defines the page order within a project.
+OCR content models remain outside this layer.
 
-Application-specific state lives in `PageRecord.extensions` under namespaced,
-JSON-serializable dictionaries. The typed extension helpers validate a
-namespace against a Pydantic model. Before first persistence, callers can use
-the free `set_extension()` helper. After persistence, callers must use
-`PageAggregate.set_extension()` so an `ExtensionSet` event captures the change.
-Direct mutation after save is lost on replay.
+`PageRecord.extensions` stores application-specific state as namespaced,
+JSON-serializable dictionaries. The typed extension helpers validate each
+namespace against a Pydantic model. Callers can use the free `set_extension()`
+helper before the first persistence. After persistence, they must use
+`PageAggregate.set_extension()`. This method captures the change in an
+`ExtensionSet` event. Replay loses any direct mutation made after a save.
 
 `PageAggregate` records ingest, preprocessing, OCR, ground-truth mapping,
 labeler edits, export, rotation, and extension changes. `ProjectAggregate`
 records project creation, page membership, ordering, and export. Event
-arguments become event-owned data; callers must not mutate them between the
-command and save. The aggregate copies mutable inputs where the implementation
-needs replay isolation.
+arguments become event-owned data. Callers must not mutate them between the
+command and save. When replay isolation requires it, the aggregate copies
+mutable inputs.
 
-`PagesApplication` registers Pydantic transcodings and snapshots page and
-project aggregates every 20 events. Its default persistence is in-memory. A
+`PagesApplication` registers Pydantic transcodings. It snapshots page and
+project aggregates every 20 events. Persistence is in-memory by default. A
 caller can select the shipped eventsourcing SQLite persistence through the
 application environment.
 
 ## Storage and routing seams
 
-`BlobBackend`, `PageStore`, and `ShardRouter` are runtime-checkable protocols.
-`BlobStore` provides local content-addressed files. `LocalPageStore` adapts one
-`PagesApplication`, and `SingleShard` provides the no-routing default.
-`ShardedPageStore` routes a project and its pages to an in-process map of
-stores, keeping a project on one shard.
+Storage and routing use the runtime-checkable `BlobBackend`, `PageStore`, and
+`ShardRouter` protocols. `BlobStore` provides local content-addressed files.
+`LocalPageStore` adapts one `PagesApplication`. `SingleShard` provides the
+no-routing default. `ShardedPageStore` sends a project and its pages to an
+in-process map of stores while keeping that project on one shard.
 
-These seams allow consumers to depend on storage behavior without depending on
-a network transport. `RemotePageStore` is an explicit stub: every operation
-raises `NotImplementedError`. No HTTP, gRPC, managed database, or networked
-blob backend ships in this repository. `ShardedPageStore` composes local store
+These protocols let consumers depend on storage behavior without depending on
+a network transport. `RemotePageStore` is an explicit stub. Every operation
+raises `NotImplementedError`. This repository ships no HTTP, gRPC, managed
+database, or networked blob backend. `ShardedPageStore` composes local store
 objects; it is not a distributed service.
 
 ## Evidence
