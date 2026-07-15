@@ -17,40 +17,41 @@ Kind: architecture
 
 ## Current behavior
 
-`pdomain-ops` owns the application-neutral GPU boundary: request and result
-types, device selection, stage registration, dispatcher protocols, and local
-execution. Applications own product workflow, persistence, and UI. A stage
-implementation receives the resolved device through the dispatcher seam; it
-does not discover application state or reach into a sibling repository.
+`pdomain-ops` owns the application-neutral GPU boundary. This boundary covers
+request and result types, device selection, stage registration, dispatcher
+protocols, and local execution. Applications own product workflow, persistence,
+and UI. A stage implementation receives the resolved device through the
+dispatcher seam. It does not discover application state or reach into a sibling
+repository.
 
-Local OCR accepts a batch request through the stage-dispatch protocol. The
-worker sizes DocTR detection and recognition batches for the selected device,
-reuses predictors by batch size, and retries CUDA allocation failures with a
-smaller detection batch. The worker returns page objects, while the dispatcher
-serializes results at its boundary.
+Local OCR accepts batch requests through the stage-dispatch protocol. The worker
+sizes DocTR detection and recognition batches for the selected device. It reuses
+predictors by batch size and retries CUDA allocation failures with a smaller
+detection batch. The worker returns page objects. The dispatcher serializes
+results at its boundary.
 
-The worker accepts image bytes or arrays, not filesystem paths. This keeps the
-dispatcher contract usable across local and remote transports. The caller owns
-predictor caching and supplies any smaller-predictor builder; the worker remains
-location-independent. If detection batch size 1 still exhausts memory, the
-worker falls back to per-image CPU OCR. Non-memory failures surface unchanged.
+The worker accepts image bytes or arrays, not filesystem paths. This design
+keeps the dispatcher contract usable across local and remote transports. The
+caller owns predictor caching and supplies any smaller-predictor builder. The
+worker remains location-independent. If detection batch size 1 still exhausts
+memory, the worker falls back to per-image CPU OCR. Non-memory failures surface
+unchanged.
 
 CPU and GPU use the same batched worker without a second concurrent worker
-pool. Consumer orchestration may split work into chunks so one failed chunk
-does not discard earlier results, but chunk size and DocTR's internal detection
-batch size remain separate controls.
+pool. Consumer orchestration may split work into chunks. This split prevents one
+failed chunk from discarding earlier results. However, chunk size and DocTR's
+internal detection batch size remain separate controls.
 
-Remote Modal and shared-container batch dispatch remain explicit unsupported
-stubs. A future implementation can use the existing request and protocol seam;
-it is not part of the shipped local path.
+Remote Modal and shared-container batch dispatch remain explicit, unsupported
+stubs. A future implementation can use the existing request and protocol seam.
+It is not part of the shipped local path.
 
 ## Ownership boundary
 
 The package extends sibling applications through typed adapters. It does not
-replace their orchestration or make one transport mandatory. The shipped path
-is local dispatch with registered default stages. Remote Modal and
-shared-container transports are unbuilt, and their stubs must not be described
-as available backends.
+replace their orchestration or require one transport. The shipped path is local
+dispatch with registered default stages. Remote Modal and shared-container
+transports are unbuilt. Their stubs must not be described as available backends.
 
 ## Open calibration questions
 
