@@ -99,10 +99,6 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
   current hosted-inference intent. Owner: CT or the project communications
   owner. Route: draft from current repositories and reproducible measurements.
   Source mapped: `_tbd/ocr-container-docs/archive/research/update-post.md`.
-- **Design a small docgraph-to-GitHub adapter — deferred.** Explore reversible
-  issue, spec, and task synchronization with human gates. Owner: workspace
-  automation. Route: design against current docgraph metadata and GitHub APIs.
-  Do not restore the ship-issue daemon.
 - **Finish optional platform and remote adapters on demand — deferred.** Keep
   Windows and macOS packaging, RemotePageStore, managed persistence, Modal,
   shared-container dispatch, and hosted deployment deferred until a consumer
@@ -112,10 +108,10 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
   [batched OCR dispatch](../architecture/batched-ocr-dispatch.md) and
   [page lifecycle and storage](../architecture/page-lifecycle-and-storage.md).
 - **Validate product-specific roadmap residue — deferred.** Check current code
-  and issues for open-in-labeler links, PageRecord replacement of manifest
-  bridges, simple-GUI managed deployment, missing shared UI components, and
-  platform or real-engine coverage. Owner: the affected product repository.
-  Route: copy only confirmed gaps into that repository's intent map.
+  and governed issue reports for open-in-labeler links, PageRecord replacement
+  of manifest bridges, simple-GUI managed deployment, missing shared UI
+  components, and platform or real-engine coverage. Owner: the affected product
+  repository. Route: copy only confirmed gaps into that repository's intent map.
 - **Reassess semantic and scheduled review assistance — deferred.** Consider
   semantic review or scheduled cross-repo convention audits only if installed
   plugins leave a measured gap. Owner: workspace tooling. Route: measure the
@@ -132,6 +128,10 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
   agents, and human integration. Owner: workspace automation. Route: retain
   only its threat-model and human-gate rationale. Require a new design if a
   concrete need returns.
+- **GitHub issue synchronization — rejected.** Do not mirror or synchronize
+  governed issue reports into GitHub Issues. Repository-local issue documents
+  are the only work-tracking authority. A future read-only export requires a
+  new owner-approved design and must not create a second status source.
 - **Full historical UI schema as a workspace standard — rejected.** Do not
   require the complete state-matrix, interaction-ID, behavior-ID, and Claude
   Design schema without a successful current pilot. Owner: shared UI process.
@@ -178,19 +178,11 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
   maintainers. Evidence: `/home/vscode/.codex` remains relevant, but the old
   volume, workspace, and scripts are obsolete. Source mapped:
   `_tbd/ocr-container-docs/runbooks/codex-devcontainer-persistence.md`.
-- **Live GitHub label taxonomy.** Decide whether shared issue automation still
-  needs a machine-readable kind, status, priority, and area contract. Owner: CT
-  and GitHub workspace maintainers. Evidence: repositories and automation
-  changed. Live labels were not inspected. Route: inventory live labels before
-  publishing a standard. Sources mapped:
-  `_tbd/ocr-container-docs/architecture/label-taxonomy.md` and
-  `_tbd/ocr-container-docs/archive/specs/2026-05-17-gh-label-taxonomy-design.md`.
 
 ## Open issues
 
-- No issue reports are filed yet. Governed bug, regression, and investigation
-  reports live in [`docs/issues/`](../issues/README.md); file new ones there and
-  link each from this list.
+- [`docs/issues/README.md`](../issues/README.md) is the canonical issue index.
+  It currently records no open issue reports.
 
 ## Legacy-unverified sweep
 

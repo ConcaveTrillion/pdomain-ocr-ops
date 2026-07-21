@@ -2,15 +2,18 @@
 <!--
   ISSUE REPORT TEMPLATE — copy to docs/issues/YYYY-MM-DD-short-slug.md and fill in.
   This file is excluded from the docgraph index (the marker above). The COPY you
-  create is a real governed node, so keep its frontmatter + Agent Index and link it
-  from a governed doc (intent-map "Open issues" or current-state "Risks").
+  create is a real governed node, so keep its frontmatter + Agent Index and add it
+  to the canonical index in docs/issues/README.md. Link it from a context doc only
+  when it changes current state or durable intent.
 
   Conventions (see ./README.md):
     - Filename: YYYY-MM-DD-short-slug.md
     - Kind: issue ; Level: I1 (repo-wide) or I2 (local)
     - Keep frontmatter Status: == Agent Index Status: (mismatch -> field_conflict)
     - Open -> Status: active ; Resolved/Won't fix/Duplicate -> Status: retired (via doc-retirer)
-    - Lead with the smallest decisive evidence; separate observation from hypothesis.
+    - Keep structured Agent Index values free of inline comments.
+    - Add this issue to docs/issues/README.md, the canonical issue index.
+    - Remove defect-only sections when Issue type is not Bug or Regression.
 -->
 ---
 Status: active            # active while Open; retired when Resolved/Won't fix/Duplicate
@@ -26,24 +29,45 @@ Level: I1                 # I1 repo-wide | I2 narrow/local
 ## Agent Index
 
 - **Kind:** issue
-- **Status:** active            # must match frontmatter Status
+- **Status:** active
 - **Level:** I1
 - **Last verified:** <YYYY-MM-DD>
-- **Resolution:** Open          # Open | Resolved | Won't fix | Duplicate
-- **Severity:** <High|Medium|Low> — <one phrase, e.g. "fails silently">
+- **Resolution:** Open
+- **Issue type:** <Bug|Regression|Investigation|Feature|Chore|Docs>
+- **Priority:** <P0|P1|P2|P3>
+- **Area:** <stable component name|Cross-cutting>
+- **Triage:** <Accepted|Needs evidence|Deferred>
 - **Affected version:** <pkg + version / commit>
+- **Parent:** <relative Markdown link|None>
+- **Children:** <relative Markdown links|None>
+- **Blocked by:** <relative Markdown links|None>
+- **Blocks:** <relative Markdown links|None>
 - **Read when:** <when a future agent should pull this up>
 - **Search terms:** <comma-separated symptoms, error strings, component names>
 - **Relates to:** [<governed doc>](<relative/path.md>)
 
 ## Summary
 
-<2–4 sentences: what's wrong, why it matters, how it was found. State the core
-contradiction up front if there is one.>
+<2–4 sentences: what work is needed, why it matters, and how the need was found.>
 
-## Impact
+## Outcome / acceptance criteria
 
-- <Who/what is affected; is it silent? data loss? feature dead? perf?>
+- <Observable result that proves this issue is complete.>
+
+## Evidence / motivation
+
+<Lead with the smallest decisive evidence. Separate observation from
+hypothesis. For planned work, cite the spec, user need, or current limitation.>
+
+## Dependencies
+
+- <Restate blocking relationships and required sequencing, or `None`.>
+
+## Next steps
+
+1. <The first concrete action.>
+
+<!-- Keep the sections below for Bug and Regression issues. -->
 
 ## Environment / versions
 
@@ -75,11 +99,6 @@ contradiction up front if there is one.>
 ## Defects to fix
 
 1. **<defect>** — <one line>. (Primary)
-2. ...
-
-## Recommended next steps
-
-1. <The single most disambiguating action first.>
 2. ...
 
 ## What is NOT broken (to scope the fix)

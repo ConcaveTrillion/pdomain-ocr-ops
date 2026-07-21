@@ -40,7 +40,7 @@ research = ["Goal", "Method", "Evidence", "Conclusions", "Next steps", "What thi
 plan = ["Goal", "Architecture", "Tech Stack", "Global Constraints"]
 runbook = ["Trigger", "Preconditions", "Steps", "Verification", "Rollback"]
 decision = ["Context", "Decision", "Consequences", "Supersedes / Superseded-by"]
-issue = ["Summary", "Impact", "Environment / versions", "Evidence", "Root-cause hypotheses", "Defects to fix", "Next steps", "Resolution"]
+issue = ["Summary", "Outcome / acceptance criteria", "Evidence / motivation", "Dependencies", "Next steps", "Resolution"]
 
 [search]
 # semantic = true   # enable when sentence-transformers is installed

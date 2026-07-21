@@ -100,20 +100,18 @@ fast (<200 ms warm) and always selects the project venv.
 - One-off REPL commands typed in CT's interactive shell. These commands are out
   of scope for this rule.
 
-## Rule: Design spec files live in `docs/specs/` until the milestone ships
+## Rule: Design spec files live in `docs/specs/` until linked work ships
 
-**The rule.** A design spec file produced by `/spec-from-issue` lives at
-`docs/specs/<date>-<topic>-design.md` while the milestone's chore issues are open.
-Move the file to `docs/architecture/` in a housekeeping commit when both
-conditions are met: the milestone's last chore closes, and the implementation
-lands.
+**The rule.** A design spec file lives at
+`docs/specs/<date>-<topic>-design.md` while any linked implementation issue has
+`Resolution: Open`. Promote its durable shipped behavior to
+`docs/architecture/` when every issue that links the spec is resolved and the
+implementation has landed. Route the promotion and spec retirement through
+`doc-retirer`, then update authored context through `context-curator`.
 
-```bash
-git mv docs/specs/<date>-<topic>-design.md docs/architecture/
-git commit -m "docs: promote <topic> spec to architecture/ (milestone shipped)"
-```
-
-Update any `Spec: docs/specs/...` pointers in still-open issues after the move.
+Use `doc-retirer` to check inbound links, promote durable behavior, leave any
+required tombstone, and retire the spec. Then use `context-curator` to update
+current state, intent, and decisions before the final docgraph check.
 
 **Why.** `docs/specs/` is the active working area. Implementing agents follow
 `Spec:` pointers to find their instructions. `docs/architecture/` is the
@@ -122,12 +120,13 @@ specs makes it unclear which specs still govern ongoing work.
 
 **Common high-confidence violations** (bot auto-fix candidates)
 
-- A spec file remaining in `docs/specs/` after its milestone's last chore issue closes.
+- A spec remaining in `docs/specs/` after all linked issues resolve and the
+  implementation lands.
 
 **Common judgment-call violations** (bot flags, CT decides)
 
-- A milestone with one chore still open but all substantive work done — CT decides
-  whether to move the spec early or wait for the final chore to close.
+- A linked issue still marked open after its work landed — resolve the issue
+  from evidence before promoting the spec.
 
 ## Rule: Document every lint-rule suppression
 

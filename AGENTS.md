@@ -25,7 +25,7 @@ and schemas.emit. Imported by every `pdomain-*` SPA backend.
 ## docs/ folder
 
 This repo follows the workspace docs/ template — see [`docs/README.md`](docs/README.md). Active
-folders: `architecture/`, `decisions/`, `plans/`, `process/`, `research/`,
+folders: `architecture/`, `decisions/`, `issues/`, `plans/`, `process/`, `research/`,
 `runbooks/`, `specs/`, `templates/`, and `usage/`. Retired work is reduced to
 durable architecture, decisions, and residual intent instead of moved to an
 archive tree.
@@ -71,8 +71,9 @@ change any step below.
    `plans/` (the work plan), `specs/` (design specs — follow any `Spec:`
    pointer from the issue), `research/` (prior investigations), `decisions/`
    (ADRs / constraints), `architecture/` (shipped design).
-4. **Check live issue status.** `gh issue view <N> --repo <owner/repo>` —
-   confirm it isn't already closed; note its milestone.
+4. **Check live issue status.** Read the governed report under `docs/issues/`.
+   Confirm its `Resolution`, priority, dependencies, owner, and linked spec or
+   plan. Use `docs/issues/README.md` as the canonical open-issue index.
 5. **Check for in-flight work.** Open PRs and existing branches touching the
    same area, to avoid colliding with work-in-progress.
 6. **Consult agent memory.** `.claude/agent-memory/<repo>/feedback_*.md` for

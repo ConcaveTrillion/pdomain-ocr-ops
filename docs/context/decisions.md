@@ -444,3 +444,28 @@ Kind: context
 - **Remaining work:** The pre-existing `.basedpyright/baseline.json` backlog
   pruned from 263 to 33 package entries. Clearing that backlog is deferred in
   the intent map.
+
+### 2026-07-21 — Track work in governed issue documents
+
+- **Context:** GitHub reported zero open issues. The repository already had a
+  docgraph-governed `docs/issues/` scaffold, but its template covered only
+  defects and investigations. Repository guidance still treated GitHub issue
+  state, milestones, and labels as workflow authority.
+- **Decision:** Use governed reports under
+  [`docs/issues/`](../issues/README.md) as the only issue tracker. The README is
+  the sole open and resolved index. Issue metadata keeps type, priority, area,
+  triage, resolution, and dependency relationships separate. GitHub Issues and
+  labels are not authoritative and are not synchronized. This supersedes the
+  2026-07-13 direction to reconcile workflow metadata with live GitHub labels.
+  It preserves that decision's rationale for separate axes and machine-checkable
+  dependency relationships.
+- **Rationale:** One versioned, docgraph-checked source prevents status drift
+  between repository documents and an external tracker. The broader schema
+  supports bugs, regressions, investigations, features, chores, and docs work.
+- **Evidence:** `gh issue list --state open --limit 100` returned an empty list
+  on 2026-07-21. `docs/issues/README.md`, `docs/issues/TEMPLATE.md`,
+  `docgraph.toml`, `AGENTS.md`, and `CONVENTIONS.md` define the replacement
+  workflow.
+- **Remaining work:** None in this repository. Any future cross-system export
+  requires a new owner-approved design and cannot become a second status
+  source.

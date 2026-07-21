@@ -38,6 +38,10 @@ external-state blockers.
 
 Repository tooling no longer contains the obsolete `_tbd/` exclusions.
 
+GitHub Issues is not used as a work tracker for this repository. Governed
+reports under [`docs/issues/`](../issues/README.md) are canonical, and that
+README is the sole open and resolved issue index.
+
 ## In-flight work
 
 - The [lint-deviation catalog](../process/lint-deviations.md) is reconciled
