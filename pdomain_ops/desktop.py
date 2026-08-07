@@ -576,12 +576,3 @@ def restart() -> None:
     import os
 
     os.execv(sys.executable, [sys.executable, *sys.argv])  # noqa: S606  # restart must replace this process
-
-
-# ---------------------------------------------------------------------------
-# Minimal ASGI placeholder kept for test usage
-# ---------------------------------------------------------------------------
-
-
-async def _noop_app(scope: Any, receive: Any, send: Any) -> None:
-    """Minimal ASGI placeholder — real apps pass their own app_module string."""
