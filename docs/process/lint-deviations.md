@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-05-22
-Last verified: 2026-07-15
+Last verified: 2026-08-07
 Kind: process
 ---
 
@@ -218,18 +218,21 @@ handler as "not accessed", but the decorator registration is the real use, so
 the rule is a systematic false positive here. The disable is package-wide rather
 than per-handler because per-site ignores would recur on every new route and
 drift out of sync. The trade-off: it also silences any genuine module-level dead
-function, such as `pdomain_ops/desktop.py::_noop_app`, which currently has no
-callers. Those cases are triaged in `docs/context/intent-map.md`, not hidden
-silently.
+function. No such function is known in the package today; the last one,
+`pdomain_ops/desktop.py::_noop_app`, was
+[removed on 2026-08-07](../issues/2026-08-07-desktop-noop-app-dead-code.md).
+File any new case as a governed issue rather than leaving it silently hidden.
 
 ### A basedpyright baseline carries the pre-existing backlog
 
 `.basedpyright/baseline.json` suppresses a pre-existing set of package
 diagnostics so the gate reports only new regressions. Enabling strict on the
 package and downgrading test inference rules pruned it from 263 entries to the
-current backlog; every remaining entry is a strict diagnostic in `pdomain_ops`
-that predates the strict flip. Clearing that backlog is tracked as follow-up
-work in the intent map, not resolved here.
+current backlog of 33 entries across 9 files; every remaining entry is a strict
+diagnostic in `pdomain_ops` that predates the strict flip. Clearing that backlog
+is tracked in
+[its own issue report](../issues/2026-08-07-basedpyright-strict-baseline.md),
+not resolved here.
 
 ### Import-cycle diagnostics are disabled
 
@@ -257,8 +260,8 @@ therefore does not run basedpyright.
 
 ## Resolved suppressions
 
-No mypy-style `# type: ignore[...]` suppressions remain in tracked Python files
-outside `_tbd/`. Earlier artifacts appeared in
+No mypy-style `# type: ignore[...]` suppressions remain in any tracked Python
+file. Earlier artifacts appeared in
 `pdomain_ops/suite/register_self.py`, `pdomain_ops/gpu/modal_app.py`,
 `tests/suite/test_register_self.py`, and `tests/gpu/test_modal_dispatcher.py`.
 They either suppressed no basedpyright diagnostic or were replaced by fixes to

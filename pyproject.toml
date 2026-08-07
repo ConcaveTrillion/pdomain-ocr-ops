@@ -225,8 +225,8 @@ reportUnnecessaryTypeIgnoreComment = true
 # decorator-registered handler as "not accessed". The decorator registration is
 # the real use, so this rule is a systematic false positive here. A package-wide
 # disable is chosen over 10+ per-handler ignores that would recur on every new
-# route. Trade-off: it also silences genuine module-level dead functions (e.g.
-# desktop._noop_app), which are triaged separately in the intent map.
+# route. Trade-off: it also silences genuine module-level dead functions, which
+# are triaged separately as governed issue reports under docs/issues/.
 reportUnusedFunction = false
 # Warnings are tracked separately; CI/release gates enforce errors only via
 # `basedpyright ... --level error`.

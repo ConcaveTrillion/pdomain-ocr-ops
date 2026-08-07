@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-07-13
-Last verified: 2026-07-13
+Last verified: 2026-08-07
 Kind: context
 ---
 
@@ -44,6 +44,8 @@ README is the sole open and resolved issue index.
 
 ## In-flight work
 
+- One issue is open: [clearing the 33-entry basedpyright strict
+  baseline](../issues/2026-08-07-basedpyright-strict-baseline.md).
 - The [lint-deviation catalog](../process/lint-deviations.md) is reconciled
   with the current source tree.
 - Remote Modal and shared-container OCR batch dispatch remains deferred.
