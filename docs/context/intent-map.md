@@ -113,16 +113,14 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
   plugins leave a measured gap. Owner: workspace tooling. Route: measure the
   unmet need before writing a replacement design.
 
-- **Delete rejected-automation residue on GitHub — deferred.** Remnants of the
-  retired ship-issue bot survive on the remotes. Branches: `wip/ship-issue` in
-  pdomain-book-tools; `wip/ship-issue`, `wip/ship-issue-0`, and
-  `wip/ship-issue-1` in pdomain-ocr-labeler-spa; `wip/ship-issue`,
-  `wip/ship-issue-1`, and `worktree-agent-a5bf0b03edc6d30c7` in
-  pdomain-prep-for-pgdp. Labels: `bot:*`, `model:*`, `model-effort:*`, and
-  `recurring:*` (15 or more on pdomain-prep-for-pgdp alone). Owner: CT. Route:
-  both are outward-facing deletions on the remote, so they need explicit
-  approval before anyone runs them. Evidence: the persistent coding-bot is a
-  rejected direction below; surveyed 2026-08-08.
+- **Delete rejected-automation labels on GitHub — deferred.** The retired
+  ship-issue bot's branches are gone, but its labels survive: `bot:*`,
+  `model:*`, `model-effort:*`, and `recurring:*`, fifteen or more of
+  pdomain-prep-for-pgdp's 53. Owner: CT. Route: an outward-facing deletion on
+  the remote, so it needs explicit approval before anyone runs it. Evidence: the
+  persistent coding-bot is a rejected direction below; surveyed 2026-08-08. The
+  eight `wip/ship-issue*` and `worktree-agent-*` branches were deleted on
+  2026-08-08 after each was verified redundant against master.
 
 ## Rejected directions
 
