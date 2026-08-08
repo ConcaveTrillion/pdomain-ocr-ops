@@ -53,6 +53,9 @@ node, so work remains retrievable, reviewable, and versioned with the code.
   - **Open** → `Status: active`.
   - **Resolved / Won't fix / Duplicate** → `Status: retired`, routed through
     `doc-retirer`, with the resolving commit/spec linked in `## Resolution`.
+    Keep the file. A retired report moves to the "Resolved issues" list below
+    and gains a tombstone in [`decisions.md`](../context/decisions.md); it is
+    never deleted.
   - A `Won't fix` or `Duplicate` decision changes `Resolution` immediately;
     it cannot remain an open triage state.
 - **Index it (no orphans):** add every issue to the open or resolved list in

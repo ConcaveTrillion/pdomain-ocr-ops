@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-07-13
-Last verified: 2026-07-13
+Last verified: 2026-08-08
 Kind: context
 ---
 
@@ -441,9 +441,56 @@ Kind: context
 - **Evidence:** `pyproject.toml`, `docs/process/lint-deviations.md`, and a green
   `make ci` (ruff, ruff-format, `basedpyright pdomain_ops --level error` at 0
   errors, 474 tests passing).
-- **Remaining work:** The pre-existing `.basedpyright/baseline.json` backlog
-  pruned from 263 to 33 package entries. Clearing that backlog is deferred in
-  the intent map.
+- **Remaining work:** none. The `.basedpyright/baseline.json` backlog was pruned
+  from 263 to 33 package entries here, then cleared and the file deleted on
+  2026-08-08. See the tombstone below.
+
+### 2026-08-08 Retired: desktop._noop_app was dead code kept by a stale docstring
+
+- **Old path:** `docs/issues/2026-08-07-desktop-noop-app-dead-code.md` (kept in
+  place; see rationale)
+- **Outcome:** implemented — the function was removed in commit `d73c331`.
+- **Superseded by:** N/A
+- **Removal commit:** none. The report is retained, not deleted.
+- **Rationale kept:** The report itself carries the evidence and resolution.
+  [`lint-deviations.md`](../process/lint-deviations.md) records why
+  `reportUnusedFunction` stays disabled and that no dead function is known now.
+- **Remaining work:** none.
+
+### 2026-08-08 Retired: 33 pre-existing strict diagnostics sit in the basedpyright baseline
+
+- **Old path:** `docs/issues/2026-08-07-basedpyright-strict-baseline.md` (kept in
+  place; see rationale)
+- **Outcome:** implemented — all 33 diagnostics fixed and
+  `.basedpyright/baseline.json` deleted in commit `f09d2b7`.
+- **Superseded by:** N/A
+- **Removal commit:** none. The report is retained, not deleted.
+- **Rationale kept:** The report records the per-file counts, the five
+  root-cause groups, and the six suppressions removed.
+  [`lint-deviations.md`](../process/lint-deviations.md) carries the durable rule:
+  there is no baseline, and none is to be reintroduced.
+- **Remaining work:** none.
+
+### 2026-08-08 — Retire resolved issue reports in place instead of deleting them
+
+- **Context:** `doc-retirer` deletes a retired spec or plan by default and keeps
+  its rationale in architecture and decisions. The first two issue reports in
+  this repository reached `Resolution: Resolved` and needed a retirement path.
+- **Decision:** A resolved issue report keeps its file. Set `Status: retired` in
+  both the frontmatter and the Agent Index, move its pointer to the "Resolved
+  issues" list in [`docs/issues/README.md`](../issues/README.md), and append a
+  tombstone here. Do not delete the file.
+- **Rationale:** [`docs/issues/README.md`](../issues/README.md) defines itself as
+  the sole open **and resolved** index, so a resolved report is a live index
+  entry rather than dead weight. Deleting the files would also dangle four
+  inbound links from the README, the intent map, current state, and the
+  lint-deviation catalog. The delete-by-default rule exists for execution
+  checklists that architecture docs replace; an issue report has no such
+  replacement because its evidence and resolution are the durable record.
+- **Evidence:** `docgraph neighbors` on both reports on 2026-08-08 showed every
+  inbound edge resolved and no `field_conflict`; `docgraph check --strict`
+  returned zero issues.
+- **Remaining work:** none. Apply this rule to future `Kind: issue` retirements.
 
 ### 2026-07-21 — Track work in governed issue documents
 
