@@ -48,6 +48,7 @@ from pdomain_ops.suite import find_available_port, register_self
 
 PREFERRED_PORT = 8004
 
+
 def main() -> None:
     port = find_available_port(PREFERRED_PORT)
     register_self(_caller_package="pdomain_ocr_simple_gui", actual_port=port)
