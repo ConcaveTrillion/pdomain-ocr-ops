@@ -43,12 +43,10 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
 ## Completed work
 
 - **Clear the basedpyright strict backlog — done.** All 33 baseline diagnostics
-  are fixed and the baseline file is deleted. Evidence:
-  [the issue report](../issues/2026-08-07-basedpyright-strict-baseline.md).
-  Owner: CT.
+  are fixed and the baseline file is deleted. Evidence: commit `f09d2b7` and the
+  [lint-deviation catalog](../process/lint-deviations.md). Owner: CT.
 - **Remove `desktop._noop_app` — done.** The dead ASGI placeholder is gone.
-  Evidence: [the issue report](../issues/2026-08-07-desktop-noop-app-dead-code.md).
-  Owner: CT.
+  Evidence: commit `d73c331`. Owner: CT.
 - **Salvaged holding-area migration — done.** All 210 Markdown sources were
   red-teamed. Useful content was promoted to architecture, decisions, and this
   intent map. All 222 tracked holding-area files were retired. Evidence: the

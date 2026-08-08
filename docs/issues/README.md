@@ -52,15 +52,17 @@ node, so work remains retrievable, reviewable, and versioned with the code.
   `Status:`:
   - **Open** → `Status: active`.
   - **Resolved / Won't fix / Duplicate** → `Status: retired`, routed through
-    `doc-retirer`, with the resolving commit/spec linked in `## Resolution`.
-    Keep the file. A retired report moves to the "Resolved issues" list below
-    and gains a tombstone in [`decisions.md`](../context/decisions.md); it is
-    never deleted.
+    `doc-retirer`. Promote any durable specific into the architecture or process
+    doc that needs it, then delete the report, drop its README pointer, and
+    append a tombstone to [`decisions.md`](../context/decisions.md). Git history
+    holds the report itself, so do not keep a resolved file in the tree.
   - A `Won't fix` or `Duplicate` decision changes `Resolution` immediately;
     it cannot remain an open triage state.
-- **Index it (no orphans):** add every issue to the open or resolved list in
-  this README. This is the sole issue index. Context docs link here or to a
-  specific issue only when the work changes current state or durable intent.
+- **Index it (no orphans):** add every open issue to the list in this README.
+  This is the sole issue index; it tracks open work only. Resolved work lives in
+  the [decisions](../context/decisions.md) tombstones and in git history.
+  Context docs link here or to a specific issue only when the work changes
+  current state or durable intent.
 - **Stage + reindex:** under `mode = "git"` a new doc is invisible until
   `git add`ed; stage it, then `docgraph reindex` and `docgraph check --strict` the
   same turn (a new `dangling` blocks completion).
@@ -83,10 +85,3 @@ section.
 ## Open issues
 
 - *None.*
-
-## Resolved issues
-
-- [33 pre-existing strict diagnostics sit in the basedpyright baseline](2026-08-07-basedpyright-strict-baseline.md)
-  — Chore, P2, Cross-cutting. Resolved 2026-08-08.
-- [desktop._noop_app was dead code kept by a stale docstring](2026-08-07-desktop-noop-app-dead-code.md)
-  — Chore, P3, desktop. Resolved 2026-08-07.

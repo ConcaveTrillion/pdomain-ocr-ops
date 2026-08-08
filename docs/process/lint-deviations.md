@@ -201,18 +201,18 @@ the rule is a systematic false positive here. The disable is package-wide rather
 than per-handler because per-site ignores would recur on every new route and
 drift out of sync. The trade-off: it also silences any genuine module-level dead
 function. No such function is known in the package today; the last one,
-`pdomain_ops/desktop.py::_noop_app`, was
-[removed on 2026-08-07](../issues/2026-08-07-desktop-noop-app-dead-code.md).
-File any new case as a governed issue rather than leaving it silently hidden.
+`pdomain_ops/desktop.py::_noop_app`, was removed in commit `d73c331` on
+2026-08-07. File any new case as a governed issue rather than leaving it
+silently hidden.
 
 ### No basedpyright baseline
 
 `pdomain_ops` type-checks clean under strict mode with no baseline file. The
 repository previously carried `.basedpyright/baseline.json` to hold diagnostics
 that predated strict mode: 263 entries at first, pruned to 33, then fixed and
-[the file deleted on 2026-08-08](../issues/2026-08-07-basedpyright-strict-baseline.md).
-Do not reintroduce a baseline. Fix the diagnostic, or add a narrow suppression
-and catalog it above.
+the file deleted in commit `f09d2b7` on 2026-08-08. Those fixes removed six
+suppressions and added none. Do not reintroduce a baseline. Fix the diagnostic,
+or add a narrow suppression and catalog it above.
 
 ### Import-cycle diagnostics are disabled
 
