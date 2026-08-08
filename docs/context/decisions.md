@@ -473,7 +473,7 @@ Kind: context
 - **Old path:** `docs/issues/2026-08-07-desktop-noop-app-dead-code.md`
 - **Outcome:** implemented — the function was removed in commit `d73c331`.
 - **Superseded by:** N/A
-- **Removal commit:** `3b9796b`
+- **Removal commit:** `64ac883`
 - **Rationale kept:** [`lint-deviations.md`](../process/lint-deviations.md)
   records why `reportUnusedFunction` stays disabled package-wide, that the
   disable hides genuine dead functions, and that none is known today.
@@ -486,7 +486,7 @@ Kind: context
   `.basedpyright/baseline.json` deleted in commit `f09d2b7`. The fixes removed
   six suppressions and added none.
 - **Superseded by:** N/A
-- **Removal commit:** `3b9796b`
+- **Removal commit:** `64ac883`
 - **Rationale kept:** [`lint-deviations.md`](../process/lint-deviations.md)
   carries the durable rule: the package type-checks clean under strict with no
   baseline, and no baseline is to be reintroduced.
