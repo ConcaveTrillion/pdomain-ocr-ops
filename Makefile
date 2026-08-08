@@ -31,7 +31,7 @@ define _require_peer_book_tools
 endef
 
 .PHONY: help setup remove-venv reset reset-venv reset-full \
-        lint lint-check format format-check typecheck test ci ci-slow build clean pre-commit-check dev-local \
+        lint lint-check format format-check typecheck test ci ci-slow build clean pre-commit-check update-hooks dev-local \
         upgrade-deps release-patch release-minor release-major _do-release \
         local-setup local-dev local-check local-upgrade-deps \
         update-pdomain-deps ci-against-master
@@ -86,8 +86,24 @@ typecheck: ## Run basedpyright: strict on pdomain_ops, recommended for tests/scr
 test: ## Run tests with parallelization
 	uv run pytest -n auto
 
-pre-commit-check: ## Run all pre-commit hooks against all files (read-only check)
-	SKIP=basedpyright uv run pre-commit run --all-files
+# basedpyright is skipped here because `typecheck` runs it separately; running
+# it twice in one CI pass costs minutes. A caller's SKIP is appended rather than
+# discarded, so `SKIP=... make ci` works.
+# (pre-commit-update needs no entry: it is pinned to the manual stage in
+# .pre-commit-config.yaml, so neither this gate nor `git commit` invokes it.)
+COMMA := ,
+GATE_SKIP_HOOKS := basedpyright
+PRECOMMIT_SKIP := $(GATE_SKIP_HOOKS)$(if $(strip $(SKIP)),$(COMMA)$(strip $(SKIP)))
+
+pre-commit-check: ## Run all pre-commit hooks against all files (skips basedpyright, which `typecheck` runs; a caller's SKIP is appended)
+	SKIP=$(PRECOMMIT_SKIP) uv run pre-commit run --all-files
+
+update-hooks: ## Bump pinned pre-commit hook revisions in .pre-commit-config.yaml
+	@echo "⬆️  Updating pinned pre-commit hook revisions..."
+	@# The hook exits non-zero when it rewrites the config, which is the success
+	@# case here, so its status is not the target's status.
+	-@uv run pre-commit run pre-commit-update --all-files --hook-stage manual
+	@echo "✅ Hook revisions updated — review the .pre-commit-config.yaml diff."
 
 ci: ## Run complete CI pipeline (setup, pre-commit, lint-check, format-check, typecheck, test)
 	@$(MAKE) --no-print-directory setup
@@ -129,6 +145,7 @@ upgrade-deps: ## Upgrade dependencies and sync local environment
 	uv lock --upgrade
 	@echo "Syncing upgraded dependencies..."
 	uv sync --group dev
+	@$(MAKE) --no-print-directory update-hooks
 	@echo "Dependencies upgraded and environment synced."
 
 # ---------------------------------------------------------------------------
