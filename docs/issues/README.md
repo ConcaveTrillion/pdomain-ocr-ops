@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-07-15
-Last verified: 2026-07-15
+Last verified: 2026-08-08
 Kind: process
 Level: I1
 ---
@@ -14,7 +14,7 @@ Level: I1
 - **Kind:** process
 - **Status:** active
 - **Level:** I1
-- **Last verified:** 2026-07-15
+- **Last verified:** 2026-08-08
 - **Read when:** filing a bug / defect / investigation report, or looking up an
   open issue's status, evidence, or resolution.
 - **Search terms:** issues folder, bug report, defect report, issue template,
@@ -52,12 +52,17 @@ node, so work remains retrievable, reviewable, and versioned with the code.
   `Status:`:
   - **Open** → `Status: active`.
   - **Resolved / Won't fix / Duplicate** → `Status: retired`, routed through
-    `doc-retirer`, with the resolving commit/spec linked in `## Resolution`.
+    `doc-retirer`. Promote any durable specific into the architecture or process
+    doc that needs it, then delete the report, drop its README pointer, and
+    append a tombstone to [`decisions.md`](../context/decisions.md). Git history
+    holds the report itself, so do not keep a resolved file in the tree.
   - A `Won't fix` or `Duplicate` decision changes `Resolution` immediately;
     it cannot remain an open triage state.
-- **Index it (no orphans):** add every issue to the open or resolved list in
-  this README. This is the sole issue index. Context docs link here or to a
-  specific issue only when the work changes current state or durable intent.
+- **Index it (no orphans):** add every open issue to the list in this README.
+  This is the sole issue index; it tracks open work only. Resolved work lives in
+  the [decisions](../context/decisions.md) tombstones and in git history.
+  Context docs link here or to a specific issue only when the work changes
+  current state or durable intent.
 - **Stage + reindex:** under `mode = "git"` a new doc is invisible until
   `git add`ed; stage it, then `docgraph reindex` and `docgraph check --strict` the
   same turn (a new `dangling` blocks completion).
@@ -79,8 +84,6 @@ section.
 
 ## Open issues
 
-- *None yet.*
-
-## Resolved issues
-
-- *None yet.*
+- [Concurrent OCR jobs can each build a duplicate DocTR predictor](2026-08-08-predictor-cache-not-thread-safe.md)
+  — `_predictor_cache` is an unguarded dict with check-then-set at both call
+  sites; Bug, P2, area `gpu`.

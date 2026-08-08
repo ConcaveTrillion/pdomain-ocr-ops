@@ -37,12 +37,7 @@ class InstalledApp(BaseModel):
     display_name: str
     description: str | None = None
     enabled: bool = True
-    registered_at: datetime = None  # pyright: ignore[reportAssignmentType]  # Pydantic deferred default via model_post_init
-
-    def model_post_init(self, __context: Any) -> None:
-        """Set registered_at to now if not provided at construction time."""
-        if self.registered_at is None:
-            object.__setattr__(self, "registered_at", datetime.now(UTC))
+    registered_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @field_validator("binary")
     @classmethod
@@ -91,12 +86,7 @@ class CommonUIPrefs(BaseModel):
     font_scale: Annotated[float, Field(ge=0.8, le=1.4)] = 1.0
     compute_device_default: str | None = None
     update_policy: Literal["notify", "auto", "manual"] | None = None
-    layer_colors: LayerColors = None  # pyright: ignore[reportAssignmentType]  # Pydantic deferred default via model_post_init
-
-    def model_post_init(self, __context: Any) -> None:
-        """Set layer_colors to defaults if not provided at construction time."""
-        if self.layer_colors is None:
-            object.__setattr__(self, "layer_colors", LayerColors())
+    layer_colors: LayerColors = Field(default_factory=LayerColors)
 
     @field_validator("theme")
     @classmethod
@@ -136,13 +126,8 @@ class UIPrefs(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    common: CommonUIPrefs = None  # pyright: ignore[reportAssignmentType]  # Pydantic deferred default via model_post_init
+    common: CommonUIPrefs = Field(default_factory=CommonUIPrefs)
     apps: dict[str, dict[str, Any]] = {}
-
-    def model_post_init(self, __context: Any) -> None:
-        """Set common to defaults if not provided at construction time."""
-        if self.common is None:
-            object.__setattr__(self, "common", CommonUIPrefs())
 
 
 # --- Adapter Protocol stubs (filled in later milestones) ---

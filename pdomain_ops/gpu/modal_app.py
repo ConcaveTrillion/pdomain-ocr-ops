@@ -5,7 +5,7 @@ Cherry-picked-from: pdomain-prep-for-pgdp@e36c199df466ff45b70d2a452dd7512dcc2a17
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from types import ModuleType
@@ -22,10 +22,11 @@ except ImportError:
 _MODAL_AVAILABLE: bool = _modal_available
 
 if _modal_available and modal is not None:
-    # modal ships no type stubs — every modal.* call below is Unknown-typed
-    # and decorators are untyped. Suppressions are pyright-native and scoped.
-    image = (
-        modal.Image.debian_slim(python_version="3.13")  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
+    # modal ships no type stubs, so bind its untyped surface to Any here
+    # rather than suppressing each member access below.
+    modal_api: Any = modal
+    image: Any = (
+        modal_api.Image.debian_slim(python_version="3.13")
         .apt_install("libgl1", "libglib2.0-0")
         .pip_install(
             "fastapi>=0.115",
@@ -40,23 +41,23 @@ if _modal_available and modal is not None:
         .pip_install_from_pyproject("pyproject.toml")
         .add_local_python_source("pdomain_ops")
     )
-    app = modal.App("pdomain-ops", image=image)  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
+    app: Any = modal_api.App("pdomain-ops", image=image)
     GPU_PROFILE = "T4"
     DEFAULT_TIMEOUT_S = 60 * 10
 
-    @app.function(gpu=GPU_PROFILE, timeout=DEFAULT_TIMEOUT_S)  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
+    @app.function(gpu=GPU_PROFILE, timeout=DEFAULT_TIMEOUT_S)
     def process_page(payload: dict[str, object]) -> dict[str, object]:
         """Scaffold — real S3 wiring is a separate follow-up plan."""
         del payload
         raise NotImplementedError("Modal process_page needs S3 storage wired — scaffold only")
 
-    @app.function(gpu=GPU_PROFILE, timeout=DEFAULT_TIMEOUT_S)  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
+    @app.function(gpu=GPU_PROFILE, timeout=DEFAULT_TIMEOUT_S)
     def run_ocr(payload: dict[str, object]) -> dict[str, object]:
         """Scaffold — real S3 wiring is a separate follow-up plan."""
         del payload
         raise NotImplementedError("Modal run_ocr needs S3 storage wired — scaffold only")
 
-    @app.function(gpu=GPU_PROFILE, timeout=DEFAULT_TIMEOUT_S * 6)  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
+    @app.function(gpu=GPU_PROFILE, timeout=DEFAULT_TIMEOUT_S * 6)
     def run_batch(payloads: list[dict[str, object]]) -> list[dict[str, object]]:
         """Scaffold — real batch handler is a separate follow-up plan."""
         from pdomain_ops.gpu.types import BatchJobItem, BatchJobResult

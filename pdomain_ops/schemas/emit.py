@@ -60,7 +60,7 @@ def emit_schemas() -> dict[str, dict[str, object]]:
 
     # Emit the discriminated LaunchResult union separately
     # so the discriminator is preserved for pdomain-ui's TypeScript generator
-    launch_result_adapter = TypeAdapter(LaunchResult)
+    launch_result_adapter: TypeAdapter[LaunchResult] = TypeAdapter(LaunchResult)
     schemas["LaunchResult"] = launch_result_adapter.json_schema()
 
     return schemas

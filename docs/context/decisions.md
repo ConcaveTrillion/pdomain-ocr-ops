@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-07-13
-Last verified: 2026-07-13
+Last verified: 2026-08-08
 Kind: context
 ---
 
@@ -441,9 +441,56 @@ Kind: context
 - **Evidence:** `pyproject.toml`, `docs/process/lint-deviations.md`, and a green
   `make ci` (ruff, ruff-format, `basedpyright pdomain_ops --level error` at 0
   errors, 474 tests passing).
-- **Remaining work:** The pre-existing `.basedpyright/baseline.json` backlog
-  pruned from 263 to 33 package entries. Clearing that backlog is deferred in
-  the intent map.
+- **Remaining work:** none. The `.basedpyright/baseline.json` backlog was pruned
+  from 263 to 33 package entries here, then cleared and the file deleted in
+  commit `f09d2b7` on 2026-08-08.
+
+### 2026-08-08 — Delete resolved issue reports after promoting their specifics
+
+- **Context:** The first two issue reports in this repository reached
+  `Resolution: Resolved` and needed a retirement path. An earlier attempt kept
+  both files in a "Resolved issues" index. The owner rejected that: git history
+  already preserves a resolved report, so a second copy in the live tree is
+  duplicated state that goes stale.
+- **Decision:** On resolution, promote only the specifics a reader still needs
+  into the architecture or process doc that owns them. Then delete the report,
+  drop its README pointer, and append a tombstone here.
+  [`docs/issues/README.md`](../issues/README.md) indexes open work only.
+- **Rationale:** A resolved report's durable content is a small number of rules
+  and current-state facts, which belong in the doc a reader consults anyway. The
+  reproduction steps, hypotheses, and evidence are history, and git holds them.
+  Keeping the file forces every future edit to maintain a document nobody
+  consults.
+- **Evidence:** Owner direction on 2026-08-08, reversing the retire-in-place
+  decision recorded earlier the same day. Both reports were deleted with their
+  specifics already promoted to
+  [`lint-deviations.md`](../process/lint-deviations.md), and
+  `docgraph check --strict` returned zero issues afterward.
+- **Remaining work:** none. Apply this rule to future `Kind: issue` retirements.
+
+### 2026-08-08 Retired: desktop._noop_app was dead code kept by a stale docstring
+
+- **Old path:** `docs/issues/2026-08-07-desktop-noop-app-dead-code.md`
+- **Outcome:** implemented — the function was removed in commit `d73c331`.
+- **Superseded by:** N/A
+- **Removal commit:** `64ac883`
+- **Rationale kept:** [`lint-deviations.md`](../process/lint-deviations.md)
+  records why `reportUnusedFunction` stays disabled package-wide, that the
+  disable hides genuine dead functions, and that none is known today.
+- **Remaining work:** none.
+
+### 2026-08-08 Retired: 33 pre-existing strict diagnostics sit in the basedpyright baseline
+
+- **Old path:** `docs/issues/2026-08-07-basedpyright-strict-baseline.md`
+- **Outcome:** implemented — all 33 diagnostics fixed and
+  `.basedpyright/baseline.json` deleted in commit `f09d2b7`. The fixes removed
+  six suppressions and added none.
+- **Superseded by:** N/A
+- **Removal commit:** `64ac883`
+- **Rationale kept:** [`lint-deviations.md`](../process/lint-deviations.md)
+  carries the durable rule: the package type-checks clean under strict with no
+  baseline, and no baseline is to be reintroduced.
+- **Remaining work:** none.
 
 ### 2026-07-21 — Track work in governed issue documents
 

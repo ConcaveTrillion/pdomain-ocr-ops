@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-05-22
-Last verified: 2026-07-15
+Last verified: 2026-08-08
 Kind: process
 ---
 
@@ -32,8 +32,8 @@ and CI environment does not install, so basedpyright cannot resolve them:
 - `pdomain_ops/gpu/device.py`: `cupy` supports the optional `[gpu]` probe.
 - `pdomain_ops/gpu/modal_app.py`: `modal` supports the optional `[modal]`
   deployment entry point.
-- `pdomain_ops/gpu/modal_dispatcher.py`: `modal.Function` supports remote
-  dispatch when the `[modal]` extra is installed.
+- `pdomain_ops/gpu/modal_dispatcher.py`: `modal` supports remote dispatch when
+  the `[modal]` extra is installed.
 
 These imports are guarded, deferred until the feature is used, or kept in an
 optional deployment module. Use the native
@@ -45,25 +45,11 @@ suppression: those packages are present in the canonical `uv`-synced gate
 environment, so `reportMissingImports` does not fire and the strict
 `reportUnnecessaryTypeIgnoreComment` rule flags the ignore as redundant.
 
-### Third-party stub gaps
-
-- `pdomain_ops/gpu/modal_dispatcher.py` suppresses
-  `reportAttributeAccessIssue` for `Function.lookup`. Modal exposes the method
-  at runtime, but its type information omits it.
-- `pdomain_ops/gpu/modal_app.py` suppresses
-  `reportUnknownMemberType`, `reportUnknownVariableType`, and
-  `reportUntypedFunctionDecorator` on `modal.Image`, `modal.App`, and three
-  `@app.function` decorators. Modal's type information is incomplete for this
-  optional deployment module.
-
-### Narrowed return and deferred field types
+### Narrowed return types
 
 - `pdomain_ops/gpu/device.py` suppresses `reportReturnType` on the `explicit`
   and `legacy` device returns. Both values pass `_VALID_DEVICES` checks before
   return, but basedpyright does not preserve the literal narrowing.
-- `pdomain_ops/suite/types.py` suppresses `reportAssignmentType` on
-  `registered_at`, `layer_colors`, and `common`. Each field starts as `None`.
-  It receives its declared non-optional value in `model_post_init`.
 
 ### Partially-typed first-party boundary and shared cache
 
@@ -76,9 +62,12 @@ environment, so `reportMissingImports` does not fire and the strict
   of `_predictor_cache` from `pdomain_ops/gpu/default_stages.py`. The cache is a
   deliberate GPU-package-internal share between the local and default stages.
 
-Optional untyped modules (`webview`, `pystray`, `cupy`) are bound to an
-`Any`-typed local at the import boundary instead of being suppressed, so their
-member access is `Any` rather than unknown without scattering per-call ignores.
+Optional untyped modules (`webview`, `pystray`, `cupy`, and `modal`) are bound
+to an `Any`-typed local at the import boundary instead of being suppressed, so
+their member access is `Any` rather than unknown without scattering per-call
+ignores. `pdomain_ops/gpu/modal_app.py` and
+`pdomain_ops/gpu/modal_dispatcher.py` both use this binding, so neither file
+carries a per-call Modal suppression.
 
 ## Inline Ruff suppressions
 
@@ -144,13 +133,6 @@ the tests.
   intentional CLI output.
 - `tests/suite/test_bootstrap.py` suppresses `S104` because the test verifies
   explicit all-interface binding to `0.0.0.0`.
-
-### Uniform malformed-event errors: `TRY004`
-
-`pdomain_ops/gpu/events.py` suppresses `TRY004` at two `ValueError` sites after
-type checks. The `parse_pdevent` contract reports every malformed
-`@@PDEVENT@@` payload as `ValueError`. Callers therefore need only one exception
-type.
 
 ## Config-level Ruff deviations
 
@@ -218,18 +200,19 @@ handler as "not accessed", but the decorator registration is the real use, so
 the rule is a systematic false positive here. The disable is package-wide rather
 than per-handler because per-site ignores would recur on every new route and
 drift out of sync. The trade-off: it also silences any genuine module-level dead
-function, such as `pdomain_ops/desktop.py::_noop_app`, which currently has no
-callers. Those cases are triaged in `docs/context/intent-map.md`, not hidden
-silently.
+function. No such function is known in the package today; the last one,
+`pdomain_ops/desktop.py::_noop_app`, was removed in commit `d73c331` on
+2026-08-07. File any new case as a governed issue rather than leaving it
+silently hidden.
 
-### A basedpyright baseline carries the pre-existing backlog
+### No basedpyright baseline
 
-`.basedpyright/baseline.json` suppresses a pre-existing set of package
-diagnostics so the gate reports only new regressions. Enabling strict on the
-package and downgrading test inference rules pruned it from 263 entries to the
-current backlog; every remaining entry is a strict diagnostic in `pdomain_ops`
-that predates the strict flip. Clearing that backlog is tracked as follow-up
-work in the intent map, not resolved here.
+`pdomain_ops` type-checks clean under strict mode with no baseline file. The
+repository previously carried `.basedpyright/baseline.json` to hold diagnostics
+that predated strict mode: 263 entries at first, pruned to 33, then fixed and
+the file deleted in commit `f09d2b7` on 2026-08-08. Those fixes removed six
+suppressions and added none. Do not reintroduce a baseline. Fix the diagnostic,
+or add a narrow suppression and catalog it above.
 
 ### Import-cycle diagnostics are disabled
 
@@ -257,8 +240,8 @@ therefore does not run basedpyright.
 
 ## Resolved suppressions
 
-No mypy-style `# type: ignore[...]` suppressions remain in tracked Python files
-outside `_tbd/`. Earlier artifacts appeared in
+No mypy-style `# type: ignore[...]` suppressions remain in any tracked Python
+file. Earlier artifacts appeared in
 `pdomain_ops/suite/register_self.py`, `pdomain_ops/gpu/modal_app.py`,
 `tests/suite/test_register_self.py`, and `tests/gpu/test_modal_dispatcher.py`.
 They either suppressed no basedpyright diagnostic or were replaced by fixes to

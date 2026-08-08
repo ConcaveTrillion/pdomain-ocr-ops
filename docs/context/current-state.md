@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-07-13
-Last verified: 2026-07-13
+Last verified: 2026-08-08
 Kind: context
 ---
 
@@ -44,6 +44,9 @@ README is the sole open and resolved issue index.
 
 ## In-flight work
 
+- No issue is open. `pdomain_ops` type-checks clean under basedpyright strict
+  with no baseline file. See
+  [the lint-deviation catalog](../process/lint-deviations.md).
 - The [lint-deviation catalog](../process/lint-deviations.md) is reconciled
   with the current source tree.
 - Remote Modal and shared-container OCR batch dispatch remains deferred.

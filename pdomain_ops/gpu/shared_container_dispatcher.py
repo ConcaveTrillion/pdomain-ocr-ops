@@ -9,6 +9,8 @@ Cherry-picked-from: pdomain-prep-for-pgdp@e36c199df466ff45b70d2a452dd7512dcc2a17
 
 from __future__ import annotations
 
+from typing import override
+
 from pdomain_ops.gpu.types import (
     BatchJobItem,
     BatchJobResult,
@@ -38,14 +40,17 @@ class SharedContainerStageDispatcher(GPUBackend):
         self._base_url = base_url.rstrip("/")
         self._api_key = api_key
 
+    @override
     async def process_page(self, req: ProcessPageRequest) -> ProcessPageResponse:
         """Process a page image — not yet wired."""
         raise NotImplementedError("shared_container.process_page not yet wired")
 
+    @override
     async def run_ocr(self, req: OcrPageRequest) -> OcrPageResponse:
         """Run OCR on a page — not yet wired."""
         raise NotImplementedError("shared_container.run_ocr not yet wired")
 
+    @override
     async def run_batch(
         self,
         items: list[BatchJobItem],

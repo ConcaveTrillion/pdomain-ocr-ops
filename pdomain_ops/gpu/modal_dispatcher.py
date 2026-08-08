@@ -11,7 +11,7 @@ Cherry-picked-from: pdomain-prep-for-pgdp@e36c199df466ff45b70d2a452dd7512dcc2a17
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, override
 
 from pdomain_ops.gpu.types import (
     BatchJobItem,
@@ -61,31 +61,34 @@ class ModalStageDispatcher(GPUBackend):
         if cached is not None:
             return cached
         try:
-            # optional [modal] extra; basedpyright flags the module on the `from` line
-            from modal import Function  # pyright: ignore[reportMissingImports]
+            import modal  # pyright: ignore[reportMissingImports]  # optional [modal] extra, no stubs
         except ImportError as e:
             raise RuntimeError(
                 "Modal backend requires the [modal] extra: install with"
                 " 'pip install pdomain-ops[modal]'"
             ) from e
-        # modal stubs omit Function.lookup (valid at runtime); only surfaces
-        # when the [modal] extra is installed.
-        fn = Function.lookup(self._app_name, fn_name)  # pyright: ignore[reportAttributeAccessIssue]
+        # modal ships no type stubs; bind to Any at the boundary so member
+        # access is Any rather than Unknown, without scattering ignores.
+        modal_api: Any = modal
+        fn = modal_api.Function.lookup(self._app_name, fn_name)
         self._fns[fn_name] = fn
         return fn
 
+    @override
     async def process_page(self, req: ProcessPageRequest) -> ProcessPageResponse:
         """Process (threshold/deskew) a single page image via Modal."""
         fn = self._load_function(self.PROCESS_PAGE_FN)
         result = await fn.remote.aio(req.model_dump())
         return ProcessPageResponse.model_validate(result)
 
+    @override
     async def run_ocr(self, req: OcrPageRequest) -> OcrPageResponse:
         """Run OCR on a single page via Modal."""
         fn = self._load_function(self.RUN_OCR_FN)
         result = await fn.remote.aio(req.model_dump())
         return OcrPageResponse.model_validate(result)
 
+    @override
     async def run_batch(
         self,
         items: list[BatchJobItem],
