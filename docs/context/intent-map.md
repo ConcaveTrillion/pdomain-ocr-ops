@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-07-13
-Last verified: 2026-08-07
+Last verified: 2026-08-08
 Kind: context
 ---
 
@@ -42,6 +42,10 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
 
 ## Completed work
 
+- **Clear the basedpyright strict backlog — done.** All 33 baseline diagnostics
+  are fixed and the baseline file is deleted. Evidence:
+  [the issue report](../issues/2026-08-07-basedpyright-strict-baseline.md).
+  Owner: CT.
 - **Remove `desktop._noop_app` — done.** The dead ASGI placeholder is gone.
   Evidence: [the issue report](../issues/2026-08-07-desktop-noop-app-dead-code.md).
   Owner: CT.
@@ -176,8 +180,7 @@ maintenance obligation under `CONVENTIONS.md`; it is not a migration bet.
 ## Open issues
 
 - [`docs/issues/README.md`](../issues/README.md) is the canonical issue index.
-  One report is open:
-  [clear the basedpyright strict baseline](../issues/2026-08-07-basedpyright-strict-baseline.md).
+  It records no open reports.
 
 ## Legacy-unverified sweep
 

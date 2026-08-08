@@ -237,17 +237,20 @@ def _make_tesseract_sync(*, image_path: str, page_id: str, language: str) -> Any
     """Return a zero-arg callable that runs Tesseract OCR synchronously."""
 
     def _run() -> dict[str, Any]:
-        import cv2
-        from pdomain_book_tools.ocr.cv2_tesseract import (
-            _pytesseract_available,
-            tesseract_ocr_cv2_image,
-        )
+        import importlib
 
-        if not _pytesseract_available:
+        import cv2
+        from pdomain_book_tools.ocr.cv2_tesseract import tesseract_ocr_cv2_image
+
+        try:
+            # Import by name so an absent optional dependency stays a runtime
+            # concern; a broken install must fail here, not mid-OCR.
+            importlib.import_module("pytesseract")
+        except ImportError as exc:
             raise ImportError(
                 "pytesseract is not installed. "
                 "Install the [tesseract] extra to use the Tesseract engine."
-            )
+            ) from exc
 
         image = cv2.imread(image_path)
         if image is None:

@@ -2,7 +2,7 @@
 Status: active
 Owner: CT
 Created: 2026-07-15
-Last verified: 2026-08-07
+Last verified: 2026-08-08
 Kind: process
 Level: I1
 ---
@@ -14,7 +14,7 @@ Level: I1
 - **Kind:** process
 - **Status:** active
 - **Level:** I1
-- **Last verified:** 2026-08-07
+- **Last verified:** 2026-08-08
 - **Read when:** filing a bug / defect / investigation report, or looking up an
   open issue's status, evidence, or resolution.
 - **Search terms:** issues folder, bug report, defect report, issue template,
@@ -79,10 +79,11 @@ section.
 
 ## Open issues
 
-- [33 pre-existing strict diagnostics sit in the basedpyright baseline](2026-08-07-basedpyright-strict-baseline.md)
-  — Chore, P2, Cross-cutting.
+- *None.*
 
 ## Resolved issues
 
+- [33 pre-existing strict diagnostics sit in the basedpyright baseline](2026-08-07-basedpyright-strict-baseline.md)
+  — Chore, P2, Cross-cutting. Resolved 2026-08-08.
 - [desktop._noop_app was dead code kept by a stale docstring](2026-08-07-desktop-noop-app-dead-code.md)
   — Chore, P3, desktop. Resolved 2026-08-07.

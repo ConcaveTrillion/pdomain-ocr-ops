@@ -60,19 +60,27 @@ async def test_tesseract_stage_raises_when_unavailable(monkeypatch: pytest.Monke
     """Calling the 'ocr'/'cpu' stage with engine='tesseract' raises ImportError when pytesseract absent."""
     monkeypatch.setenv("PDOMAIN_GPU_BACKEND", "cpu")
 
-    import pdomain_book_tools.ocr.cv2_tesseract as _tess_mod
+    import importlib
 
-    with patch.object(_tess_mod, "_pytesseract_available", False):
-        dispatcher = LocalStageDispatcher()
-        register_default_stages(dispatcher)
-        with pytest.raises(ImportError, match="pytesseract"):
-            await dispatcher.run_stage(
-                "ocr",
-                "page-1",
-                image_path="/fake/image.png",
-                engine="tesseract",
-                language="eng",
-            )
+    real_import_module = importlib.import_module
+
+    def _import_module_without_pytesseract(name, package=None):
+        if name == "pytesseract":
+            raise ImportError("No module named 'pytesseract'")
+        return real_import_module(name, package)
+
+    monkeypatch.setattr(importlib, "import_module", _import_module_without_pytesseract)
+
+    dispatcher = LocalStageDispatcher()
+    register_default_stages(dispatcher)
+    with pytest.raises(ImportError, match="pytesseract"):
+        await dispatcher.run_stage(
+            "ocr",
+            "page-1",
+            image_path="/fake/image.png",
+            engine="tesseract",
+            language="eng",
+        )
 
 
 def test_register_default_stages_registers_local_and_mps_ocr() -> None:

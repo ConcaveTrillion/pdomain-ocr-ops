@@ -64,7 +64,7 @@ class LocalTomlSuiteRegistry:
         """Return all installed apps, pruning stale entries from the result."""
         with filelock.FileLock(str(self._lock_path)):
             data = self._read_raw()
-        apps = []
+        apps: list[InstalledApp] = []
         for app_data in data.get("apps", {}).values():
             try:
                 app = InstalledApp.model_validate(app_data)
