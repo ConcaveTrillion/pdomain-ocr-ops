@@ -84,4 +84,6 @@ section.
 
 ## Open issues
 
-- *None.*
+- [Concurrent OCR jobs can each build a duplicate DocTR predictor](2026-08-08-predictor-cache-not-thread-safe.md)
+  — `_predictor_cache` is an unguarded dict with check-then-set at both call
+  sites; Bug, P2, area `gpu`.
