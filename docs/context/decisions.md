@@ -516,3 +516,30 @@ Kind: context
 - **Remaining work:** None in this repository. Any future cross-system export
   requires a new owner-approved design and cannot become a second status
   source.
+
+### 2026-08-08 Retired: issues → docs/ roadmap migration plan
+
+- **Old path:** `docs/plans/2026-07-14-issues-to-docs-roadmap-migration.md`, on
+  the local branch `plan/issues-to-docs-roadmap-migration` (tip `29c66c2`,
+  branched from `30b579b`). The branch also carried
+  `docs/handoff/2026-07-14-103613-issues-to-docs-migration.md`.
+- **Outcome:** superseded. The migration happened, but through a different
+  design, and the branch was never merged.
+- **Superseded by:** the governed `docs/issues/` tracker, established by the
+  2026-07-21 decision above and by shared-devtools
+  `docs/specs/2026-07-20-git-managed-issue-intake-design.md`.
+- **Removal commit:** branch deleted 2026-08-08; commits remain reachable from
+  `29c66c2` until git prunes them.
+- **Rationale kept:** three of the plan's premises are now false. It targeted
+  `docs/roadmap.md` plus a `docs/backlog/` folder per repo; no repository has a
+  `docs/backlog/`, and the 150 migrated records live in `docs/issues/` instead.
+  It required GitHub Issues to stay enabled as an intake inbox with each issue
+  closed and labeled `migrated`; the issues were deleted instead, so
+  `gh issue list --state all` returns nothing on a migrated repo. Its Phase 3
+  proposed archiving `pd-ocr-labeler` and `pd-ocr-trainer` as dead; both took
+  commits on 2026-08-08. The plan's red-team findings on docgraph vocabulary,
+  `--strict` as the only real gate, and merge-before-close were absorbed into
+  the shared intake spec.
+- **Remaining work:** two cleanup items from its Task 2.3 are still open and
+  moved to the intent map: vestigial `wip/ship-issue*` remote branches, and
+  vestigial `bot:*`, `model:*`, `model-effort:*`, and `recurring:*` labels.
