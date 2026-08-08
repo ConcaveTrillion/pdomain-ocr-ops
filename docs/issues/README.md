@@ -87,3 +87,7 @@ section.
 - [Concurrent OCR jobs can each build a duplicate DocTR predictor](2026-08-08-predictor-cache-not-thread-safe.md)
   — `_predictor_cache` is an unguarded dict with check-then-set at both call
   sites; Bug, P2, area `gpu`.
+- [Weekly dep-refresh cannot auto-land in this repo](2026-08-08-dep-refresh-cannot-auto-land.md)
+  — stale required status contexts block every PR to master, and dated
+  dep-refresh branches accumulate with no cleanup; Bug, P1, area
+  Cross-cutting.
