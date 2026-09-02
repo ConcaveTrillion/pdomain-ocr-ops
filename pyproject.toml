@@ -21,6 +21,7 @@ dependencies = [
     "starlette>=1.0.0",
     "packaging>=24",
     "pdomain-book-tools>=0.21.0",
+    "pdomain-book-contracts>=0.1.0",
     "platformdirs>=4.2",
     "pydantic>=2.5",
     "tomli>=2.0",
