@@ -393,8 +393,10 @@ The excluded follow-up work has no acceptance criteria here, by design.
   workspace later, once their load-bearing references are repointed.
 - The package is named `pdomain-book-contracts`.
 
+The target module layout the reorganisation commits follow is specified in
+[the book contracts module layout](../specs/2026-09-02-book-contracts-module-layout.md).
+
 ## Human decisions this plan still needs
 
-- The target module layout inside the new package, which the reorganisation
-  commits will follow. Agree it before Task 4 begins, or the second commit of
-  each step has no specification to meet.
+- Review the module layout before Task 4 lands its first reorganisation commit.
+  It is cheap to revise while the package has no consumers and expensive after.
