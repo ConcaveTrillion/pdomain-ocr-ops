@@ -2,7 +2,7 @@
 Status: draft
 Owner: CT
 Created: 2026-09-01
-Last verified: 2026-09-01
+Last verified: 2026-09-02
 Kind: plan
 ---
 
@@ -25,7 +25,7 @@ This plan does not authorize implementation. Begin each task only after explicit
 - **Kind:** plan
 - **Status:** draft
 - **Owner:** CT
-- **Last verified:** 2026-09-01
+- **Last verified:** 2026-09-02
 - **Read when:** extracting shared contracts, retiring the pd- repositories, or changing what depends on `pdomain-book-tools`.
 - **Search terms:** book contracts, package extraction, pd-ocr-labeler retirement, import weight, canonical json bytes.
 
@@ -113,9 +113,16 @@ pin 0.26.1, one floats on a git commit, and one declares no dependency at all.
 
 Two implementations disagree. `pdomain_book_tools/typography/review.py` returns
 `{"a":1,"b":2}`. `pdomain_source_data/hashing.py` returns the same with a
-trailing newline. Same content, different digest. Decide which form is
-canonical, make both call one implementation, and add a test asserting the
+trailing newline. Same content, different digest.
+
+The book-tools form wins: no trailing newline. Framing belongs to whatever
+writes the bytes, not to the encoder, and that copy is the one moving into the
+shared package. Make both call one implementation and add a test asserting the
 bytes match across packages.
+
+Source-data callers that relied on the newline must add it themselves. One
+already does the opposite and appends a second newline, which produced a broken
+JSON Lines file, so check every call site rather than assuming.
 
 - [ ] **Step 2: Inventory the digests the change invalidates**
 
@@ -193,6 +200,11 @@ That test locks the synthetic writer's output against DocTR's own
 reference at `pdomain-ocr-training` and confirm the test still passes before
 archiving anything.
 
+Mark both repositories retired in place first, with a notice naming the
+superseding repository, and stop work in them. Leave them readable until the two
+load-bearing references are repointed and the behaviour they cite is captured
+elsewhere. Move them out of the workspace only after that.
+
 Follow the `doc-retirer` route for their documentation and record the
 supersession.
 
@@ -230,6 +242,12 @@ a test. Rollback deletes the repository.
 Move in dependency order so the package is never broken between steps. After
 each step, `pdomain-book-tools` re-exports the moved names from their old
 locations and depends on the new package.
+
+Module paths are reorganised as part of the move rather than left for a later
+pass. That removes the plain diff as a safety net, so each step lands as two
+commits: first the files moved verbatim, then the reorganisation. The first
+commit is verifiable by content hash, the second reads as an ordinary rename.
+Never combine them.
 
 - [ ] **Step 1: Move the box and point types**
 
@@ -364,14 +382,19 @@ itself, and every repository it touches passes its own gate.
 
 The excluded follow-up work has no acceptance criteria here, by design.
 
+## Decisions taken on 2026-09-02
+
+- The canonical `canonical_json_bytes` form is the book-tools one, without a
+  trailing newline. Source-data's stored digests must be rebuilt; Task 1 Step 2
+  inventories them.
+- Module paths are reorganised during the move, with each step landing as a
+  verbatim move commit followed by a reorganisation commit.
+- Both retired repositories are marked retired in place and moved out of the
+  workspace later, once their load-bearing references are repointed.
+- The package is named `pdomain-book-contracts`.
+
 ## Human decisions this plan still needs
 
-- Which form of `canonical_json_bytes` is canonical, and which stored digests
-  must be rebuilt.
-- Whether the moved seams keep their module paths inside the new package or are
-  reorganised while they move. Reorganising is cheaper now than later, but
-  makes the diff harder to review.
-- Whether the retired repositories are archived in place, moved out of the
-  workspace, or deleted after archiving.
-- The name. `pdomain-book-contracts` describes what it holds, but the contents
-  reach past books into OCR and typography generally.
+- The target module layout inside the new package, which the reorganisation
+  commits will follow. Agree it before Task 4 begins, or the second commit of
+  each step has no specification to meet.
