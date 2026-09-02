@@ -313,8 +313,27 @@ the re-exports hold.
 - [ ] **Step 1: Repoint the repositories that were working around the weight**
 
 `pdomain-pgdp-api-client` depends on the contracts package and deletes its
-absolute-path loader. `pdomain-ocr-synth` adopts the contracts package and
-deletes its own 248-line F2 parser.
+absolute-path loader. Done on 2026-09-02.
+
+`pdomain-ocr-synth` does **not** delete its 248-line F2 parser. Investigated on
+2026-09-02 and rejected: the two parsers do different work.
+
+`src/pdomain_ocr_synth/pgdp/f2.py` takes a mapping of every page at once and
+carries block state across page boundaries, so a `/# #/` block opening on one
+page and closing several pages later has its body stitched onto each page it
+spans. Two tests cover exactly that. The contracts parser takes a single
+`page_key` and has no concept of page order, so it would emit an unclosed-block
+warning and drop the body instead.
+
+The output shapes differ too. This repo's parser returns raw markup text that
+`features.py` runs regexes over and `ranking.py` builds diagnostics from. The
+contracts parser returns a decoded `TypographyPageRecord` with graphemes and
+resolved style spans. Adopting it means rewriting three callers against a
+different contract, which is the redesign this plan's own constraints forbid.
+
+The duplication is real but it is not this plan's to remove. Doing it needs a
+decision about whether the contracts parser should grow a document-scoped mode,
+and that is separate work.
 
 - [ ] **Step 2: Check dynamic imports**
 
