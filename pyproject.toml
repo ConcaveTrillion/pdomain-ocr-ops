@@ -79,6 +79,10 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Preserved research evidence: these files are archived exactly as they were
+# produced, so a figure in a findings document can be traced back. Reformatting
+# them would defeat that. They are artifacts, not maintained code.
+extend-exclude = ["docs/research/evidence"]
 
 [tool.ruff.lint]
 select = [
