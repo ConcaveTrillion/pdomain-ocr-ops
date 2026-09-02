@@ -335,11 +335,19 @@ The duplication is real but it is not this plan's to remove. Doing it needs a
 decision about whether the contracts parser should grow a document-scoped mode,
 and that is separate work.
 
-- [ ] **Step 2: Check dynamic imports**
+- [x] **Step 2: Check dynamic imports**
 
 `pdomain-ocr-cli` and parts of `pdomain-ocr-labeler-spa` reach book-tools
 through `importlib.import_module()` with string names, which no static search
 finds. Search for import strings, not just import statements.
+
+Done on 2026-09-02. Seven such imports exist: four in `pdomain-ocr-cli`
+(`image_processing.formats`, `ocr.doctr_support`, `layout`,
+`ocr.reorganize_page_utils`) and three in `pdomain-ocr-labeler-spa`
+(`ocr.document`, `hf`, `ocr.doctr_support`). Every one was imported and resolved
+against book-tools 0.27.0. None needed changing, because all of them name
+modules that stayed in book-tools: they are the heavy ones the extraction was
+never going to move.
 
 - [ ] **Step 0: Pin the contracts package to the index in every consumer**
 
@@ -352,20 +360,31 @@ resolve.
 
 Verified on 2026-09-02. The failure is
 `Because pdomain-book-contracts was not found in the package registry ...
-unsatisfiable`. The fix is one line per consumer under `[tool.uv.sources]`:
+unsatisfiable`.
+
+Each consumer needs **two** changes, not one. A source pin alone does nothing
+here, because uv applies `[tool.uv.sources]` only to a project's own direct
+dependencies, and the contracts package arrives transitively through book-tools.
 
 ```toml
+# in [project] dependencies
+"pdomain-book-contracts>=0.1.0",
+
+# in [tool.uv.sources]
 pdomain-book-contracts = { index = "pdomain-index-pip" }
 ```
 
-Note that `pdomain-source-data` names its index `pdomain` rather than
-`pdomain-index-pip`, so match each repo's own name.
+The dependency makes the source pin apply; the source pin says which index to
+fetch from. Note that `pdomain-source-data` names its index `pdomain` rather
+than `pdomain-index-pip`, so match each repo's own name.
+
+The failure is quiet in the common case, which is what makes it dangerous. A
+consumer constrained at `pdomain-book-tools>=0.21.0` does not error. It silently
+keeps resolving the last release without the contracts dependency and never
+takes the new one, so the repo stops receiving updates with no signal.
 
 Do not fix this by dropping `explicit = true`. That would make uv search the
 private index for every package, which invites dependency confusion.
-
-The pin changes no lockfile until book-tools is released, so it is inert when
-landed and load-bearing afterwards.
 
 - [ ] **Step 3: Bump the paired contract consumers together**
 
