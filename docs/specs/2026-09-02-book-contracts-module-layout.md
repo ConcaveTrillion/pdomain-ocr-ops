@@ -109,17 +109,22 @@ Imports flow one way, top to bottom:
 
 ```text
 geometry, text, _schemas     no internal dependencies
+layout, licensing            no internal dependencies
 typography                   depends on geometry, _schemas
+ocr                          depends on geometry, text, _schemas
 matching                     depends on geometry, typography
-ocr                          depends on geometry, typography
-layout                       depends on geometry
 sources/pgdp                 depends on typography
-licensing                    no internal dependencies
 ```
 
 A module may not import from a package below it in that list. The lightness test
 in the extraction plan enforces the external boundary; this rule keeps the
 internal one honest, and a cycle here means something is in the wrong package.
+
+This table was measured against the moved code rather than predicted. An
+earlier draft had `ocr` depending on typography and `layout` depending on
+geometry. Neither edge exists: `ocr` imports geometry, text and `_schemas`,
+and `layout` defines its own plain integer coordinates and imports nothing
+internal at all.
 
 ## What this layout does not solve
 
