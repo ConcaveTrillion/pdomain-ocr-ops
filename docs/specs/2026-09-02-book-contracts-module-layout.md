@@ -42,14 +42,15 @@ pdomain_book_contracts/
     ocr/             character.py, glyph_annotations.py, provenance.py,
                      review.py, gt_orphans.py, blob_protocol.py
     layout/          types.py, regions.py
-    sources/pgdp/    results.py, f2/{tokens,parser,offsets,project_rules,warnings}.py
+    sources/pgdp/    rounds.py, offsets.py,
+                     f2/{tokens,parser,project_rules,warnings}.py
     licensing.py
     _schemas.py
 ```
 
 ## What moved and why
 
-Three changes are deliberate. Everything else keeps its name.
+Four changes are deliberate. Everything else keeps its name.
 
 **All alignment lives in `matching/`.** `typography/alignment.py`, 812 lines,
 moves beside the matching engine. It aligns two texts, which is what `matching/`
@@ -64,7 +65,28 @@ builds the comparison views alignment consumes, and `ocr/text_normalize.py` and
 None of them is about typography or OCR results specifically. `matching/`
 imports `text/`; the reverse never happens.
 
-**Two renames resolve collisions.** `layout/geometry.py` becomes
+**The round container separates from the F2 markup.** `pgdp/f2/offsets.py`
+contains no reference to F2 markup at all. It reads the round-JSON container, a
+JSON object mapping page keys to page text, and tracks byte offsets into it.
+Every PGDP round shares that container; only the markup inside differs.
+
+`pdomain-source-data` already relies on this. It reads P3 with
+`read_lexical_f2_index` and `read_lexical_f2_page`, then compares the two rounds
+to decode words split across a page break. The functions are named for F2 and
+used for P3.
+
+So `offsets.py` moves up beside `rounds.py`, out of `f2/`, and its functions
+lose the `f2` in their names. The `f2/` package keeps only what is genuinely
+F2-specific: tokens, the markup parser, project rules, and warnings.
+
+There is no `p3.py`. P3 carries no markup, so it needs nothing beyond the shared
+container. A module for it would have no contents. A later round parser, or
+another source with its own container, plugs in beside `f2/`.
+
+`pgdp_results.py` becomes `rounds.py`, because it reads any round rather than
+some thing called a result.
+
+**Two further renames resolve collisions.** `layout/geometry.py` becomes
 `layout/regions.py`, because it describes page regions and the name already
 means spatial value types one level up. `schemas/_helpers.py` becomes
 `_schemas.py` at the package root, since one shared pydantic constant does not
