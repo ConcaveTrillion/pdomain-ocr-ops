@@ -341,6 +341,32 @@ and that is separate work.
 through `importlib.import_module()` with string names, which no static search
 finds. Search for import strings, not just import statements.
 
+- [ ] **Step 0: Pin the contracts package to the index in every consumer**
+
+Do this before releasing book-tools, not after. Every consumer declares the
+private index with `explicit = true`, which tells uv to use that index only for
+packages explicitly pinned to it. Book-tools now depends on
+`pdomain-book-contracts`, so the first release carrying that dependency makes
+uv look for the contracts package on PyPI, fail to find it, and refuse to
+resolve.
+
+Verified on 2026-09-02. The failure is
+`Because pdomain-book-contracts was not found in the package registry ...
+unsatisfiable`. The fix is one line per consumer under `[tool.uv.sources]`:
+
+```toml
+pdomain-book-contracts = { index = "pdomain-index-pip" }
+```
+
+Note that `pdomain-source-data` names its index `pdomain` rather than
+`pdomain-index-pip`, so match each repo's own name.
+
+Do not fix this by dropping `explicit = true`. That would make uv search the
+private index for every package, which invites dependency confusion.
+
+The pin changes no lockfile until book-tools is released, so it is inert when
+landed and load-bearing afterwards.
+
 - [ ] **Step 3: Bump the paired contract consumers together**
 
 `pdomain-source-data` and `pdomain-ocr-labeler-spa` are the two ends of the
