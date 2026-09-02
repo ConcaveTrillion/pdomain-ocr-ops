@@ -34,9 +34,9 @@ up with the same accidental shape it has today.
 ```text
 pdomain_book_contracts/
     geometry/        point.py, bounding_box.py
-    text/            normalization.py, label_normalization.py, text_normalize.py
-    typography/      labels.py, spans.py, records.py, annotations.py,
-                     exchange.py, book_manifest.py, review.py
+    text/            label_normalization.py, text_normalize.py
+    typography/      labels.py, spans.py, normalization.py, records.py,
+                     annotations.py, exchange.py, book_manifest.py, review.py
     matching/        alignment.py, engine.py, models.py, legacy_projection.py,
                      pgdp_continuations.py, match_type.py, character_groups.py
     ocr/             character.py, glyph_annotations.py, provenance.py,
@@ -59,11 +59,19 @@ typography's first consumer. The two stdlib enum modules it depends on,
 `match_type.py` and `character_groups.py`, come from `ocr/` for the same reason:
 they are matching vocabulary, not OCR results.
 
-**Text transformation gets its own package.** `typography/normalization.py`
-builds the comparison views alignment consumes, and `ocr/text_normalize.py` and
-`ocr/label_normalization.py` do related work from a different neighbourhood.
-None of them is about typography or OCR results specifically. `matching/`
-imports `text/`; the reverse never happens.
+**Text transformation gets its own package, but normalization stays put.**
+`ocr/text_normalize.py` and `ocr/label_normalization.py` move to `text/`. Both
+import nothing but the standard library, so `text/` genuinely has no internal
+dependencies.
+
+`typography/normalization.py` stays in `typography/`. An earlier draft of this
+spec moved it to `text/` on the grounds that it was not about typography
+specifically. That was wrong. It imports `KnowledgeState` and `StyleLabel` from
+`typography/labels.py`, and `CanonicalModel`, `StyleSpan` and `split_graphemes`
+from `typography/spans.py`, while `typography/records.py` imports
+`ComparisonOperation` back from it. Moving it created a genuine import cycle
+that failed at run time with a partially initialized module. It is built out of
+typography vocabulary, so `typography/` is where it belongs.
 
 **The round container separates from the F2 markup.** `pgdp/f2/offsets.py`
 contains no reference to F2 markup at all. It reads the round-JSON container, a
@@ -101,11 +109,11 @@ Imports flow one way, top to bottom:
 
 ```text
 geometry, text, _schemas     no internal dependencies
-typography                   depends on geometry, text, _schemas
-matching                     depends on geometry, text, typography
+typography                   depends on geometry, _schemas
+matching                     depends on geometry, typography
 ocr                          depends on geometry, typography
 layout                       depends on geometry
-sources/pgdp                 depends on typography, text
+sources/pgdp                 depends on typography
 licensing                    no internal dependencies
 ```
 
@@ -115,12 +123,30 @@ internal one honest, and a cycle here means something is in the wrong package.
 
 ## What this layout does not solve
 
-`matching/legacy_projection.py` refers to `Block`, `Page` and `Word` under
-`TYPE_CHECKING`, and those stay in `pdomain-book-tools`. The runtime boundary
-holds, because a type-checking reference imports nothing at run time. The
-package still cannot type-check alone until those annotations are dropped,
-narrowed to a protocol, or satisfied some other way. Decide that during the
-`matching/` step rather than before it.
+`matching/legacy_projection.py` used to refer to `Block`, `Page` and `Word`
+under `TYPE_CHECKING`, and those classes stay in `pdomain-book-tools`. Resolved
+during the `matching/` step with three module-private structural Protocols, so
+the package type-checks alone. The surface stayed narrow: three attributes and
+one method for words, three and one for lines, three for pages.
+
+The line and page Protocols are generic in the word type. `Block.remove_item`
+accepts `Word | Block` rather than `object`, which no non-generic Protocol
+parameter can satisfy. This only surfaced when book-tools type-checked against
+the concrete classes; the contracts package's own tests could not catch it.
+
+`geometry/bounding_box.py` keeps three back-compat wrapper methods, `refine`,
+`crop_top` and `crop_bottom`, whose implementations need cv2 and stay in
+book-tools. The first attempt at the move had them import
+`pdomain_book_tools.geometry.image_ops` at call time, which is the forbidden
+direction and left the three methods raising `ImportError` for anyone who
+installed the contracts package alone.
+
+They now dispatch through a provider registry. `image_ops.py` registers itself
+at its own import time, and an unregistered call raises a named error saying
+what to install. Registration is in `image_ops.py` rather than in
+`pdomain_book_tools/geometry/__init__.py` on purpose: putting it in the package
+`__init__` would pull cv2 into every `import pdomain_book_tools.geometry`, which
+is the weight Step 5 of the extraction plan exists to remove.
 
 `ocr/ground_truth_matching.py`, 1,297 lines, is a legacy shim superseded by
 `matching/engine.py` according to its own docstring. It is not part of this
